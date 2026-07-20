@@ -8,7 +8,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from products.models import Product
 
 class Shop(models.Model):
-    owner = models.ForeignKey('accounts.ShopOwnerProfile', on_delete=models.CASCADE, related_name='shops')
+    owner = models.ForeignKey('accounts.ShopOwnerProfile', on_delete=models.CASCADE, related_name='shops', db_index=True, null=True, blank=True)
     # Shop Related Information
     shop_name   = models.CharField(max_length=100, db_index=True, null=True, blank=True)
     shop_type   = models.CharField(max_length=100, db_index=True, null=True, blank=True)
@@ -47,7 +47,7 @@ class Shop(models.Model):
         return self.shop_name
     
 class ShopActivityLog(models.Model):
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='activity_logs')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='activity_logs', db_index=True, null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='shop_activity_logs')
     module = models.CharField(max_length=50, db_index=True) 
     action = models.CharField(max_length=255) 
@@ -62,7 +62,7 @@ class ShopActivityLog(models.Model):
         return f"{self.shop.shop_name} - {self.user.username} - {self.action}"
     
 class Coupon(models.Model):
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='shop_coupons')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='shop_coupons', db_index=True, null=True, blank=True)
     user = models.ManyToManyField(
         settings.AUTH_USER_MODEL, 
         null=True, 
@@ -91,8 +91,8 @@ class CouponActivityLog(models.Model):
         ('EDIT', 'Edited'),
         ('DELETE', 'Deleted'),
     )
-    shop = models.ForeignKey('Shop', on_delete=models.CASCADE, related_name='coupon_activities')
-    user = models.ForeignKey('accounts.ShopOwnerProfile', on_delete=models.SET_NULL, null=True) 
+    shop = models.ForeignKey('Shop', on_delete=models.CASCADE, related_name='coupon_activities', db_index=True, null=True, blank=True)
+    user = models.ForeignKey('accounts.ShopOwnerProfile', on_delete=models.SET_NULL, null=True, blank=True) 
     coupon_code = models.CharField(max_length=50)
     action = models.CharField(max_length=10, choices=ACTION_CHOICES)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -111,9 +111,9 @@ class Events(models.Model):
         ('expired', 'Expired'),
     )
     
-    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE, related_name='shop_app_events', db_index=True)
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE, related_name='shop_app_events', db_index=True, null=True, blank=True)
     title = models.CharField(max_length=255, verbose_name="Event Title")
-    slug = models.SlugField(blank=True, max_length=255) # max_length বাড়ানো হয়েছে
+    slug = models.SlugField(blank=True, max_length=255) # max_length বাড়ানো হয়েছে
     description = models.TextField(blank=True, null=True)
     discount_percentage = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
     banner_desktop = models.ImageField(upload_to='events/desktop/')
@@ -185,7 +185,7 @@ class EventActivity(models.Model):
         return f"{self.event_title_backup} - {self.get_action_display()} by {user_str}"
 
 class ShopSocialMedia(models.Model):
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='social_links')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='social_links', db_index=True, null=True, blank=True)
     platform_name = models.CharField(max_length=50) 
     profile_url = models.URLField()
     is_active = models.BooleanField(default=True)
@@ -195,7 +195,7 @@ class ShopSocialMedia(models.Model):
         return f"{self.shop.shop_name} - {self.platform_name}"
 
 class ShopMedia(models.Model):
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='shop_media')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='shop_media', db_index=True, null=True, blank=True)
     title = models.CharField(max_length=100)
     file = models.ImageField(upload_to='shop_media/')
     media_type = models.CharField(max_length=20, default='Banner') 
@@ -226,7 +226,7 @@ class SubscriptionPlan(models.Model):
 
 class ShopSubscription(models.Model):
     shop = models.OneToOneField('shops.Shop', on_delete=models.CASCADE, related_name='current_subscription')
-    plan = models.ForeignKey('shops.SubscriptionPlan', on_delete=models.PROTECT)
+    plan = models.ForeignKey('shops.SubscriptionPlan', on_delete=models.PROTECT, related_name='subscriptions')
     start_date = models.DateField(auto_now_add=True)
     expire_date = models.DateField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -243,7 +243,7 @@ class ShopSubscription(models.Model):
         super().save(*args, **kwargs)
         
 class ShopNotification(models.Model):
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='notifications')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='notifications', db_index=True, null=True, blank=True)
     title = models.CharField(max_length=255)
     message = models.TextField()
     is_read = models.BooleanField(default=False)

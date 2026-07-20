@@ -12,7 +12,7 @@ USE_I18N = True
 USE_TZ = True
 
 SECRET_KEY = 'django-insecure-r@b-w_@w@p!f0345q5wn4bv8st+%5(rxyz4jba62w#u=r(@s00'
-DEBUG = True
+DEBUG = False
 AUTH_USER_MODEL = 'accounts.User'
 ALLOWED_HOSTS = ['*']
 
@@ -94,7 +94,7 @@ WSGI_APPLICATION = 'single_E_comerce.wsgi.application'
 # }
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'), # Railway এর পরিবেশ পরিবর্তনশীল ডাটাবেজ ইউআরএল
+        default=os.environ.get('postgresql://postgres:BtxYJobTrgTvBwwbMjtVZsLNessSjEbf@postgres.railway.internal:5432/railway'), # Railway এর পরিবেশ পরিবর্তনশীল ডাটাবেজ ইউআরএল
         conn_max_age=600,
         conn_health_checks=True,
     )
