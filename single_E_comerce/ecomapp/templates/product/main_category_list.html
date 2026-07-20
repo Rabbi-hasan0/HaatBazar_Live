@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %} Home | Ecommerce {% endblock %}
+
+{% block content %}
+<style>
+    /* Custom Styles for Modern UI */
+    .customer-list-section {
+        {% comment %} background-color: #f8f9fa; {% endcomment %}
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+    .title-box {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    .page-title h3 {
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    .breadcrumbs-list {
+        display: flex;
+        gap: 10px;
+        list-style: none;
+        padding: 0;
+        font-size: 14px;
+    }
+    .breadcrumbs-list a {
+        color: #64748b;
+        text-decoration: none;
+    }
+    .primary-button {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white !important;
+        padding: 10px 20px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+    }
+    .primary-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+    }
+    .listing-box {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+    .custom-table thead th {
+        background-color: #f1f5f9;
+        color: #475569;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        padding: 15px;
+        border: none;
+    }
+    .custom-table tbody tr {
+        transition: all 0.2s;
+    }
+    .custom-table tbody tr:hover {
+        background-color: #f8fafc;
+        transform: scale(1.002);
+    }
+    .custom-table td {
+        padding: 15px;
+        vertical-align: middle;
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-active {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    .status-inactive {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    .category-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+    }
+    .pagination .page-link {
+        border-radius: 6px;
+        margin: 0 3px;
+        color: #4f46e5;
+        border: 1px solid #e2e8f0;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #4f46e5;
+        border-color: #4f46e5;
+    }
+</style>
+
+<section class="customer-list-section">
+    <div class="container">
+        <div class="content">
+            <div class="title-box">
+                <div>
+                    <div class="page-title">
+                        <h3>Main Category List</h3>
+                    </div>
+                    <div class="breadcrumbs">
+                        <ul class="breadcrumbs-list">
+                            <li><a href="{% url 'setting_dashboard' %}">Home</a></li>
+                            <li><a href="{% url 'product_main_category_list' %}" style="color: #4f46e5; font-weight: 500;">Main Category List</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="top-button">
+                    <a class="button primary-button" href="{% url 'add_product_main_category' %}">
+                        <i class="fas fa-plus"></i> Add New Category
+                    </a>
+                </div>
+            </div>
+
+            <div class="listing-box">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger" style="border-radius: 8px; font-size: 14px; margin-bottom: 20px;">
+                            <i class="fas fa-exclamation-circle"></i> {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SL</th>
+                                <th class="text-center">Image</th>
+                                <th class="text-left">Category Name</th>
+                                <th class="text-center">Order</th>
+                                <th class="text-left">Created Date</th>
+                                <th class="text-center">Status</th>
+                                {% comment %} <th class="text-center">Action</th> {% endcomment %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in product_main_categories %}
+                            <tr>
+                                <td class="text-center" style="font-weight: 600; color: #64748b;">{{ forloop.counter }}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'product_main_category_details' data.id %}">
+                                        {% if data.cat_image %} 
+                                            <img src="{{ data.cat_image.url }}" alt="category" class="category-img">
+                                        {% else %}
+                                            <img src="/static/images/icons/default.png" alt="default" class="category-img">
+                                        {% endif %}
+                                    </a>
+                                </td>
+                                <td class="text-left">
+                                    <span style="font-weight: 600; color: #1e293b; font-size: 15px;">{{ data.main_cat_name }}</span> 
+                                </td>
+                                <td class="text-center"><span class="badge bg-light text-dark" style="padding: 6px 10px;">{{ data.cat_ordering }}</span></td>
+                                <td class="text-left" style="color: #64748b; font-size: 14px;">{{ data.created_at|date:"d M, Y" }}</td>
+                                <td class="text-center">
+                                    {% if data.is_active %}
+                                        <span class="status-badge status-active">Active</span>
+                                    {% else %}
+                                        <span class="status-badge status-inactive">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                {% comment %} <td class="text-center">
+                                    <div style="display: flex; gap: 8px; justify-content: center;">
+                                        <a href="{% url 'edit_product_main_category' data.id %}" style="color: #4f46e5; background: #eef2ff; padding: 8px; border-radius: 6px;" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'product_main_category_details' data.id %}" style="color: #64748b; background: #f1f5f9; padding: 8px; border-radius: 6px;" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td> {% endcomment %}
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center" style="padding: 60px; color: #94a3b8;">
+                                    <img src="/static/images/icons/empty.svg" alt="No data" style="width: 80px; opacity: 0.5; margin-bottom: 10px;"><br>
+                                    No Category Found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if last_page_number != 1 %}
+                <div class="pagination-wrapper mt-4">
+                    <nav aria-label="navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if product_main_categories.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_main_categories.previous_page_number }}{% if params %}&{{ params }}{% endif %}">
+                                        &laquo;
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for i in paginator_list %}
+                                <li class="page-item {% if product_main_categories.number == i %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ i }}{% if params %}&{{ params }}{% endif %}">{{ i }}</a>
+                                </li>
+                            {% endfor %}
+        
+                            {% if product_main_categories.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_main_categories.next_page_number }}{% if params %}&{{ params }}{% endif %}">
+                                        &raquo;
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav> 
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

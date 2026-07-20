@@ -1,0 +1,127 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Hot Deals & Discounts {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="row mb-5">
+            <div class="col-12 text-center p-5 rounded-3 shadow-sm text-white" style="background: linear-gradient(135deg, #dc3545, #fd7e14);">
+                <h1 class="fw-bold"><i class="fas fa-percentage me-2"></i>Mega Discount Offers!</h1>
+                <p class="mb-0 opacity-75">Grab your favorites before the stock runs out. Exclusive prices just for you!</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative product-card">
+                    
+                    {% if product.discount_percentage and product.discount_percentage > 0 %}
+                        <span class="position-absolute top-0 start-0 m-2 badge bg-danger text-white rounded-pill px-2.5 py-1.5 shadow-sm fs-7" style="z-index: 4;">
+                            Save {{ product.discount_percentage }}% OFF
+                        </span>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'toggle_wishlist' shop_slug=global_shop.shop_slug slug=product.product_slug %}" method="POST" target="discount_dummyframe" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm {% if product.id in user_wishlist_ids %}active{% endif %}" 
+                                    style="z-index: 5; border: none; background: #ffffff; width: 32px; height: 32px;"
+                                    onclick="this.classList.toggle('active'); updateHeaderWishlistCount(this);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                </svg>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'customer_login' %}" 
+                        class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm text-decoration-none" 
+                        style="z-index: 5; background: #ffffff; width: 32px; height: 32px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+
+                    <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="bg-light d-flex align-items-center justify-content-center w-100 p-3" style="height: 220px;">
+                        {% if product.product_image %}
+                            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="img-fluid h-100 w-100 object-fit-contain">
+                        {% else %}
+                            <div class="text-muted text-center">
+                                <i class="far fa-image display-6 d-block mb-1"></i>
+                                <span class="small">No Image</span>
+                            </div>
+                        {% endif %}
+                    </a>
+
+                    <div class="card-body d-flex flex-column justify-content-between p-3">
+                        <div>
+                            <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-decoration-none text-dark fw-semibold d-block mb-1 text-truncate" title="{{ product.product_name }}">
+                                {{ product.product_name }}
+                            </a>
+                            
+                            <div class="d-flex align-items-center gap-2">
+                                {% if product.discount_price %}
+                                    <span class="fw-bold text-danger fs-5">৳{{ product.discount_price }}</span>
+                                    <span class="text-muted text-decoration-line-through small">৳{{ product.price }}</span>
+                                {% else %}
+                                    <span class="fw-bold text-dark fs-5">৳{{ product.price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="btn btn-sm btn-danger w-100 mt-3 rounded-pill fw-semibold">
+                            Order Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="text-muted mb-3">
+                    <i class="fas fa-tags display-1 text-light"></i>
+                </div>
+                <h4 class="text-muted fw-semibold">No Discounted Products Available Right Now!</h4>
+                <p class="text-muted small">Stay tuned for our upcoming mega sales campaigns.</p>
+                <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="btn btn-outline-secondary rounded-pill px-4 mt-2">Back to Shop</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <iframe name="discount_dummyframe" id="discount_dummyframe" style="display: none;"></iframe>
+
+    <script>
+    function updateHeaderWishlistCount(button) {
+        const countSpan = document.getElementById('wishlist-count');
+        if (!countSpan) return;
+        let currentCount = parseInt(countSpan.innerText) || 0;
+        if (button.classList.contains('active')) {
+            countSpan.innerText = currentCount + 1;
+        } else {
+            countSpan.innerText = Math.max(0, currentCount - 1);
+        }
+    }
+    </script>
+
+    <style>
+        .btn-favorite { color: #ccc; transition: all 0.2s ease; }
+        .btn-favorite.active { color: #ef4444 !important; }
+        .product-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+        .fs-7 { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+    </style>
+{% endblock %}
+
+{% block delivery_note %}
+	{% include 'customer_site/dashboard/delivery_note.html' %}
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

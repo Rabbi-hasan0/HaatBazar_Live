@@ -1,0 +1,248 @@
+@media only screen and (min-width: 991px) {
+    .nav-menu {
+        display: block;
+    }
+    .fico-mobile_menu {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 1280px) {}
+
+@media only screen and (min-width: 1360px) {}
+
+@media only screen and (min-width: 1600px) {
+    .woven-air{
+        max-width: 1230px;
+        margin: 0 auto;
+    }
+}
+
+@media only screen and (min-width: 1800px) {
+    .products-section {
+        min-height: 830px;
+    }
+}
+@media only screen and (min-width: 1920px) {
+    .products-section {
+        min-height: 830px;
+    }
+    .woven-air {
+        max-width: 1390px;
+    }
+    .woven-air .about-image {
+        max-width: 690px;
+    }
+    .register-banner {
+        max-width: 1075px;
+    }
+    .select-input-option select,
+    .register-content .input-content input {
+        height: 48px;
+    }
+    .register-form {
+        max-width: 490px;
+    }
+}
+
+@media only screen and (max-width: 1920px) {}
+
+@media only screen and (max-width: 1599px) {}
+
+@media only screen and (max-width: 1359px) {}
+
+@media only screen and (max-width: 1279px) {}
+
+@media only screen and (max-width: 1279px) {}
+
+@media only screen and (max-width: 1024px) {}
+
+@media only screen and (max-width: 991px) {
+    .pairs-product {
+        padding-bottom: 0;
+    }
+    .product-item {
+        margin-bottom: 40px;
+    }
+    .products-section {
+        padding-bottom: 50px;
+    }
+    #search-btn img, .profile-nav img {
+        width: 23px;
+    }
+    .profile-nav img {
+        position: relative;
+        top: -2px;
+        width: 22px;
+    }
+    .fico-mobile_menu {
+        display: flex;
+    }
+    .elect-short-box {
+        display: none;
+    }
+    .baida-boucle-collection {
+        padding-top: 50px;
+        padding-bottom: 0;
+    }
+    .collections-box, .category-box {
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
+    .salone-milanocollection {
+        padding: 40px 0;
+    }
+    .salone-box h3.sub-title {
+        margin-top: 15px;
+    }
+    h3.sub-title {
+        font-size: 32px;
+        line-height: 36px;
+        padding-left: 0;
+    }
+    .boucle-slider-text {
+        padding-right: 20px;
+    }
+    .main-nav-menu ul li a {
+        display: block;
+        line-height: 31px;
+        padding: 5px 10px;
+    }
+    .main-nav-menu ul li a:hover {
+        display: block;
+        line-height: 31px;
+    }
+
+    .main-nav-menu ul {
+        display: block;
+        width: 100%;
+        line-height: inherit;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+    }
+
+    .nav-top-left .main-nav-menu ul li {
+        margin-left: 0;
+        border-bottom: 1px solid rgb(0 0 0 / 21%);
+    }
+    .nav-top-left .main-nav-menu ul li:last-child {
+        margin-left: 0;
+        border-bottom: 0px solid rgb(0 0 0 / 21%);
+    }
+
+    .header .header-top {
+        padding-bottom: 15px;
+        position: relative;
+    }
+
+    .fico-logo img {
+        height: auto;
+        margin-top: 6px;
+        width: 100%;
+    }
+
+    .nav-top-left .fico-logo {
+        margin-right: 20px;
+        display: flex;
+    }
+
+    .nav-menu.main-nav-menu {
+        position: absolute;
+        display: none;
+        top: 100%;
+        left: 0;
+        z-index: 9;
+        background-color: #faf7f2;
+        width: calc(100% + 40px);
+        margin-left: -20px;
+    }
+
+    .fico-mobile_menu {
+        width: 20px;
+        display: flex;
+        margin-right: 10px;
+        height: 100%;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .fico-mobile_menu span {
+        height: 3px;
+        display: block;
+        width: 100%;
+        background-color: #000000;
+        position: relative;
+        margin-bottom: 3px;
+    }
+
+    .fico-mobile {
+        width: 100%;
+        position: relative;
+        top: -6px;
+    }
+
+    .fico-mobile_menu span:last-child {
+        margin-bottom: 0px;
+    }
+
+    .footer-text-menu ul {
+        margin-bottom: 20px;
+    }
+
+    .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .category-list {
+        display: block;
+
+    }
+
+    .nav-menu {
+        display: none;
+    }
+
+    .nav-top-right {
+        display: block;
+    }
+
+    .category-list .category-item {
+        width: 100%;
+        max-width: 390px;
+        margin: 0 auto;
+    }
+
+    .salone-milano-item {
+        width: 100%;
+    }
+
+    .salone-milano-box {
+        display: block;
+    }
+
+    .salone-box {
+        max-width: 100%;
+    }
+
+    .boucle-text {
+        width: 100%;
+    }
+}
+
+@media only screen and (max-width: 800px) {}
+
+@media only screen and (max-width: 650px) {}
+
+@media only screen and (max-width: 480px) {}
+
+@media only screen and (max-width: 420px) {}
+@media only screen and (max-width: 393px) {}
+
+@media only screen and (max-width: 375px) {}
+
+@media only screen and (max-width: 350px) {}
+
+@media only screen and (max-width: 320px) {}

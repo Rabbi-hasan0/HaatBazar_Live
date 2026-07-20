@@ -1,0 +1,119 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Rabbi's Mart - FoodMart Style {% endblock %}
+{% load static %}
+
+{% block linkcss %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<link rel="stylesheet" href="/static/css/user/customer_home.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <div class="container-fluid p-0">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="swiper main-swiper h-100">
+                        <div class="swiper-wrapper">
+                            {% for event in slider_events %}
+                            <div class="swiper-slide main-slide-item">
+                                <div class="row g-0 w-100 align-items-center">
+                                    <div class="col-lg-4 slide-content-area">
+                                        <span class="text-warning fw-bold mb-2 d-block" style="font-size: 20px; font-family: 'Playfair Display', serif;">
+                                            {{ event.discount_percentage }}% Discount on this {{ event.product.product_name }}
+                                        </span>
+                                        <h2 class="fw-bold text-dark mb-4" style="font-size: 2.5rem; line-height: 1.1;">{{ event.title }}</h2>
+                                        <a href="#" class="btn-shop-now">SHOP NOW</a>
+                                    </div>
+                                    <div class="col-lg-8 slide-image-area" 
+                                         style="background-image: url('{{ event.banner_desktop.url }}');">
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="swiper-slide main-slide-item">
+                                <div class="w-100 text-center"><h2>Fresh Smoothie & Summer Juice</h2></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="promo-banner banner-1">
+                        <span class="text-dark" style="font-size: 20px; font-family: 'Playfair Display', serif;">20% Off</span>
+                        <div style="width: 40px; height: 1px; background: #ccc; margin: 10px 0;"></div>
+                        <h3>Fruits & <br>Vegetables</h3>
+                        <a href="#" class="shop-collection-link">Shop Collection →</a>
+                    </div>
+                    <div class="promo-banner banner-2">
+                        <span class="text-dark" style="font-size: 20px; font-family: 'Playfair Display', serif;">15% Off</span>
+                        <div style="width: 40px; height: 1px; background: #ccc; margin: 10px 0;"></div>
+                        <h3>Baked <br>Products</h3>
+                        <a href="#" class="shop-collection-link">Shop Collection →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="section-title d-flex justify-content-between align-items-center mb-4">
+            <span class="sub-heading">Category</span>
+            <a href="#" class="btn btn-link text-decoration-none text-muted">View All →</a>
+        </div>
+        <div class="swiper category-swiper">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <a href="#" class="cat-item">
+                        <img src="https://cdn-icons-png.flaticon.com/512/2329/2329865.png" alt="Veg">
+                        <h5 class="m-0 text-dark">Fruits & Veges</h5>
+                    </a>
+                </div>
+                </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="section-title mb-4">
+            <span class="sub-heading">Newly Arrived Brands</span>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="product-card">
+                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+                    <h4 class="h6 fw-bold">{{ product.product_name }}</h4>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="price">{{ product.current_price.currency.currency_icon }}{{ product.current_price.sale_price }}</span>
+                        <button class="btn btn-sm btn-outline-success rounded-circle"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block linkScript %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    new Swiper(".main-swiper", {
+        pagination: { el: ".swiper-pagination", clickable: true },
+        autoplay: { delay: 5000 },
+        loop: true,
+        speed: 800,
+    });
+
+    new Swiper(".category-swiper", {
+        slidesPerView: 2,
+        spaceBetween: 20,
+        breakpoints: {
+            640: { slidesPerView: 3 },
+            1024: { slidesPerView: 6 },
+        }
+    });
+</script>
+{% endblock %}

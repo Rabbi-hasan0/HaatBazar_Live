@@ -1,0 +1,206 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} {{ shop_first_half }} | {{ shop_second_half }} {% endblock %}
+
+{% block content %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #49bd4e 0%, #7c3aed 100%);
+        color: white;
+        padding: 30px 0;
+        border-radius: 0 0 2rem 2rem;
+    }
+    .search-box-home {
+        background: white;
+        padding: 2px;
+        border-radius: 50px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .search-box-home input {
+        border: none;
+        padding-left: 20px;
+    }
+    .search-box-home input:focus {
+        box-shadow: none;
+    }
+    .search-box-home button {
+        border-radius: 50px;
+        padding: 12px 25px;
+    }
+    .shop-card {
+        border: none;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        background: white;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    }
+    .shop-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    }
+    .shop-banner {
+        height: 140px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    .shop-logo-container {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: white;
+        padding: 4px;
+        position: absolute;
+        bottom: -35px;
+        left: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .shop-logo-container img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .badge-status {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .rating-star {
+        color: #ffc107;
+    }
+    .review-section {
+        background-color: #ffffff;
+        border-radius: 20px;
+        padding: 60px 0;
+    }
+    .review-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 25px;
+        border-left: 4px solid #4f46e5;
+    }
+</style>
+<div class="container">
+    <section class="hero-section mb-5">
+        <div class="container text-center">
+            <h2 class="fw-bold mb-3">Explore Our Top Registered Shops</h2>
+            <p class="lead mb-4 opacity-75">Find the best products from verified sellers all around the platform.</p>
+            
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <form method="GET" action="" class="search-box-home d-flex align-items-center">
+                        <i class="fa-solid fa-magnifying-glass text-muted ms-3"></i>
+                        <input type="text" name="shop_search" class="form-control" value="{{ search_query }}" placeholder="Search for shops...">
+                        <button type="submit" class="btn btn-primary bg-gradient">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold m-0">View Our Shops</h2>
+                <p class="text-muted m-0">Handpicked businesses providing top-tier service</p>
+            </div>
+            {% if search_query %}
+                <a href="." class="btn btn-outline-secondary btn-sm rounded-pill px-3">Clear Search</a>
+            {% endif %}
+        </div>
+        
+        <div class="row g-4">
+            {% for shop in shops %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card shop-card h-100">
+                    <div class="shop-banner" style="background-image: url('{% if shop.banner_image %}{{ shop.banner_image.url }}{% else %}<i class="fas fa-box text-slate-300 text-base"></i>{% endif %}');">
+                        {% if shop.is_active %}
+                            <span class="badge bg-success badge-status">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger badge-status">Inactive</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body pt-5 position-relative">
+                        <div class="shop-logo-container">
+                            <img src="{% if shop.shop_logo %}{{ shop.shop_logo.url }}{% else %}<i class="fas fa-box text-slate-300 text-base"></i>{% endif %}" alt="{{ shop.shop_name }} Logo">
+                        </div>
+                        
+                        <h5 class="card-title fw-bold mb-1">{{ shop.shop_name }}</h5>
+                        <p class="text-muted small mb-2"><i class="fa-solid fa-tags me-1"></i> {{ shop.shop_type|default:"General Store" }}</p>
+                        
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rating-star me-2">
+                                <i class="fa-solid fa-star"></i>
+                                <span class="fw-bold small ms-1">{{ shop.avg_rating|default:"0.0"|floatformat:1 }}</span>
+                            </div>
+                            <span class="text-muted small">({{ shop.total_reviews|default:0 }} Reviews)</span>
+                        </div>
+                        
+                        <p class="card-text text-secondary small">{{ shop.shop_description|truncatewords:15 }}</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-3">
+                        <a href="{% url 'user_dashboard' shop_slug=shop.shop_slug %}" class="btn btn-light w-100 rounded-pill fw-medium text-primary">Explore Shop</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fa-solid fa-store-slash text-muted display-4 mb-3"></i>
+                <p class="text-muted">No shops found matching your criteria.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="review-section bg-white border-top border-bottom py-5 mb-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">What Customers are Saying</h2>
+                <p class="text-muted">Real reviews from people shopping on our HaatBazar</p>
+            </div>
+
+            <div class="row g-4">
+                {% for review in recent_reviews %}
+                <div class="col-md-4">
+                    <div class="review-card h-100 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="rating-star mb-2">
+                                <i class="fa-solid fa-star"></i> 
+                                <span class="fw-bold text-dark ms-1">{{ review.rating }}.0</span>
+                            </div>
+                            <p class="text-secondary small fst-italic">"{{ review.comment|default:"No comment left." }}"</p>
+                        </div>
+                        
+                        <div class="d-flex align-items-center mt-3">
+                            {% if review.customer.profile_pic %}
+                                <img src="{{ review.customer.profile_pic.url }}" class="rounded-circle me-2" width="35" height="35" style="object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="fw-bold small">
+                                {{ review.customer.user.get_full_name|default:review.customer.user.username }}
+                            </div>
+                            <span class="text-muted mx-2">|</span>
+                            <span class="text-primary small fw-medium">Verified Buyer</span>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted small">No reviews yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

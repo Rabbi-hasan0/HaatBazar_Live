@@ -1,0 +1,530 @@
+<div class="card border-0 shadow-sm mb-4 bg-white">
+    <div class="card-body p-3">
+        <div class="row align-items-center g-3">
+            
+            <div class="col-md-4">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-primary-subtle text-primary rounded-3 p-2 me-3">
+                        <i class="fas fa-box fa-lg"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0">Products</h5>
+                        <p class="text-muted small mb-0">Total: <span class="badge bg-secondary-subtle text-dark rounded-pill">{{ products|length }}</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <form action="{% url 'product_search' %}" method="GET" class="position-relative">
+                    <i class="fa-solid fa-magnifying-glass position-absolute ms-3 mt-2 text-muted" style="top: 2px;"></i>
+                    <input type="search" name="q" class="form-control ps-5 rounded-pill shadow-none" placeholder="Search sub categories..." value="{{ request.GET.q|default:'' }}">
+                </form>
+            </div>
+
+            <div class="col-md-4 text-end">
+                <div class="d-flex justify-content-md-end gap-2">
+                    <button type="button" class="btn btn-sm btn-primary px-3 rounded-pill d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                        <i class="fas fa-plus me-2"></i> <span>Add Product</span>
+                    </button>
+
+                    <button class="btn btn-sm btn-light border shadow-xs" onclick="location.reload();" title="Refresh Page">
+                        <i class="fas fa-sync-alt text-secondary"></i>
+                    </button>
+
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light border" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                            <li><a class="dropdown-item small" href="#"><i class="fas fa-file-export me-2"></i>Export Excel</a></li>
+                            <li><a class="dropdown-item small" href="#"><i class="fas fa-file-pdf me-2"></i>Print PDF</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item small text-danger" href="#"><i class="fas fa-trash-alt me-2"></i>Bulk Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="filter-section mb-4 bg-white p-3 rounded shadow-sm border">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="small fw-bold text-muted">Sort By</label>
+            <select name="sort" class="form-select form-select-sm">
+                <option value="">Default (Newest)</option>
+                <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                <option value="most_selling" {% if request.GET.sort == 'most_selling' %}selected{% endif %}>Most Popular</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="small fw-bold text-muted">Stock Status</label>
+            <select name="stock" class="form-select form-select-sm">
+                <option value="">All Products</option>
+                <option value="low_stock" {% if request.GET.stock == 'low_stock' %}selected{% endif %}>Low Stock (<= 5)</option>
+                <option value="out_of_stock" {% if request.GET.stock == 'out_of_stock' %}selected{% endif %}>Out of Stock (0)</option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-sm btn-primary w-100">
+                <i class="fas fa-filter me-1"></i> Filter
+            </button>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'product_list' %}" class="btn btn-sm btn-light border w-50">
+                <i class="fas fa-sync-alt me-1"></i> Reset
+            </a>
+        </div>
+
+        <div class="col-md-2 text-end">
+            <div class="d-flex align-items-center bg-light border rounded-pill px-3 py-1 shadow-sm">
+                <i class="fas fa-box-open text-primary me-2 small"></i>
+                <p class="small text-dark mb-0 fw-medium">
+                    Showing <span class="text-primary fw-bold">{{ all_products|length }}</span> 
+                    of <span class="badge bg-primary rounded-pill ms-1">{{ all_products.paginator.count }}</span>
+                </p>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<div class="table-responsive">
+    <table class="table custom-table align-middle" style="min-width: 1000px;">
+        <thead>
+            <tr>
+                <th class="text-center">SL</th>
+                <th class="text-center">Img</th>
+                <th>Product Name</th>
+                <th>Category & Sub</th>
+                <th>Price</th>
+                <th class="text-center"> Discount Price</th>
+                <th class="text-center">Stock</th>
+                <th>Created At</th>
+                <th>Total Sold</th>
+                <th class="text-center">Status</th>
+                <th>Last Updated</th>
+                <th class="text-end">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in all_products %}
+            <tr>
+                <td class="text-center text-muted">{{ forloop.counter0|add:all_products.start_index }}</td>
+                <td class="text-center">
+                    {% if data.product_image %}
+                        <img src="{{ data.product_image.url }}" class="rounded border" style="width: 45px; height: 45px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light rounded border d-inline-block" style="width: 45px; height: 45px;"></div>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="fw-bold text-dark">{{ data.product_name|truncatechars:25 }}</div>
+                    <div class="text-muted" style="font-size: 11px;">ID: #PROD-{{ data.id }}</div>
+                </td>
+                <td>
+                    <div class="small fw-semibold text-primary">{{ data.main_category.main_cat_name }}</div>
+                    <div class="small text-muted">{% if data.sub_category %}{{ data.sub_category.sub_cat_name }}{% else %}---{% endif %}</div>
+                </td>
+                <td>
+                    {% comment %} {% if data.discount_price and data.discount_price < data.price %}
+                        <div class="fw-bold text-success">{{ data.discount_price }}</div>
+                        <div class="text-muted text-decoration-line-through" style="font-size: 11px;">{{ data.price }}</div>
+                    {% else %} {% endcomment %}
+                        <div class="fw-bold text-dark">{{ data.price }}</div>
+                    {% comment %} {% endif %} {% endcomment %}
+                </td>
+                <td class="text-center">
+                    {% if data.discount_price and data.discount_price < data.price %}
+                        <div class="fw-bold text-success">{{ data.discount_price }}</div>
+                    {% else %}
+                        <div class="fw-bold text-dark">---</div>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if data.stock == 0 %}
+                        <span class="badge bg-secondary-subtle text-secondary border shadow-sm px-2">
+                            <i class="fas fa-times-circle me-1"></i> Out of Stock
+                        </span>
+                    {% elif data.stock <= 5 %}
+                        <span class="badge bg-danger shadow-sm px-3">
+                            {{ data.stock }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-info text-dark shadow-sm px-3">
+                            {{ data.stock }}
+                        </span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <div style="font-size: 12px;" class="fw-semibold">{{ data.created_at|date:"d M, Y" }}</div>
+                    <div style="font-size: 11px;" class="text-muted">{{ data.created_at|time:"h:i A" }}</div>
+                </td>
+                <td class="text-center">
+                    <div class="fw-bold text-dark">{{ data.total_sold }}</div>
+                </td>
+                <td>
+                    {% if data.is_active %}
+                        <span class="badge bg-success-subtle text-success border px-2">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger-subtle text-danger border px-2">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if data.updated_at %}
+                        <div class="fw-medium text-info" style="font-size: 13px;">{{ data.updated_at|date:"d M, Y" }}</div>
+                        <div class="text-muted" style="font-size: 11px;">{{ data.updated_at|time:"h:i A" }}</div>
+                    {% else %}
+                        <span class="text-muted small">Never updated</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">
+                    <button type="button" class="btn btn-sm btn-light border text-info view-product-btn" 
+                        data-bs-toggle="modal" data-bs-target="#viewProductModal"
+                        data-name="{{ data.product_name }}"
+                        data-img="{% if data.product_image %}{{ data.product_image.url }}{% endif %}"
+                        data-maincat="{{ data.main_category.main_cat_name }}"
+                        data-subcat="{% if data.sub_category %}{{ data.sub_category.sub_cat_name }}{% else %}N/A{% endif %}"
+                        data-price="{{ data.price }}"
+                        data-stock="{{ data.stock }}"
+                        data-desc="{{ data.description|default:'No description provided.' }}"
+                        data-status="{% if data.is_active %}Active{% else %}Inactive{% endif %}"
+                        data-sold="{{ data.total_sold }}"
+                        data-created="{{ data.created_at|date:'d M, Y' }}">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light border text-primary edit-product-btn" 
+                        data-bs-toggle="modal" data-bs-target="#editProductModal"
+                        data-id="{{ data.id }}" data-name="{{ data.product_name }}"
+                        data-mainid="{{ data.main_category.id }}" data-subid="{{ data.sub_category.id|default:'' }}"
+                        data-price="{{ data.price }}" data-stock="{{ data.stock }}"
+                        data-description="{{ data.description }}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+
+                    <button type="button" class="btn btn-sm btn-light border text-danger delete-product-btn"
+                        data-bs-toggle="modal" data-bs-target="#deleteProductModal"
+                        data-id="{{ data.id }}" data-name="{{ data.product_name }}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="12" class="text-center py-5 text-muted">
+                        <i class="fas fa-search mb-3 fa-2x"></i><br>
+                        No products found matching "<strong>{{ query }}</strong>"
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Add Product Button -->
+ <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white border-0">
+                <h5 class="fw-bold mb-0">Add New Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'add_product' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold small">Product Name*</label>
+                            <input type="text" name="product_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Main Category*</label>
+                            <select name="main_category" class="form-select" required>
+                                <option value="">Select Main Category</option>
+                                {% for cat in product_main_categories %}
+                                <option value="{{ cat.id }}">{{ cat.main_cat_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Sub Category</label>
+                            <select name="sub_category" class="form-select">
+                                <option value="">Select Sub Category</option>
+                                {% for sub in product_sub_categories %}
+                                <option value="{{ sub.id }}">{{ sub.sub_cat_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Price*</label>
+                            <input type="number" step="0.01" name="price" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Stock Quantity*</label>
+                            <input type="number" name="stock" class="form-control" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold small">Product Image</label>
+                            <input type="file" name="product_image" class="form-control">
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold small">Description</label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-info text-white border-0">
+                <h5 class="fw-bold mb-0">Edit Product</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editProductForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold small">Product Name*</label>
+                            <input type="text" name="product_name" id="edit_product_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Main Category*</label>
+                            <select name="main_category" id="edit_main_category" class="form-select" required>
+                                {% for cat in product_main_categories %}
+                                <option value="{{ cat.id }}">{{ cat.main_cat_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Sub Category</label>
+                            <select name="sub_category" id="edit_sub_category" class="form-select">
+                                <option value="">---</option>
+                                {% for sub in product_sub_categories %}
+                                <option value="{{ sub.id }}">{{ sub.sub_cat_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Price*</label>
+                            <input type="number" step="0.01" name="price" id="edit_price" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold small">Stock*</label>
+                            <input type="number" name="stock" id="edit_stock" class="form-control" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold small">Description</label>
+                            <textarea name="description" id="edit_description" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold small">New Image (Optional)</label>
+                            <input type="file" name="product_image" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light px-4 border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info text-white px-4">Update Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Delete Product Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;"> 
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                        <i class="fas fa-trash-alt fa-2x text-danger"></i>
+                    </div>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-2">Delete Product?</h4>
+                <p class="text-muted mb-4 px-2">
+                    Are you sure you want to delete <span id="del_prod_name_display" class="fw-bold text-dark text-decoration-underline"></span>{{ data.product_name }}
+                </p>
+                
+                <form id="deleteProductForm" method="POST">
+                    {% csrf_token %}
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-danger w-100 py-2 fw-semibold shadow-sm">
+                                Yes, Delete
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-light border w-100 py-2 fw-semibold text-secondary" data-bs-dismiss="modal">
+                                No, Keep it
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).on('click', '.edit-product-btn', function() {
+    const id = $(this).data('id');
+    const name = $(this).data('name');
+    const mainId = $(this).data('mainid'); // বাটনে data-mainid থাকতে হবে
+    const subId = $(this).data('subid');   // বাটনে data-subid থাকতে হবে
+    const price = $(this).data('price');
+    const stock = $(this).data('stock');
+    const description = $(this).data('description');
+
+    // ফিল্ডে ভ্যালু বসানো
+    $('#edit_product_name').val(name);
+    $('#edit_main_category').val(mainId); // এই আইডিটি <select> এর সাথে মিলতে হবে
+    $('#edit_sub_category').val(subId);   // এই আইডিটি <select> এর সাথে মিলতে হবে
+    $('#edit_price').val(price);
+    $('#edit_stock').val(stock);
+    $('#edit_description').val(description);
+    
+    // ডাইনামিক অ্যাকশন URL
+    $('#editProductForm').attr('action', "/backend/edit-product/" + id + "/");
+});
+</script>
+
+<script>
+$(document).ready(function() {
+    // ডিলিট বাটনে ক্লিক করলে এই ফাংশনটি চলবে
+    $(document).on('click', '.delete-product-btn', function() {
+        // বাটনের data attributes থেকে আইডি এবং নাম নেওয়া
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+
+        // মোডালের ভেতর নাম বসানো
+        $('#del_prod_name_display').text(name);
+
+        // ফর্মের action URL পরিবর্তন করা (যাতে সঠিক ভিউতে ডাটা যায়)
+        const actionUrl = "/backend/delete-product/" + id + "/"; 
+        $('#deleteProductForm').attr('action', actionUrl);
+        
+        // চেক করার জন্য কনসোলে দেখা (F12 চেপে চেক করতে পারেন)
+        console.log("Submitting to: " + actionUrl);
+    });
+});
+</script>
+
+
+<!-- View Product Modal Script -->
+ <div class="modal fade" id="viewProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-5 text-center">
+                        <img id="view_prod_img" src="" class="img-fluid rounded-4 shadow-sm border" style="max-height: 300px; width: 100%; object-fit: cover;">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="mb-2">
+                            <span id="view_prod_status" class="badge rounded-pill mb-2"></span>
+                            <h3 id="view_prod_name" class="fw-bold text-dark mb-1"></h3>
+                            <p class="text-primary fw-semibold mb-3" style="font-size: 1.2rem;">Price: $<span id="view_prod_price"></span></p>
+                        </div>
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Main Category</small>
+                                <span id="view_prod_maincat" class="fw-bold"></span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Sub Category</small>
+                                <span id="view_prod_subcat" class="fw-bold"></span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Current Stock</small>
+                                <span id="view_prod_stock" class="fw-bold"></span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Total Sold</small>
+                                <span id="view_prod_sold" class="fw-bold text-success"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-dark">Description:</h6>
+                            <p id="view_prod_desc" class="text-muted small" style="line-height: 1.6;"></p>
+                        </div>
+                        
+                        <div class="border-top pt-3">
+                            <small class="text-muted italic">Added on: <span id="view_prod_created"></span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).on('click', '.view-product-btn', function() {
+        // ডাটা সংগ্রহ
+        const name = $(this).data('name');
+        const img = $(this).data('img');
+        const maincat = $(this).data('maincat');
+        const subcat = $(this).data('subcat');
+        const price = $(this).data('price');
+        const stock = $(this).data('stock');
+        const desc = $(this).data('desc');
+        const status = $(this).data('status');
+        const sold = $(this).data('sold');
+        const created = $(this).data('created');
+
+        // মোডালে ডাটা বসানো
+        $('#view_prod_name').text(name);
+        $('#view_prod_maincat').text(maincat);
+        $('#view_prod_subcat').text(subcat);
+        $('#view_prod_price').text(price);
+        $('#view_prod_stock').text(stock);
+        $('#view_prod_desc').text(desc);
+        $('#view_prod_sold').text(sold);
+        $('#view_prod_created').text(created);
+
+        // ইমেজ হ্যান্ডলিং
+        if(img) {
+            $('#view_prod_img').attr('src', img);
+        } else {
+            $('#view_prod_img').attr('src', '/static/path/to/default-image.jpg'); // আপনার ডিফল্ট ইমেজ পাথ
+        }
+
+        // স্ট্যাটাস কালার হ্যান্ডলিং
+        const statusBadge = $('#view_prod_status');
+        statusBadge.text(status);
+        if(status === 'Active') {
+            statusBadge.removeClass('bg-danger-subtle text-danger').addClass('bg-success-subtle text-success');
+        } else {
+            statusBadge.removeClass('bg-success-subtle text-success').addClass('bg-danger-subtle text-danger');
+        }
+    });
+</script>

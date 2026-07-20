@@ -1,0 +1,212 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} About Us - {{ about_shop.shop_name }} {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        
+        {% comment %} <nav aria-label="breadcrumb" class="mb-5">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug  %}" class="text-decoration-none text-success">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">About Us</li>
+            </ol>
+        </nav> {% endcomment %}
+
+        {% if about_shop %}
+        <div class="row align-items-center g-5 mb-5">
+            <div class="col-12 col-lg-6">
+                <span class="badge bg-success/10 text-success text-uppercase tracking-wider px-3 py-2 rounded-pill fw-bold mb-3" style="font-size: 11px;">
+                    <i class="fas fa-info-circle me-1"></i>Who We Are
+                </span>
+                <h2 class="display-5 fw-bold text-dark mb-4">
+                    Welcome to <span class="text-success">{{ shop_first_half }}</span> {{ shop_second_half }}
+                </h2>
+                <p class="text-muted text-sm line-height-lg mb-4">
+                    {% if about_shop.shop_description %}
+                        {{ about_shop.shop_description }}
+                    {% else %}
+                        Welcome to our premium e-commerce platform. We are dedicated to providing you the best products with a focus on dependability, customer service, and uniqueness.
+                    {% endif %}
+                </p>
+                
+                <div class="row g-3 pt-3 border-top">
+                    <div class="col-sm-6">
+                        <div class="small text-muted"><i class="fas fa-phone-alt text-success me-2"></i>Call Us</div>
+                        <div class="fw-semibold text-dark">{{ about_shop.phone }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="small text-muted"><i class="far fa-envelope text-success me-2"></i>Email Support</div>
+                        <div class="fw-semibold text-dark">{{ about_shop.email|default:"support@ecommerce.com" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-12 col-lg-6">
+                <div class="position-relative p-2 bg-white border shadow-sm rounded-4 overflow-hidden">
+                    {% if about_shop.banner_image %}
+                        <img src="{{ about_shop.banner_image.url }}" alt="Shop Banner" class="w-100 rounded-3 object-fit-cover" style="height: 320px;">
+                    {% else %}
+                        <div class="bg-light d-flex flex-column align-items-center justify-content-center rounded-3" style="height: 320px;">
+                            <i class="fas fa-store display-1 text-muted opacity-25 mb-3"></i>
+                            <span class="text-muted small">No Shop Banner Uploaded</span>
+                        </div>
+                    {% endif %}
+                    
+                    {% if about_shop.shop_logo %}
+                    <div class="position-absolute bottom-0 start-0 m-4 p-1 bg-white rounded-circle shadow" style="width: 80px; height: 80px;">
+                        <img src="{{ about_shop.shop_logo.url }}" alt="Logo" class="w-100 h-100 rounded-circle object-fit-cover">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5 text-center">
+            <div class="col-4 col-md-2">
+                <div class="card h-100 border-0 shadow-xs rounded-3 p-4 bg-white border">
+                    <span class="text-uppercase mb-3">Total Views</span>
+                    <h3 class="fw-bold text-dark mb-1">{{ total_views | default:"100" }}+</h3>
+                    <span class="text-muted text-xs text-uppercase tracking-wider fw-semibold">Total Views</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-2">
+                <div class="card h-100 border-0 shadow-xs rounded-3 p-4 bg-white border">
+                    <span class="text-uppercase mb-3">Total Orders</span>
+                    <h3 class="fw-bold text-dark mb-1">{{ total_orders | default:"0" }}+</h3>
+                    <span class="text-muted text-xs text-uppercase tracking-wider fw-semibold">Orders Placed</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-2">
+                <div class="card h-100 border-0 shadow-xs rounded-3 p-4 bg-white border">
+                    <span class="text-uppercase mb-3">Total Likes</span>
+                    <h3 class="fw-bold text-dark mb-1">{{ total_wishes | default:"100" }}+</h3>
+                    <span class="text-muted text-xs text-uppercase tracking-wider fw-semibold">Fans Loved</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-2">
+                <div class="card h-100 border-0 shadow-xs rounded-3 p-4 bg-white border">
+                    <span class="text-uppercase mb-3">Total Products</span>
+                    <h3 class="fw-bold text-dark mb-1">{{ total_products | default:"100" }}+</h3>
+                    <span class="text-muted text-xs text-uppercase tracking-wider fw-semibold">Total Products</span>
+                </div>
+            </div>
+            <div class="col-4 col-md-2">
+                <div class="card h-100 border-0 shadow-xs rounded-3 p-4 bg-white border">
+                    <span class="text-uppercase mb-3"> Verified Quality </span>
+                    <h3 class="fw-bold text-dark mb-1"> <i class="fas fa-award fs-4"></i> ): 100% </h3>
+                    <span class="text-muted text-xs text-uppercase tracking-wider fw-semibold">Verified Quality</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            <div class="col-12">
+                <h4 class="fw-bold text-dark mb-4 position-relative section-title pb-2">
+                    <i class="fas fa-user-shield text-success me-2"></i>Meet the Merchant
+                </h4>
+                
+                <div class="card border-0 shadow-sm rounded-3 p-4 bg-white border">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center gap-4">
+                        <div class="flex-shrink-0 text-center">
+                            {% if about_shop.owner.profile_pic %}
+                                <img src="{{ about_shop.owner.profile_pic.url }}" alt="Owner Profile" class="rounded-circle border p-1" style="width: 110px; height: 110px; object-fit-cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center mx-auto" style="width: 110px; height: 110px;">
+                                    <i class="fas fa-user fs-1 text-muted opacity-50"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge bg-success rounded-pill px-3 py-1 mt-2.5 d-inline-block small">
+                                <i class="fas fa-check-circle me-1"></i>Verified Seller
+                            </span>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                <div>
+                                    <h4 class="fw-bold text-dark mb-0">{{ about_shop.owner.user.get_full_name|default:about_shop.owner.user.username }}</h4>
+                                    <small class="text-muted text-uppercase tracking-wide" style="font-size: 11px;">Founder & Shop Owner</small>
+                                </div>
+                                <div class="bg-light rounded px-3 py-2 border text-center">
+                                    <span class="small text-muted d-block" style="font-size: 11px;">Total Shops Managed</span>
+                                    <span class="fw-bold text-success fs-5">{{ owner_total_shops }}</span>
+                                </div>
+                            </div>
+
+                            <p class="text-muted text-sm mb-3">
+                                Managing premium storefronts with a verified track record. Dedicated to maintaining commercial legal compliance under business registration license guidelines.
+                            </p>
+
+                            <div class="row g-2 text-xs text-muted">
+                                <div class="col-sm-6 col-md-4">
+                                    <i class="fas fa-map-marker-alt text-secondary me-1"></i>District: <strong>{{ about_shop.owner.district|default:"Not specified" }}</strong>
+                                </div>
+                                <div class="col-sm-6 col-md-4">
+                                    <i class="fas fa-compass text-secondary me-1"></i>Thana: <strong>{{ about_shop.owner.thana|default:"Not specified" }}</strong>
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-history text-secondary me-1"></i>Member Since: <strong>{{ about_shop.owner.created_at|date:"M Y" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h4 class="fw-bold text-dark mb-4 position-relative section-title pb-2">
+                    <i class="fas fa-briefcase text-success me-2"></i>Official Business Registration
+                </h4>
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white border">
+                    <table class="table table-hover mb-0 text-sm">
+                        <tbody>
+                            <tr>
+                                <td class="bg-light text-muted fw-semibold ps-4" style="width: 30%;">Trade License No</td>
+                                <td class="text-dark ps-4 fw-mono">{{ about_shop.trade_license|default:"Under Review" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bg-light text-muted fw-semibold ps-4">Shop Category/Type</td>
+                                <td class="text-dark ps-4">{{ about_shop.shop_type|default:"General Retail" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bg-light text-muted fw-semibold ps-4">Store Location Address</td>
+                                <td class="text-dark ps-4">{{ about_shop.shop_address }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bg-light text-muted fw-semibold ps-4">Operation Timezone</td>
+                                <td class="text-dark ps-4">{{ about_shop.timezone }} ({{ about_shop.currency }})</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted">No shop parameters defined for this marketplace site.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <style>
+        .section-title::after { content: ''; position: absolute; bottom: 0; left: 0; width: 45px; height: 3px; background-color: #198754; }
+        .bg-success\/10 { background-color: rgba(25, 135, 84, 0.1); }
+        .bg-primary\/10 { background-color: rgba(13, 110, 253, 0.1); }
+        .bg-danger\/10 { background-color: rgba(220, 53, 69, 0.1); }
+        .bg-warning\/10 { background-color: rgba(255, 193, 7, 0.1); }
+        .text-xs { font-size: 11px; }
+        .text-sm { font-size: 13.5px; }
+        .line-height-lg { line-height: 1.75; }
+        .fw-mono { font-family: 'Courier New', Courier, monospace; }
+    </style>
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

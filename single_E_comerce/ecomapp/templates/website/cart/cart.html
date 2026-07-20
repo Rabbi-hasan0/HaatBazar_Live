@@ -1,0 +1,135 @@
+{% extends 'web_base.html' %}
+{% block title %} Fico {% endblock %}
+
+{% load static %}
+
+{% block linkcss %}
+<link rel="stylesheet" href="{% static 'website/css/cart.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<!-- CART PRODUCT Table-->
+<section class="cart-section">
+    <form method="post" action=" {% url "checkout" %} " id="cart_form">
+        {% csrf_token %}
+        <div class="container-fluid">
+            <div class="cart-wrap-box">
+                <div class="cartpage">
+                    <div class="cart-box-item">
+                        <div class="cart-box-area" id="cart-box-area">
+                            <div class="cart-tab">
+                                <ul>
+                                    <li><span class="active" href="#">Cart</span></li>
+                                </ul>
+                            </div>
+                            <div class="cart-content">
+                                <div class="cart-item">
+                                    <div class="cart-list">
+                                        <table class="table-box">
+                                            {% for cart in cart_items %}
+                                                <tr class="cart_item__{{ cart.product.id }}">
+                                                    <td>
+                                                        <div class="cart-info-box">
+                                                            <div class="cart-product-image">
+                                                                {% if cart.product.product_image %}<img src="{{ cart.product.product_image.url }}" alt="{{ cart.product.product_name }}">{% endif %}
+                                                            </div>
+                                                            <div class="cart-text">
+                                                                <p><strong>{{ cart.product.product_name }}</strong></p>
+                                                                <p><span>Colour: Black</span></p>
+                                                                <p><span>Size: 32</span></p>
+                                                                <div class="pocket-product-qty">
+                                                                    <button type="button" id="decrement" class="decrement"><img src="{% static 'website/images/icons/minus.svg' %}" alt="-"></button>
+                                                                    <input type="number" id="cart_qty" class="cart_qty cart_qty__{{ cart.product.id }}" min="0" max="50" data-product-id="{{ cart.product.id }}" value="{{ cart.quantity }}">
+                                                                    <button type="button" id="increment" class="increment"><img src="{% static 'website/images/icons/plus.svg' %}" alt="+"></button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td with="100" class="text-right">
+                                                        <strong>{{ current_currency.currency_icon }} <span class="total_price__{{ cart.product.id }}">{{ cart.total_amount|default:0|floatformat:2 }}</span></strong>
+                                                        <div class="action-box">
+                                                            <button type="button" id="delete_cart__{{ cart.product.id }}">Delete</a>
+                                                            <button type="button" ><img src="{% static 'website/images/icons/wish-list.png' %}" alt="+"></a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                            
+
+                                            <tr class="cart-subtotal">
+                                                <td colspan="2">
+                                                    <table style="width: 100%;">
+                                                        <tr>
+                                                            <td>Subtotal</td>
+                                                            <td class="text-right">{{ current_currency.currency_icon }} <span class="sub_total_amount">{{ amount_summary.sub_total_amount|default:'0'|floatformat:2 }}</span></td>
+                                                            <td class="text-right"></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>VAT</td>
+                                                            <td class="text-right">{{ current_currency.currency_icon }} <span id="total_vat">{{ amount_summary.total_vat|default:'0'|floatformat:2 }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Discount</td>
+                                                            <td class="text-right">{{ current_currency.currency_icon }} <span id="total_discount">{{ amount_summary.total_discount|default:'0'|floatformat:2 }}</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Total</strong></td>
+                                                            <td class="text-right"><strong>{{ current_currency.currency_icon }} <span id="grand_total">{{ amount_summary.grand_total|default:'0'|floatformat:2 }}</span></strong></td>
+                                                            <td class="text-right"></td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <p style="text-align: center; margin-top: 30px;">
+                                            <a href="{% url 'products_list' %}" class="fico-btn" style="color: #096126; font-weight: bold; font-size: 18px;">Shop more and view our elegant products</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="cart-box-info cart-info-text">
+                        
+                        <div class="cart-info-group payment-info-img mt-3"> 
+                            <div class="billing-info">
+                                <ul>
+                                    <li><input type="text" class="form-control" value="{{ customer.user.username }}"></li>
+                                    <li><input type="text" class="form-control"  value={{customer.phone}}></li>
+                                    <li><input type="email" class="form-control" Placeholder="Email Address" value={{customer.user.email}}></li>
+                                    <li><textarea class="form-control" rows="2" name ="billing_address" Placeholder="Address"></textarea></li>
+                                </ul>
+                            </div>
+                            <div class="checkout-input-field">
+                                   <div class="checkout-input">
+                                            <div class="input-field-radio">
+                                                <input type="radio" name="payment_method" id="payment_method" value="ssl" checked>
+                                                <label for="payment_method" >SSL</label>
+                                            </div>
+                                        </div>
+                                </div>
+                            <div class="button-box">
+                                <div class="complete_order">
+                                    {% comment %} <a class="fico-btn" href="#">Continue</a> {% endcomment %}
+                                    <button type="submit" class="fico-btn">Continue</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cart-info-group payment-info-img mt-3">
+                            <h5 class="secured-payment">Secured Payment</h5>
+                            <p><img src="{% static 'website/images/icons/payment-box.png' %}"></p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %} Category Information {% endblock %}
+
+{% block content %}
+
+
+<div class="title-box">
+    <div class="title-box">
+        
+        <div class="breadcrumbs">
+            <ul class="breadcrumbs-list">
+                <li><a href="{% url 'setting_dashboard' %}"><span><img src="/static/images/icons/Home.svg" alt="more"></span>Home</a></li>
+                <li><a href="{% url 'product_main_category_list' %}"> Main Category List</a></li>
+                <li><a href="{% url 'add_product_main_category' %}">Add New Category</a></li>
+            </ul>
+        </div>
+        
+    </div>
+</div>
+
+<div class="main_content">
+    <div class="view_box mt-3" style="margin-bottom:15px;">
+        <div class="col-sm-12">
+            <div class="view_title">
+                <div class="purchase-request">
+                    <div class="prInformation">
+                        <h3>Category Basic Information</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="purchase-request">
+                <div class="prInformation" style="border-bottom:0px solid #ddd6d6; margin-bottom: 0px;">
+                    <h4 style="font-size: 13px;color: #000000;font-family: 'MontserratSemiBold';">
+                        {{ doctor.first_name }}{% if doctor.last_name %} {{ doctor.last_name }}{% endif %}
+                    </h4>
+                </div>
+                <div class="prInformation">
+                <p>Category Name:{{data.main_cat_name}}</p>
+                <p>Category Description:{{data.description}}</p>
+                
+                <p>category Creation Date: {{data.created_at|date:"F d, Y"|default:"Not set"}}</p>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+
+   
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+{% endblock %}

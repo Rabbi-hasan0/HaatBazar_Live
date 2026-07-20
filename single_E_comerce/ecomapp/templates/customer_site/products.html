@@ -1,0 +1,436 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Products {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent p-0 mb-2">
+                        <li class="breadcrumb-item"><a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="text-decoration-none text-muted">Home</a></li>
+                        <li class="breadcrumb-item active text-dark font-weight-bold" aria-current="page">
+                            {{ sub_category.sub_cat_name }}
+                        </li>
+                    </ol>
+                </nav>
+                <div class="d-flex align-items-center justify-content-between border-bottom pb-3">
+                    <h2 class="h4 font-weight-bold text-slate-800 mb-0">
+                        Category: <span class="text-primary">{{ sub_category.sub_cat_name }}</span>
+                    </h2>
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill font-mono">
+                        {{ products.count }} Items Found
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 border-0 rounded-3 overflow-hidden product-card full-img-card position-relative shadow-sm" style="min-height: 380px;">
+                    
+                    <div class="product-bg-image position-absolute inset-0 w-100 h-100">
+                        {% if product.product_image %}
+                            <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <div class="w-100 h-100 bg-secondary d-flex align-items-center justify-content-center text-white">
+                                <span class="text-xs">No Image</span>
+                            </div>
+                        {% endif %}
+                        <div class="image-gradient-overlay position-absolute inset-0"></div>
+                    </div>
+
+                    <div class="position-absolute top-0 w-100 d-flex align-items-center justify-content-between p-3 z-index-10">
+                        <div>
+                            {% if product.is_featured %}
+                            <span class="badge text-white rounded-pill text-xs px-2 py-1" style="background-color: #10b981;">
+                                Featured
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <button class="btn-favorite rounded-circle d-flex align-items-center justify-content-center transition focus:outline-none" 
+                                onclick="toggleFavorite(this, '{{ product.id }}')" 
+                                aria-label="Add to wishlist">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="card-body position-relative d-flex flex-column justify-content-end p-3 z-index-10 mt-auto h-100">
+                        <div class="content-wrapper p-2 rounded-2 backdrop-blur-sm">
+                            <h5 class="card-title h6 text-white font-weight-bold text-truncate mb-1" title="{{ product.product_name }}">
+                                {{ product.product_name }}
+                            </h5>
+                            <p class="card-text text-light opacity-75 text-xs mb-2 text-truncate-2-lines">
+                                {{ product.description|default:"No description available."|truncatechars:45 }}
+                            </p>
+                            <div class="mb-3">
+                                {% if product.product_slug %}
+                                    <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-white text-xs font-semibold d-inline-flex align-items-center gap-1 text-decoration-none view-details-link transition">
+                                        View Details 
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-arrow-right transition-transform" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                                        </svg>
+                                    </a>
+                                {% else %}
+                                    <span class="text-white opacity-50 text-xs font-semibold d-inline-flex align-items-center gap-1">
+                                        No Details
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="mt-2">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="h6 text-warning font-weight-bold mb-0">
+                                        ৳{{ product.price }}
+                                    </span>
+                                    {% if product.old_price %}
+                                    <span class="text-light opacity-50 text-xs text-decoration-line-through">
+                                        ৳{{ product.old_price }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <a href="#" 
+                                    data-product-id="{{ product.id }}" 
+                                    data-shop-slug="{{ global_shop.shop_slug }}" 
+                                    class="btn btn-primary btn-sm w-100 rounded-2 d-flex align-items-center justify-content-center gap-1 font-semibold py-2 custom-cart-btn add-to-cart-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-cart3" viewBox="0 0 16 16">
+                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a1 1 0 1 0 0 2 1 1 0 0 0 0-2m7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
+                                    </svg>
+                                    Add to Bag
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5 my-5">
+                <div class="text-slate-300 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-bag-x opacity-25" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M6.146 8.146a.5.5 0 0 1 .708 0L8 9.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 10l1.147 1.146a.5.5 0 0 1-.708.708L8 10.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 10 6.146 8.854a.5.5 0 0 1 0-.708"/>
+                        <path d="M8 1a2.5 2.5 0 0 0-2.5 2.5V4h5v-.5A2.5 2.5 0 0 0 8 1m3.5 3v-.5a3.5 3.5 0 0 0-7 0V4H1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
+                    </svg>
+                </div>
+                <h3 class="h5 font-weight-bold text-slate-700">No Products Found</h3>
+                <p class="text-muted text-xs">We couldn't find any active products right now.</p>
+                <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="btn btn-primary btn-sm px-4 py-2 rounded-2 mt-2">Back to Home</a>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if other_sub_categories %}
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-12 mb-4">
+                <h3 class="h4 font-weight-bold text-slate-800" style="font-weight: 700;">Explore More Categories</h3>
+            </div>
+            
+            <div class="row g-4">
+                {% for cat in other_sub_categories|slice:":4" %}
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 rounded-3 overflow-hidden rel-product-card position-relative shadow-sm transition" style="min-height: 380px;">
+                        
+                        <div class="position-absolute inset-0 w-100 h-100">
+                            {% if cat.sub_cat_image %}
+                                <img src="{{ cat.sub_cat_image.url }}" alt="{{ cat.sub_cat_name }}" class="w-100 h-100 object-fit-cover">
+                            {% else %}
+                                <div class="w-100 h-100 bg-secondary d-flex align-items-center justify-content-center text-white">
+                                    <span class="text-xs">No Image</span>
+                                </div>
+                            {% endif %}
+                            <div class="image-gradient-overlay position-absolute inset-0"></div>
+                        </div>
+
+                        <div class="card-body position-relative d-flex flex-column justify-content-end p-3 mt-auto h-100" style="z-index: 10;">
+                            <div class="p-2 rounded-2 backdrop-blur-sm">
+                                <h5 class="card-title h6 text-white font-weight-bold text-truncate mb-1" style="font-weight: 700;" title="{{ cat.sub_cat_name }}">
+                                    {{ cat.sub_cat_name }}
+                                </h5>
+                                <p class="card-text text-light opacity-75 text-xs mb-3">
+                                    Explore various products under {{ cat.sub_cat_name }}.
+                                </p>
+                                
+                                <div class="mt-2">
+                                    <a href="{% url 'sub_category_products' shop_slug=global_shop.shop_slug slug=cat.sub_cat_slug %}" class="btn btn-primary btn-sm w-100 rounded-2 d-flex align-items-center justify-content-center gap-1 font-semibold py-2 custom-explore-btn" style="font-weight: 600;">
+                                        View Products
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-arrow-right-short" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <div class="modal fade" id="addToCartSuccessModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg"> 
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body pt-0 px-4 px-md-5 pb-4">
+                    <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom">
+                        <i class="fas fa-check-circle text-success fs-3"></i>
+                        <h5 class="modal-title fw-bold text-dark" id="successModalLabel">Product successfully added to your bag.</h5>
+                    </div>
+                    
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-5 text-center">
+                            <img id="modal-product-image" src="" alt="Product Image" class="img-fluid rounded border shadow-sm" style="max-height: 260px; object-fit: cover; width: 100%;">
+                        </div>
+                        
+                        <div class="col-md-7">
+                            <div class="d-flex flex-column gap-2 py-2">
+                                <div class="fs-6 text-muted">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">Product Name:</span> 
+                                    <span id="modal-product-name" class="text-secondary fw-semibold">Loading...</span>
+                                </div>
+                                <div class="fs-6 text-muted">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">Quantity:</span> 
+                                    <span id="modal-product-qty" class="text-secondary fw-bold">1</span>
+                                </div>
+                                <div class="fs-6 text-muted">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">Unit Price:</span> 
+                                    <span class="text-primary fw-bold">৳<span id="modal-product-price">0.00</span></span>
+                                </div>
+                                <div class="fs-6 text-muted border-top pt-2 mt-2">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">SubTotal:</span> 
+                                    <span class="text-success h5 fw-bold mb-0">৳<span id="modal-product-total">0.00</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer bg-light border-0 d-flex justify-content-between p-3 px-md-5">
+                    <button type="button" class="btn btn-outline-secondary rounded-0 px-4 py-2 text-uppercase fw-bold tracking-wider fs-7" data-bs-dismiss="modal">
+                        Continue Exploring
+                    </button>
+                    <a href="#" id="modal-go-to-cart" class="btn btn-success rounded-0 px-4 py-2 text-uppercase fw-bold tracking-wider fs-7">
+                        View Bag <i class="fas fa-arrow-right ms-2 small"></i>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .object-fit-cover { object-fit: cover; }
+        .z-index-10 { z-index: 10; }
+
+        .image-gradient-overlay {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.85) 100%);
+        }
+
+        .full-img-card, .rel-product-card {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
+        .full-img-card img, .rel-product-card img {
+            transition: transform 0.5s ease;
+        }
+        .full-img-card:hover, .rel-product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+        }
+        .full-img-card:hover .product-bg-image img, .rel-product-card:hover img {
+            transform: scale(1.06);
+        }
+
+        .btn-favorite {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(37, 146, 9, 0.25);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .btn-favorite:hover {
+            background: rgba(255, 255, 255, 0.9);
+            color: #ef4444;
+            transform: scale(1.1);
+        }
+        .btn-favorite.active {
+            background: #ffffff;
+            color: #ef4444 !important;
+        }
+
+        .backdrop-blur-sm {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        
+        .custom-cart-btn {
+            background-color: var(--primary-green, #10b981) !important;
+            border: none;
+        }
+        .custom-cart-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .text-truncate-2-lines {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+        
+        .text-xs { font-size: 0.785rem; }
+        
+        .view-details-link { opacity: 0.8; }
+        .view-details-link:hover { 
+            opacity: 1; 
+            color: #f1f5f9 !important; 
+        }
+        .view-details-link:hover .bi-arrow-right { 
+            transform: translateX(3px); 
+        }
+        .transition-transform { transition: transform 0.2s ease-in-out; }
+
+        .custom-explore-btn {
+            background-color: #78a92a !important; 
+            border: none !important;
+            color: #ffffff !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .custom-explore-btn:hover {
+            background-color: #659220 !important; 
+            color: #ffffff !important;
+        }
+    </style>
+
+    <script>
+        function toggleFavorite(button, productId) {
+            button.classList.toggle('active');
+            console.log("Product " + productId + " wishlist state toggled.");
+        }
+    </script>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = this.getAttribute('data-product-id');
+                const shopSlug = this.getAttribute('data-shop-slug');
+                
+                if (!shopSlug || !productId) {
+                    console.error("Missing shop slug or product ID");
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('product_id', productId);
+
+                fetch(`/haatbazar/${shopSlug}/cart/add-or-update/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        window.location.href = `/${shopSlug}/accounts/login/`; 
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.status === "success") {
+                        // ১. নেভবার কার্ট কাউন্টার আপডেট
+                        const counter = document.getElementById('cart-counter');
+                        if (counter) {
+                            counter.innerText = data.cart_item_count;
+                        }
+
+                        // ২. মোডালে ব্যাকএন্ডের ডাইনামিক ডাটা পুশ
+                        if (document.getElementById('modal-product-name')) {
+                            document.getElementById('modal-product-name').innerText = data.product_name || "N/A";
+                        }
+                        if (document.getElementById('modal-product-qty')) {
+                            document.getElementById('modal-product-qty').innerText = data.quantity || "1";
+                        }
+                        if (document.getElementById('modal-product-price')) {
+                            document.getElementById('modal-product-price').innerText = parseFloat(data.product_price).toFixed(2);
+                        }
+                        if (document.getElementById('modal-product-total')) {
+                            document.getElementById('modal-product-total').innerText = parseFloat(data.total_amount).toFixed(2);
+                        }
+                        
+                        // প্রোডাক্ট ইমেজ আপডেট
+                        const imgElement = document.getElementById('modal-product-image');
+                        if (imgElement) {
+                            if (data.product_image_url) {
+                                imgElement.src = data.product_image_url;
+                            } else {
+                                imgElement.src = '/static/images/default-product.png';
+                            }
+                        }
+
+                        // ৩. 'View my Bag' বাটনের ডাইনামিক কার্ট লিংক সেটআপ
+                        const goCartBtn = document.getElementById('modal-go-to-cart');
+                        if (goCartBtn) {
+                            goCartBtn.href = `/haatbazar/${shopSlug}/cart/`;
+                        }
+
+                        // ৪. বুটস্ট্র্যাপ ৫ মোডালটি ট্রিগার করা
+                        const cartModalElement = document.getElementById('addToCartSuccessModal');
+                        if (cartModalElement) {
+                            const successModal = new bootstrap.Modal(cartModalElement);
+                            successModal.show();
+                        }
+
+                    } else if (data) {
+                        console.error("Error from server:", data.message);
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Fetch Error:", error));
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block footer %}
+    {% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

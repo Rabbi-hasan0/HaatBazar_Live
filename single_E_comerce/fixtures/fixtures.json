@@ -1,0 +1,22 @@
+[
+    {
+        "model": "ecomapp.menulist",
+        "pk": 5,
+        "fields": {
+            "module_name": "admin",
+            "menu_name": "Events Management",
+            "menu_url": "/backend/events-management/",
+            "menu_icon": "fa fa-users icon",
+            "parent_id": 0,
+            "is_main_menu": true,
+            "is_sub_menu": false,
+            "is_sub_child_menu": false,
+            "created_at": "2025-05-07T15:01:14.353Z",
+            "updated_at": "2025-05-07T15:01:14.353Z",
+            "deleted_at": "2025-05-07T15:01:14.353Z",
+            "created_by": 1,
+            "is_active": true,
+            "deleted": false
+        }
+    }
+]

@@ -1,0 +1,605 @@
+/* For WebKit Browsers (Chrome, Edge, Safari) */
+body::-webkit-scrollbar {
+    width: 6px;  /* Thin scrollbar */
+}
+
+body::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Scrollbar track color */
+    border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #888; /* Scrollbar handle color */
+    border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker on hover */
+}
+
+.banner-swiper img {
+    width: 100%;
+}
+
+.collections-box,
+.category-box {
+    padding-top: 75px;
+    padding-bottom: 75px;
+}
+
+.accents-box {
+    padding-top: 80px;
+    padding-bottom: 75px;
+}
+
+.think-again-box {
+    padding-top: 80px;
+    padding-bottom: 75px;
+    padding-left: 63px;
+    padding-right: 63px;
+}
+
+.accents-section {
+    background-color: #FFE7D9;
+}
+
+.think-text {
+    max-width: 530px;
+    margin: 0 auto;
+    text-align: center;
+    height: 100%;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.think-text h3 {
+    width: 425px;
+    margin: 0 auto;
+}
+
+.category-text p,
+.think-text p {
+    padding-bottom: 15px;
+}
+
+.item-text p {
+    text-align: center;
+}
+
+.accents-section h3 {
+    line-height: 45px;
+}
+
+.accents-center {
+    text-align: center;
+}
+
+.latest-blog-list .collections-item:nth-last-child(2),
+.latest-blog-list .collections-item:nth-last-child(1) {
+    margin-bottom: 0px;
+}
+
+
+.boucle-collections .swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.boucle-collections .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.boucle-collections .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.boucle-collections .swiper-slide {
+    width: 65%;
+}
+
+.boucle-collections .swiper-slide:nth-child(2n) {
+    width: 65%;
+}
+
+.boucle-collections .swiper-slide:nth-child(3n) {
+    width: 65%;
+}
+
+.onetime-box {
+    max-width: 294px;
+    width: 100%;
+    margin: 0px auto;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.box-image img {
+    width: 30px;
+}
+
+.box-text h4 {
+    font-size: 32px;
+    font-family: 'Spectral-SemiBold';
+    font-weight: bold;
+    line-height: 23px;
+    margin-bottom: 13px;
+    margin-top: 20px;
+}
+
+.box-text p {
+    font-size: 16px;
+    font-family: 'Karla-Regular';
+}
+
+.box-text {
+    margin-bottom: 13px;
+}
+
+.password-box input[type="submit"]:active,
+.password-box input[type="submit"]:focus,
+.password-box input[type="text"] {
+    width: 41px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000000;
+    outline: none;
+    background-color: transparent;
+    text-align: center;
+    box-shadow: none;
+}
+
+.password-box {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 17px;
+}
+
+.onetime-content .box-button .one-time-password-button:focus,
+.onetime-content .box-button .one-time-password-button:active,
+.onetime-content .box-button .one-time-password-button {
+    width: 130px;
+    height: 36px;
+    background-color: black;
+    color: white;
+    text-transform: uppercase;
+    outline: none;
+    border: 0;
+}
+
+.onetime-password-section {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-image: url(/static/images/banner/pass-web-bg.png);
+    background-repeat: round;
+}
+.onetime-password-section1 {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background-image: url(/static/images/banner/pass-web-bg-about.png);
+    background-repeat: round;
+}
+
+.pass-container-fluid {
+    position: absolute;
+    margin-left: 0;
+    padding: 0 20px;
+}
+
+.image-container-fluid img {
+    width: 100%;
+    height: 100%;
+}
+
+#pass-container-fluid {
+    overflow: hidden;
+    max-height: 0;
+    padding: 0px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 100%;
+    width: 100%;
+}
+
+#pass-container-fluid form {
+    padding: 20px 25px;
+    background-color: rgba(242, 238, 223, .95);
+}
+
+.image-container-fluid {
+    position: relative;
+    z-index: 999;
+}
+/* div#hamburger-menu, */
+.hamburger-menu {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 99;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.hamburger-nav-menu {
+    width: 130px;
+    background-color: #F2EEDF;
+    padding: 6px 0;
+    position: relative;
+    top: 100%;
+    margin-top: 40px;
+    border-radius: 5px;
+    display: none;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, .45);
+}
+#hamburger-nav-menu.show .arrow-top {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 12px solid #F2EEDF;
+    top: -9px;
+    right: 7px;
+}
+.hamburger-nav-menu ul li {
+    cursor: pointer;
+}
+.hamburger-nav-menu ul li span:hover, 
+.hamburger-nav-menu ul li a:hover{
+    background-color: #c7c3b035;
+}
+.hamburger-nav-menu ul li span, .hamburger-nav-menu ul li a {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 4px 15px;
+    font-size: 14px;
+    font-family: 'Karla-Regular';
+}
+.pass-code-menu {
+    width: 130px;
+    position: absolute;
+    right: 30px;
+    top: 30px;
+}
+
+#hamburger-nav-menu {
+    opacity: 0;
+    transform: translateY(-10px);
+    visibility: hidden;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#hamburger-nav-menu.show {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+.hamburger-menu-home a {
+    color: inherit;
+    text-decoration: none;
+    font-weight: 500;
+    font-family: 'Karla-SemiBold';
+    float: right;
+}
+.hamburger-menu-home img {
+    width: 12px;
+}
+.pass-code-menu-back {
+    position: absolute;
+    left: 30px;
+    top: 30px;
+}
+.fico-container {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: calc(100% - 20px);
+}
+/* .video-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    background: #000;
+}
+
+.video-container video {
+    max-width: 100%;
+    max-height: 100%;
+} */
+/* section.section-hero.section-hero-video {
+    display: flex;
+    height: 100%;
+    overflow-y: hidden;
+} */
+section.section-hero.section-hero-video {
+    display: flex;
+    height: 100%;
+    overflow-y: hidden;
+}
+
+.section-hero-video .VideoMain {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
+
+/* .banner {
+    width: 100vw;
+    height: 50vh; 
+    object-fit: cover;
+} */
+
+@media only screen and (min-width: 1024px) {
+    .mobile_video{
+        display: none;
+    }
+    .desktop_video{
+        display: block;
+    }
+    #pass-container-fluid {
+        justify-content: center;
+        align-items: center;
+    }
+}
+@media only screen and (min-width: 991px) {
+    /* .pass-container-fluid {
+        top: 150px;
+        padding-right: 80px;
+    }
+    .pass-container-fluid {
+        right: 0;
+    } */
+    /* .section-hero-video .VideoMain {
+        width: 100%;
+        height: 100%;
+    } */
+}
+
+@media only screen and (min-width: 1500px) {
+    /* .pass-container-fluid {
+        top: 200px;
+        padding-right: 115px;
+    } */
+}
+
+@media only screen and (min-width: 1900px) {
+    /* .pass-container-fluid {
+        top: 380px;
+        padding-right: 150px;
+    } */
+
+    .onetime-password-section {
+        background-image: url(/static/images/banner/pass-1920x1024-large.png);
+        background-repeat: round;
+    }
+    .onetime-password-section1 {
+        background-image: url(/static/images/banner/pass-1920x1024-large1.png);
+        background-repeat: round;
+    }
+}
+@media only screen and (max-width: 1536px) {
+    /* .pass-container-fluid {
+        top: 220px;
+    } */
+}
+@media only screen and (max-width: 1366px) {
+    /* .pass-container-fluid {
+        top: 220px;
+    } */
+}
+@media only screen and (max-width: 1024px) {
+    .onetime-password-section {
+        background-image: url(/static/images/banner/pass-tab.png);
+        background-repeat: round;
+        width: 100%;
+    }
+    .onetime-password-section1 {
+        background-image: url(/static/images/banner/pass-tab-about.png);
+        background-repeat: round;
+        width: 100%;
+    }
+    .fico-container {
+        height: 50%;
+    }
+    #pass-container-fluid {
+        bottom: -135px;
+    }
+    .mobile_video{
+        display: block;
+    }
+    .desktop_video{
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 991px) {
+    .box-text h4 {
+        font-size: 22px;
+        font-family: 'Spectral-SemiBold';
+        font-weight: bold;
+        line-height: 23px;
+        margin-bottom: 6px;
+        margin-top: 12px;
+    }
+
+    /* .pass-container-fluid {
+        padding: 0;
+        left: 50%;
+        margin-left: -127px;
+    } */
+
+    .onetime-password-section {
+        background-image: url(/static/images/banner/pass-tab.png);
+        background-repeat: round;
+        width: 100%;
+    }
+    .onetime-password-section1 {
+        background-image: url(/static/images/banner/pass-tab-about.png);
+        background-repeat: round;
+        width: 100%;
+    }
+
+    .onetime-box {
+        min-height: 250px;
+    }
+}
+@media screen and (max-width: 435px) and (min-height: 750px) {
+    /* .pass-container-fluid {
+      top: 560px !important;
+    } */
+  }
+@media screen and (max-width: 991px) and (min-height: 700px) {
+    /* .pass-container-fluid {
+        top: 650px;
+    } */
+}
+
+@media screen and (max-width: 820px) and (min-height: 1180px) {
+    /* .pass-container-fluid {
+        top: 695px;
+    } */
+}
+
+@media screen and (max-width: 768px) and (min-height: 1024px) {
+    /* .pass-container-fluid {
+        top: 638px;
+    } */
+}
+
+@media only screen and (max-width: 600px) {
+    .onetime-password-section {
+        background-image: url(/static/images/banner/pass-mobile.png);
+        background-repeat: no-repeat;
+        background-size: 100%;
+    }
+    .onetime-password-section1 {
+        background-image: url(/static/images/banner/pass-mobile-about.png);
+        background-repeat: no-repeat;
+        background-size: 100%;
+    }
+
+    .onetime-box {
+        min-height: 250px;
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .onetime-password-section {
+        background-image: url(/static/images/banner/pass-mobile.png);
+        background-repeat: round;
+    }
+    .onetime-password-section1 {
+        background-image: url(/static/images/banner/pass-mobile-about.png);
+        background-repeat: round;
+    }
+
+    .onetime-box {
+        max-width: 255px;
+    }
+
+    .password-box input[type="submit"]:active,
+    .password-box input[type="submit"]:focus,
+    .password-box input[type="text"] {
+        width: 32px;
+        height: 36px;
+    }
+
+    /* .pass-container-fluid {
+        margin-left: -127px;
+        top: 220px;
+    } */
+
+    .box-text p {
+        font-size: 14px;
+    }
+
+    .box-text h4 {
+        margin-top: 8px;
+    }
+
+    .box-text h4 {
+        font-size: 22px;
+        line-height: 20px;
+        margin-bottom: 2px;
+    }
+
+    .onetime-content .box-button .one-time-password-button:focus,
+    .onetime-content .box-button .one-time-password-button:active,
+    .onetime-content .box-button .one-time-password-button {
+        font-size: 14px;
+    }
+
+    /* #hamburger-menu, */
+    /* .hamburger-menu {
+        right: 25px;
+        top: 25px;
+    } */
+}
+@media only screen and (max-width: 440px) {
+    /* .pass-container-fluid {
+        top: 445px;
+    } */
+}
+@media only screen and (max-width: 414px) {
+    .onetime-password-section {
+        background-repeat: round;
+    }
+}
+@media only screen and (max-width: 375px) {
+    /* .pass-container-fluid {
+        top: 400px;
+    } */
+}
+
+
+@media only screen and (max-width:360px) {
+    /* .pass-container-fluid {
+        top: 372px;
+    } */
+}
+
+@media only screen and (max-width:320px) {
+    /* .pass-container-fluid {
+        top: 330px;
+    } */
+}
+
+@media screen and (max-width: 412px) and (min-height: 915px) {
+    /* .pass-container-fluid {
+        top: 550px;
+    } */
+}
+
+@media screen and (max-width: 393px) and (min-height: 844px) {
+    /* .pass-container-fluid {
+        margin-left: -127px;
+        top: 500px;
+    } */
+}
+
+@media only screen and (max-width:360px) and (min-height: 740px) {
+    /* .pass-container-fluid {
+        top: 445px;
+    } */
+}

@@ -1,0 +1,212 @@
+{% extends 'owner_base.html' %}
+{% block title %} Shop | {{ title }} {% endblock %}
+
+{% block content %}
+    
+<span class="w-full py-8 sm:py-12 space-y-6">
+    <!-- টপ নেভিগেশন বার -->
+    <div class="flex justify-between items-center mb-6 bg-white px-6 py-4 rounded-2xl border border-slate-100 shadow-sm">
+        <div class="flex items-center gap-2 text-xs font-bold tracking-wide text-slate-400 uppercase">
+            <span class="text-indigo-600">Event Management</span>
+            <span>&bull;</span>
+            <span class="text-slate-600">{{ shop.name|upper }}</span>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'events_list' %}" class="flex items-center gap-2 px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i> Dashboard
+            </a>
+            <a href="{% url 'events_list' %}" class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-list text-[10px]"></i> View All List
+            </a>
+        </div>
+    </div>
+
+    <!-- মেইন ফর্ম শুরু -->
+    <form action="" method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- সেকশন ১: বেসিক ইনফরমেশন -->
+        <div class="bg-white rounded-2xl border border-slate-150 p-6 shadow-sm space-y-4">
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Event Title</label>
+                <input type="text" name="title" value="{{ form.title.value|default:'' }}" required
+                       placeholder="e.g., Eid Mega Campaign 2026, Combo Friday Offer" 
+                       class="w-full px-4 py-4 bg-slate-50/50 border border-slate-200 border-dashed rounded-xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                <p class="text-[11px] text-slate-400 mt-2">Customers will see this campaign title at the top of the store banners.</p>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Description (Optional)</label>
+                <textarea name="description" rows="3" placeholder="Describe the campaign details or special terms..." 
+                          class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-all">{{ form.description.value|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- সেকশন ২: ডিসকাউন্ট ও প্রায়োরিটি লজিক -->
+        <div class="bg-white rounded-2xl border border-slate-150 p-6 shadow-sm space-y-6">
+            <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Discount Value (Percentage)</label>
+                <input type="number" name="discount_percentage" value="{{ form.discount_percentage.value|default:'' }}" min="1" max="100" required
+                       placeholder="e.g., 20" 
+                       class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-indigo-500 transition-all">
+            </div>
+
+            <!-- প্রায়োরিটি সুইচ/টগল বাটন -->
+            <div class="flex justify-between items-center bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-800">High Priority Campaign</h4>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Show this event at the top of all listings instead of regular sorting.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="priorityToggle" class="sr-only peer" {% if form.priority.value > 0 %}checked{% endif %} onchange="togglePriorityValue()">
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+                <input type="hidden" name="priority" id="priorityInput" value="{{ form.priority.value|default:0 }}">
+            </div>
+        </div>
+
+        <!-- সেকশন ৩: প্রোডাক্ট ও ব্যানার সিলেকশন -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-2xl border border-slate-150 p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Select Campaign Products</label>
+                    <select name="product" multiple class="w-full h-44 px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-indigo-500 transition-all">
+                        {% for prod in form.fields.product.queryset %}
+                            <option value="{{ prod.id }}" {% if prod in form.initial.product or prod.id|stringformat:"i" in form.product.value %}selected{% endif %}>{{ prod.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-3"><i class="fa-solid fa-circle-info me-1"></i> Hold Cmd/Ctrl to select multiple products.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-150 p-6 shadow-sm space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Desktop Banner</label>
+                    <input type="file" name="banner_desktop" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Mobile Banner (Optional)</label>
+                    <input type="file" name="banner_mobile" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-50 file:text-slate-700 hover:file:bg-slate-100 cursor-pointer">
+                </div>
+            </div>
+        </div>
+
+        <!-- সেকশন ৪: ডুরেশন ও লাইভ স্ট্যাটাস (এখানেই আসল চেকবক্স ইনপুট আছে) -->
+        <div class="bg-white rounded-2xl border border-slate-150 p-6 shadow-sm space-y-6">
+            <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50 pb-2 flex items-center gap-1.5">
+                <i class="fa-solid fa-clock"></i> Campaign Duration
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Valid From (Flatpickr) -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-2">Valid From</label>
+                    <div class="relative">
+                        <input type="text" name="start_time" id="start_time" required placeholder="Select start date & time"
+                               value="{{ form.start_time.value|date:'Y-m-d H:i'|default:'' }}"
+                               class="w-full pl-10 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all cursor-pointer">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-calendar-day text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Valid Until (Flatpickr) -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-2">Valid Until</label>
+                    <div class="relative">
+                        <input type="text" name="end_time" id="end_time" required placeholder="Select end date & time"
+                               value="{{ form.end_time.value|date:'Y-m-d H:i'|default:'' }}"
+                               class="w-full pl-10 pr-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all cursor-pointer">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-calendar-check text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- স্ট্যাটাস টগল (এখানেই আসল HTML Checkbox ফিল্ড যুক্ত করা হয়েছে) -->
+            <div class="flex justify-between items-center bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                <div>
+                    <h4 class="text-xs font-bold text-slate-800">Activate Immediately</h4>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Make this event live and ready to use by customers right away.</p>
+                </div>
+                
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="is_active" id="statusToggle" class="sr-only peer"
+                        {% if form.is_active.value or form.status.value == 'active' or not form.instance.pk %}checked{% endif %}
+                        onchange="updateStatusValue()">
+                        
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+
+                <input type="hidden" name="status" id="statusInput" value="{{ form.status.value|default:'active' }}">
+            </div>
+        </div>
+
+        <!-- অ্যাকশন বাটন গ্রুপ -->
+        <div class="flex justify-end gap-3 pb-8">
+            <a href="{% url 'events_list' %}" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm">
+                Cancel
+            </a>
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition shadow-sm">
+                Save Event
+            </button>
+        </div>
+    </form>
+</span>
+
+<!-- Flatpickr (UI-UX Friendly Calendar Component) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<style>
+    /* ফ্ল্যাটপিকআর ক্যালেন্ডারের প্রিমিয়াম কাস্টম স্টাইল */
+    .flatpickr-calendar {
+        border-radius: 1rem !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .flatpickr-day.selected, .flatpickr-day.selected:hover {
+        background: #4f46e5 !important;
+        border-color: #4f46e5 !important;
+    }
+</style>
+
+<script>
+    // Flatpickr লোড লজিক
+    document.addEventListener("DOMContentLoaded", function() {
+        const config = {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            altInput: true,
+            altFormat: "F j, Y - h:i K", // স্ক্রিনে দেখতে প্রিমিয়াম লাগবে
+            time_24hr: false,
+            minDate: "today",
+        };
+        flatpickr("#start_time", config);
+        flatpickr("#end_time", config);
+        
+        // প্রথমবার লোডের সময় ইনপুট ভ্যালু সিঙ্ক করা
+        updateStatusValue();
+    });
+
+    // টগল চেঞ্জ হলে রান হওয়া স্ক্রিপ্ট
+    function updateStatusValue() {
+        const toggle = document.getElementById('statusToggle');
+        const statusInput = document.getElementById('statusInput');
+        
+        if (toggle.checked) {
+            statusInput.value = "active";
+        } else {
+            statusInput.value = "draft"; // টগল অফ করলে ভ্যালু স্ট্রিং হিসেবে 'draft' যাবে
+        }
+    }
+
+    function togglePriorityValue() {
+        const toggle = document.getElementById('priorityToggle');
+        const input = document.getElementById('priorityInput');
+        input.value = toggle.checked ? "1" : "0";
+    }
+</script>
+{% endblock %}

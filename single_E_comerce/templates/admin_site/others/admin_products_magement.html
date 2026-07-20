@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Settings | Ecommerce {% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* Horizontal Settings Navigation */
+    .settings-nav-wrapper {
+        background: white;
+        border-radius: 12px;
+        padding: 10px 20px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        margin-bottom: 25px;
+    }
+
+    .settings-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        gap: 10px;
+        overflow-x: auto; /* মোবাইল ভিউর জন্য স্ক্রল */
+        white-space: nowrap;
+    }
+
+    .settings-nav li a {
+        display: inline-flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: #64748b;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .settings-nav li a .bullet {
+        margin-right: 8px;
+        font-size: 18px;
+        line-height: 0;
+    }
+
+    /* Active State for Horizontal Tabs */
+    .settings-nav li a:hover, 
+    .settings-nav li a.active-menu {
+        background-color: #14552c;
+        color: white !important;
+    }
+
+    .settings-nav li a.active-menu .bullet {
+        color: white;
+    }
+
+    /* Content Area */
+    .listing-box {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
+    }
+
+    .custom-table thead th {
+        background-color: #f8fafc;
+        border: none;
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #64748b;
+        padding: 15px;
+    }
+
+    /* Hide scrollbar for settings nav */
+    .settings-nav::-webkit-scrollbar {
+        display: none;
+    }
+    .settings-nav {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Product Management</h2>
+            <p class="text-muted small mb-0">Configure and manage your store components</p>
+        </div>
+
+        <div style="max-width: 400px; width: 100%;">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert 
+                        {% if message.tags == 'success' %}bg-success text-white
+                        {% elif message.tags == 'warning' %}bg-warning text-dark
+                        {% elif message.tags == 'error' %}bg-danger text-white
+                        {% else %}bg-info text-white{% endif %} 
+                        alert-dismissible fade show shadow-sm border-0 rounded-3 py-2 px-3 mb-0" role="alert" style="font-size: 0.85rem;">
+                        
+                        <div class="d-flex align-items-center">
+                            {% if message.tags == 'success' %}<i class="fas fa-check-circle me-2"></i>
+                            {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle me-2"></i>
+                            {% elif message.tags == 'error' %}<i class="fas fa-times-circle me-2"></i>
+                            {% endif %}
+                            <div class="pe-4">{{ message }}</div>
+                        </div>
+                        
+                        <button type="button" class="btn-close {% if message.tags != 'warning' %}btn-close-white{% endif %} p-2 mt-1" 
+                                data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.6rem;"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="settings-nav-wrapper">
+        <ul class="settings-nav">
+            {% for data in get_setting_menu %}
+                <li>
+                    <a href="{{ data.menu_url }}" class="{% if request.path == data.menu_url %}active-menu{% endif %}"> 
+                        <span class="bullet">&bull;</span> {{ data.menu_name }} 
+                    </a>
+                </li>  
+            {% empty %}
+                <li class="p-2 text-muted">No Menu Permissions Found</li>
+            {% endfor %} 
+        </ul>
+    </div>
+
+    <div class="settings-content">
+        <div class="listing-box">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold m-0 text-dark">Current: {{ page_title }}</h5>
+            </div>
+
+            {% if page_title == "Main Category" %}
+                {% include 'admin_site/all_table/main_category.html' %}
+                {% include 'admin_site/pagination/pagination.html' with items=product_main_categories %}
+                    
+            
+             {% elif page_title == "Sub Category" %}
+                {% include 'admin_site/all_table/sub_category.html' %}
+                {% include 'admin_site/pagination/pagination.html' with items=product_sub_categories %}
+            
+            {% elif page_title == "Product List" %}
+                {% include 'admin_site/all_table/products.html' %} 
+                {% include 'admin_site/pagination/pagination.html' with items=all_products %}
+            
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <marquee> Welcome to view my business </marquee>
+                    {% include 'admin_site/charts/graphbymaincategory.html' %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    /* অতিরিক্ত ফিনিশিং */
+    .bg-success-subtle { background-color: #ecfdf5 !important; }
+    .bg-danger-subtle { background-color: #fef2f2 !important; }
+    .btn-white { background: white; }
+    .btn-white:hover { background: #f8fafc; }
+    
+    .table tbody tr:hover {
+        background-color: #fcfdfd;
+    }
+</style>
+{% endblock %}

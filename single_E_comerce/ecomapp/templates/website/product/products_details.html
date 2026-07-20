@@ -1,0 +1,120 @@
+{% extends 'web_base.html' %}
+{% block title %} Fico {% endblock %}
+
+{% load static %}
+
+{% block linkcss %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+{% endblock %}
+
+{% block content %}
+
+<section class="product-details">
+    <div class="container-fluid">
+        <div class="product-info-box">
+            <div class="product-info-left product-info-body">
+                <div class="product-info-top">
+                    {% if product.product_image %}<img src="{{ product.product_image.url }}" alt="{{ product.product_name|default:'' }}">{% endif %}
+                </div>
+                {% comment %} {% for related_image in product_related_images %}
+                    {% if related_image.image %}
+                        <div class="product-info-top">
+                            <img src="{{ related_image.image.url }}" alt="{{ product.product_name|default:'' }}">
+                        </div>
+                    {% endif %}
+                {% endfor %} {% endcomment %}
+                {% comment %} <div class="product-info-top">
+                    <img src="{% static 'images/products/second-image.png' %}" alt="{{ product.product_name|default:'' }}">
+                </div>
+                <div class="product-info-top">
+                    <img src="{% static 'images/products/third-image.png' %}" alt="{{ product.product_name|default:'' }}">
+                </div> {% endcomment %}
+            </div>
+
+            <div class="product-info-right product-info-top">
+                <div class="content-info" id="sticky-product-info">
+                    <form action="#" method="post">
+                        {% csrf_token %}
+
+                        <div class="row-group bottom-br-color">
+                            <h4 class="title">{{ product.product_name|default:'' }} </h4>
+                        </div>
+                        <div class="row-group text-price bottom-br-color">
+                            <div class="price-box">
+                                <p style="font-size: 18px;">{{ product.current_price.currency.currency_icon }} {{ product.current_price.sale_price }}</p>
+                                <div class="product-price" style="font-size: 18px;">Price: <span style="font-weight: bold; color: #27ae60;">{{ product.price|floatformat:2 }}</span>৳</div>
+                            </div>
+                        </div>
+                        {% if product.description %}
+                        <div class="row-group bottom-br-color">
+                            <div class="info-subtitle"> DESCRIPTION <span class="plus display_none">+</span> <span class="minus">-</span> </div>
+                            <div class="expand-group product-dimensions product-description">
+                                {{ product.description|safe }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if product.dimensions %}
+                        <div class="row-group bottom-br-color">
+                            <div class="info-subtitle"> DIMENSIONS <span class="plus">+</span> <span class="minus display_none">-</span> </div>
+                            <div class="expand-group product-dimensions display_none">
+                                {{ product.dimensions|safe }}
+                            </div>
+                        </div>
+                        {% endif %}
+                       
+                       
+                    
+                        
+                        <div class="row-group text-box">
+                            <div class="agree-box">
+                                <p>
+                                    <input type="radio" name="agree" id="agree" value="1">
+                                    <label for="agree">I agree to the Fico terms and conditions</label>
+                                </p>
+                            </div>
+                        </div> 
+                        <div class="row-group">
+                            <div class="add-cart-box">
+                                    <div class="product-qty-box">
+                                        <button type="button" id="decrement" class="decrement"><span> - </span></button>
+                                        <input type="number" id="cart_qty" class="cart_qty cart_qty__{{ product.id }}" min="0" max="50" data-product-id="{{ product.id }}" value="{{ product.product_cart.quantity|default:'0' }}">
+                                        <button type="button" id="increment" class="increment"><span> + </span></button>
+                                    </div>
+                                <div class="product-addtocart-box">
+                                    <button type="submit" class="add_to_cart fico-button button_white" data-product-id="{{ product.id }}">
+                                        Add to Cart
+                                    </button>
+                                    
+                        
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row-group" style="display: none;">
+                            <div class="time-line-box">
+                                <p>Kindly allow 10-12 weeks lead time for production and an additional 2 weeks for shipping. Thank you. </p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</section>
+
+
+
+
+
+{% endblock %}
+
+{% block linkScript %}
+<!-- Swiper For Home JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="{% static 'website/js/event.js' %}"></script>
+
+
+
+{% endblock %}

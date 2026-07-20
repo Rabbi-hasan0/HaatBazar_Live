@@ -1,0 +1,250 @@
+:root {
+    --primary-color: #6366f1;
+    --bg-light: #f3f4f6;
+}
+
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-light); /* পেজের চারপাশের গ্যাপের রঙ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* মূল কন্টেইনার যা চারপাশ থেকে ১০% প্যাডিং মেইনটেইন করবে */
+.page-wrapper {
+    width: 100%;
+    height: 100vh;
+    padding: 5% 10%; /* ডানে-বামে ১০% এবং উপরে-নিচে ৫% প্যাডিং */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.login-main-card {
+    display: flex;
+    width: 100%;
+    max-width: 1200px; /* অনেক বেশি বড় স্ক্রিনেও কন্ট্রোল রাখবে */
+    height: 100%;
+    max-height: 700px; /* কার্ডের হাইট ফিক্সড করে দেওয়া হলো */
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Left Side: Branding */
+.brand-side {
+    flex: 1;
+    background: linear-gradient(rgba(30, 30, 45, 0.7), rgba(30, 30, 45, 0.7)), 
+                url('https://images.unsplash.com/photo-1556740734-7f9a2b7a0f42?auto=format&fit=crop&q=80');
+    background-size: cover;
+    background-position: center;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+}
+
+.brand-logo h1 {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.brand-logo span { color: var(--primary-color); }
+
+.testimonial h2 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Right Side: Form */
+.form-side {
+    flex: 1;
+    padding: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+}
+
+.form-content {
+    width: 100%;
+    max-width: 350px;
+}
+
+.form-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.form-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #475569;
+}
+
+.form-control {
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-login {
+    width: 100%;
+    height: 48px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    margin-top: 20px;
+    transition: 0.3s;
+}
+.auth-actions {
+    display: flex;
+    justify-content: flex-end; 
+    margin-top: 10px;
+}
+.forgot-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+.forgot-link:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+.btn-login:hover {
+    background: #4f46e5;
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+}
+.divider {
+    text-align: center;
+    margin: 25px 0;
+    color: #cbd5e1;
+    position: relative;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.btn-google {
+    width: 100%;
+    height: 48px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+}
+.password-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrap .form-control {
+    padding-right: 45px; /* আইকনের জন্য জায়গা রাখা হয়েছে */
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 15px;
+    color: #8094ae;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s;
+}
+
+.password-toggle-icon:hover {
+    color: var(--primary-color);
+}
+
+.password-toggle-icon i {
+    font-size: 18px;
+}
+/* Divider Line */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 30px 0;
+    color: #b6c2d0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.divider span {
+    padding: 0 15px;
+}
+
+/* Social Buttons Row */
+.social-btns-container {
+    display: flex;
+    gap: 15px; /* বাটন দুটির মাঝখানের গ্যাপ */
+    justify-content: space-between;
+}
+
+.btn-social-item {
+    flex: 1; /* দুটি বাটনকে সমান চওড়া করবে */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 46px;
+    border: 1px solid #dbdfea;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #364a63;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-social-item:hover {
+    background-color: #f8f9fa;
+    border-color: #cbd5e1;
+    color: #364a63;
+}
+
+.btn-social-item i {
+    font-size: 16px;
+}
+/* Responsive */
+@media (max-width: 992px) {
+    .page-wrapper { padding: 20px; }
+    .brand-side { display: none; }
+    .login-main-card { max-height: none; height: auto; }
+}

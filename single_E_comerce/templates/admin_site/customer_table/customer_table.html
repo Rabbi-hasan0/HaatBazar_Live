@@ -1,0 +1,342 @@
+<div class="row align-items-center mb-4 g-3">
+    <div class="col-md-4">
+        <div class="d-flex align-items-center">
+            <div class="icon-box bg-primary-subtle text-primary rounded-3 p-2 me-3 shadow-sm">
+                <i class="fas fa-layer-group fa-lg"></i>
+            </div>
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Customers List <small class="text-muted">(Total: {{ total_customers }})</small></h5>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <form action="{% url 'customer_list' %}" method="GET" class="position-relative">
+            <input type="hidden" name="type" value="{{ request.GET.type|default:'main_cat' }}">
+
+            <i class="fa-solid fa-magnifying-glass position-absolute ms-3 text-muted" style="top: 12px;"></i>
+            <input type="search" name="q" class="form-control ps-5 rounded-pill border-0 shadow-sm" 
+                placeholder="Customer Name or Phone..." 
+                value="{{ request.GET.q|default:'' }}" 
+                style="height: 45px;">
+        </form>
+    </div>
+
+    <div class="col-md-4 text-end">
+        <a href="#" class="btn btn-primary px-4 rounded-pill shadow-sm">
+            <i class="bi bi-download me-2"></i> Export
+        </a>
+    </div>
+</div>  
+
+
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive" style="min-height: 400px;">
+        <table class="table table-hover align-middle border-top" style="border-collapse: separate; border-spacing: 0;">
+            <thead class="table-light">
+                <tr class="text-nowrap">
+                    <th class="ps-4">SL</th>
+                    <th class="ps-5">Customer</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Join Date</th>
+                    <th>Last Order</th>
+                    <th class="text-center">Total Ordered</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td class="ps-4 text-muted">{{ forloop.counter }}</td>
+                    
+                    <td>
+                        <div class="d-flex align-items-center rounded-3 p-2 transition" data-bs-toggle="modal" data-bs-target="#customerModal{{ customer.id }}" style="cursor: pointer;">
+                            {% if customer.profile_pic %}
+                                <img src="{{ customer.profile_pic.url }}" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;" alt="profile">
+                            {% else %}
+                                <div class="avatar-sm me-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: 500;">
+                                    {{ customer.user.first_name|first }}{{ customer.user.last_name|first }}
+                                </div>
+                            {% endif %}
+                            <div class="text-nowrap">
+                                <h6 class="mb-0 text-dark fw-bold">{{ customer.user.get_full_name }}</h6>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td><small class="text-muted">{{ customer.user.email }}</small></td>
+
+                    <td class="text-nowrap">{{ customer.phone }}</td>
+
+                    <td class="text-nowrap">{{ customer.user.date_joined|date:"d M Y" }}</td>
+
+                    <td class="text-nowrap">
+                        {% if customer.last_order_date %}
+                            {{ customer.last_order_date|date:"d M Y" }}
+                        {% else %}
+                            <span class="text-muted small">No orders</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="fw-bold text-dark text-center">
+                        ৳ {{ customer.total_spent|default:"0.00" }}
+                    </td>
+
+                    <td class="text-center">
+                        {% if customer.is_active %}
+                            <span class="badge rounded-pill bg-success-soft text-success px-3">Active</span>
+                        {% else %}
+                            <span class="badge rounded-pill bg-danger-soft text-danger px-3">Inactive</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end pe-4">
+                        <div class="dropdown">
+                            <button class="btn btn-link text-dark shadow-none p-0" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                                <i class="bi bi-three-dots-vertical fs-5"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3" style="font-size: 14px;">
+                                <li>
+                                    <a class="dropdown-item py-2" href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#customerModal{{ customer.id }}">
+                                        <i class="bi bi-eye me-2 text-primary"></i> View Details
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item py-2" href="mailto:{{ customer.user.email }}"><i class="bi bi-envelope me-2 text-info"></i> Send Mail</a></li>
+                                <li><a class="dropdown-item py-2" href="{% url 'orders_management' %}?q={{ customer.user.username }}"><i class="bi bi-cart me-2 text-success"></i> View Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item py-2 {% if customer.is_active %}text-danger{% else %}text-success{% endif %}" href="{% url 'toggle_customer_status' customer.id %}">
+                                        <i class="bi {% if customer.is_active %}bi-slash-circle{% else %}bi-check-circle{% endif %} me-2"></i> 
+                                        {% if customer.is_active %}Suspend{% else %}Activate{% endif %}
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <i class="bi bi-people fs-1 d-block mb-2"></i>
+                        No customers found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<!--view details-->
+{% for customer in customers %}
+<div class="modal fade" id="customerModal{{ customer.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+            
+            <div class="modal-header border-0 p-0 overflow-hidden" style="border-radius: 24px 24px 0 0;">
+                <div class="w-100 py-5 text-center position-relative" style="background: linear-gradient(45deg, #4e73df, #224abe); min-height: 160px;">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                    
+                    <div class="position-absolute start-50 translate-middle-x customer-avatar-wrapper" style="bottom: -50px; cursor: pointer; z-index: 10;">
+                        {% if customer.profile_pic %}
+                            <img src="{{ customer.profile_pic.url }}" 
+                                 class="rounded-circle border border-4 border-white shadow customer-avatar" 
+                                 style="width: 130px; height: 130px; object-fit: cover; transition: transform 0.3s ease;"
+                                 onclick="openLightbox('{{ customer.profile_pic.url }}')">
+                        {% else %}
+                            <div class="bg-light text-primary rounded-circle border border-4 border-white shadow d-flex align-items-center justify-content-center mx-auto" 
+                                 style="width: 130px; height: 130px; font-size: 3.5rem; font-weight: bold;">
+                                {{ customer.user.first_name|first|upper }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body text-center mt-5 pt-4 px-md-5">
+                <h3 class="fw-bold mb-1 text-dark">{{ customer.user.get_full_name|default:customer.user.username }}</h3>
+                <p class="text-primary fw-medium fs-5 mb-4">@{{ customer.user.username }}</p>
+
+                <div class="row g-4 text-start">
+                    <div class="col-md-6">
+                        <div class="p-4 border-0 rounded-4 bg-light shadow-sm h-100">
+                            <p class="text-muted small fw-bold text-uppercase mb-3 border-bottom pb-2">
+                                <i class="bi bi-person-lines-fill me-2 text-primary"></i>Basic Information
+                            </p>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Phone Number</label>
+                                <span class="fw-bold fs-6 text-dark">{{ customer.phone }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Email Address</label>
+                                <span class="fw-bold fs-6 text-dark">{{ customer.user.email }}</span>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="text-muted small d-block">Gender</label>
+                                    <span class="fw-bold text-dark text-capitalize">{{ customer.gender|default:"N/A" }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small d-block">DOB</label>
+                                    <span class="fw-bold text-dark">{{ customer.date_of_birth|date:"d M, Y"|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-4 border-0 rounded-4 bg-white shadow-sm border-start border-4 border-danger h-100">
+                            <p class="text-muted small fw-bold text-uppercase mb-3 border-bottom pb-2">
+                                <i class="bi bi-geo-alt-fill text-danger me-2"></i>Address Details
+                            </p>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="text-muted small d-block">District</label>
+                                    <span class="fw-semibold text-dark">{{ customer.district|default:"N/A" }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-muted small d-block">Thana</label>
+                                    <span class="fw-semibold text-dark">{{ customer.thana|default:"N/A" }}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-muted small d-block">Full Address</label>
+                                <p class="mb-0 fw-bold text-dark" style="line-height: 1.4;">{{ customer.address_details|default:"No specific address provided." }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-5 text-center bg-white rounded-4 p-0 mx-0 shadow-sm border overflow-hidden">
+                    <div class="col-6 p-3 border-end border-bottom bg-light">
+                        <div class="text-muted mb-1" style="font-size: 0.75rem; font-weight: 800; text-uppercase;">Total Spent</div>
+                        <h4 class="fw-bold text-success mb-0">৳{{ customer.total_spent|default:0 }}</h4>
+                    </div>
+                    <div class="col-6 p-3 border-bottom bg-light">
+                        <div class="text-muted mb-1" style="font-size: 0.75rem; font-weight: 800; text-uppercase;">Last Order</div>
+                        <h5 class="fw-bold text-dark mb-0" style="font-size: 1rem;">
+                            {{ customer.last_order_date|date:"d M, Y"|default:"Never" }}
+                        </h5>
+                    </div>
+                    
+                    <div class="col-3 p-3 border-end">
+                        <div class="text-success mb-1" style="font-size: 0.7rem; font-weight: 800; text-uppercase;">Total Orders</div>
+                        <h5 class="fw-bold mb-0">{{ customer.total_orders|default:0 }}</h5>
+                    </div>
+                    <div class="col-3 p-3 border-end">
+                        <div class="text-success mb-1" style="font-size: 0.7rem; font-weight: 800; text-uppercase;">Complete</div>
+                        <h5 class="fw-bold mb-0">{{ customer.delivered_count|default:0 }}</h5>
+                    </div>
+                    <div class="col-3 p-3">
+                        <div class="text-danger mb-1" style="font-size: 0.7rem; font-weight: 800; text-uppercase;">Cancel</div>
+                        <h5 class="fw-bold mb-0">{{ customer.cancelled_count|default:0 }}</h5>
+                    </div>
+                    <div class="col-3 p-3 border-end">
+                        <div class="text-warning mb-1" style="font-size: 0.7rem; font-weight: 800; text-uppercase;">Pending</div>
+                        <h5 class="fw-bold mb-0">{{ customer.pending_count|default:0 }}</h5>
+                    </div>
+
+                    <div class="col-12 p-2 bg-dark text-white-50" style="font-size: 0.75rem;">
+                        <i class="bi bi-clock-history me-1"></i> Last Login: 
+                        <span class="text-white fw-bold">{{ customer.user.last_login|date:"d M, Y | h:i A"|default:"N/A" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center pb-5 pt-4">
+                <button type="button" class="btn btn-light px-5 py-2 rounded-pill border fw-bold me-2" data-bs-dismiss="modal">Close</button>
+                <a href="mailto:{{ customer.user.email }}" class="btn btn-primary px-5 py-2 rounded-pill shadow-lg fw-bold">
+                    <i class="bi bi-envelope-at me-2"></i>Send Email
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<div id="imageLightbox" class="lightbox-overlay" onclick="closeLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-content" id="lightboxImage">
+</div>
+
+<style>
+    /* Zoom on hover effect for original avatar */
+    .customer-avatar:hover {
+        transform: scale(1.05);
+    }
+
+    /* Lightbox Overlay Style */
+    .lightbox-overlay {
+        display: none; /* Hidden by default */
+        position: fixed;
+        z-index: 10000; /* Ensure it is above the modal (modal z-index is usually 1050-1060) */
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9); /* Pure black overlay with high opacity */
+        overflow: auto; /* Enable scroll if image is taller than screen */
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .lightbox-overlay.show {
+        display: flex; /* Centering content */
+        opacity: 1;
+    }
+
+    /* Lightbox Image Content */
+    .lightbox-content {
+        max-width: 80%;
+        max-height: 80%;
+        border: 4px solid white;
+        border-radius: 12px;
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        transform: scale(0.8);
+        transition: transform 0.3s ease;
+    }
+
+    .lightbox-overlay.show .lightbox-content {
+        transform: scale(1); /* Smooth scale in */
+    }
+
+    /* Lightbox Close Button */
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .lightbox-close:hover {
+        color: #bbb;
+    }
+</style>
+
+<script>
+// Function to open image in dedicated lightbox overlay
+function openLightbox(imageUrl) {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImage');
+    
+    lightboxImg.src = imageUrl;
+    lightbox.classList.add('show');
+}
+
+// Function to close lightbox on click
+function closeLightbox() {
+    const lightbox = document.getElementById('imageLightbox');
+    lightbox.classList.remove('show');
+}
+</script>

@@ -1,0 +1,414 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Support | HaatBazar</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-soft: rgba(99, 102, 241, 0.1);
+            --secondary: #4f46e5;
+            --bg: #f8fafc;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        body {
+            background-color: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
+            padding: 60px 20px;
+        }
+
+        .support-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-weight: 800;
+            font-size: 36px;
+            letter-spacing: -1px;
+            color: var(--text-dark);
+        }
+
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 10px auto 0;
+        }
+
+        /* Cards */
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 35px;
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin-bottom: 25px;
+        }
+
+        /* Instructions */
+        .step-item {
+            background: #f1f5f9;
+            padding: 20px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .step-item:hover {
+            background: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .badge-number {
+            background: var(--primary);
+            color: white;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        /* Contact Section */
+        .contact-box {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 30px;
+            padding: 50px;
+            color: white;
+            margin-top: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-box::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: var(--primary);
+            filter: blur(100px);
+            opacity: 0.3;
+        }
+
+        .dev-badge {
+            background: var(--primary);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #cbd5e1;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-link:hover {
+            background: white;
+            color: var(--text-dark);
+            transform: scale(1.02);
+        }
+
+        .service-chip {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        /* Footer Styles */
+        .merchant-footer {
+            background-color: #0f172a; /* Deep Navy Dark */
+            color: white;
+            border-radius: 30px 30px 0 0;
+            padding: 60px 40px 20px;
+            margin-top: 80px !important;
+        }
+
+        .footer-brand h3 span {
+            color: var(--primary);
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .social-links a {
+            color: #94a3b8;
+            font-size: 20px;
+            margin-right: 20px;
+            transition: 0.3s;
+        }
+
+        .social-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .team-member {
+            border-left: 2px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        /* Responsive adjust */
+        @media (max-width: 768px) {
+            .merchant-footer {
+                padding: 40px 20px 20px;
+                border-radius: 20px 20px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="support-wrapper">
+    <div class="section-header">
+        {% comment %} <span class="badge rounded-pill bg-primary px-3 py-2 mb-3" style="--bs-bg-opacity: .1; color: var(--primary) !important;">Support Center</span> {% endcomment %}
+        <h2>HaatBazar Support Center</h2>
+        <p>আপনার ব্যবসার ডিজিটাল যাত্রায় HaatBazar সবসময় আপনার পাশে আছে। এখানে জানুন আমাদের সিস্টেম কীভাবে কাজ করে।</p>
+    </div>
+    <div class="contact-box shadow-lg mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <span class="dev-badge mb-3">Founder</span>
+                <h2 class="fw-800 mb-3">Rabbi Hasan</h2>
+                <p class="text-white-50 fs-5 mb-1">Merchant Onboarding & Technical Solutions Specialist</p>
+                <p class="text-white-50 mb-4">নতুন একাউন্ট খোলা বা টেকনিক্যাল কোনো সমস্যায় সরাসরি আমার সাথে যোগাযোগ করুন। আপনার ব্যবসার সফলতায় আমরা সর্বদা অঙ্গীকারবদ্ধ।</p>
+            </div>
+            <div class="col-lg-5">
+                <div class="d-flex flex-column">
+                    <a href="mailto:imrabbihasan@gmail.com" class="contact-link">
+                        <i class="fa-solid fa-envelope-open-text"></i> imrabbihasan@gmail.com
+                    </a>
+                    <a href="tel:01321089577" class="contact-link">
+                        <i class="fa-solid fa-headset"></i> +88 01321089577
+                    </a>
+                    <a href="https://wa.me/8801321089577" class="contact-link">
+                        <i class="fa-brands fa-whatsapp"></i> Instant WhatsApp Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="glass-card">
+                <div class="icon-circle"><i class="fa-solid fa-microchip"></i></div>
+                <h4 class="fw-bold mb-3">System Architecture</h4>
+                <p class="text-muted small mb-4">আমাদের অটোমেটেড প্যানেল আপনার ইনভেন্টরি ম্যানেজমেন্টকে করবে সহজ ও নির্ভুল।</p>
+                <div class="services">
+                    <span class="service-chip">99.9% Server Uptime</span>
+                    <span class="service-chip">SSL Secure Connection</span>
+                    <span class="service-chip">Daily Cloud Backup</span>
+                    <span class="service-chip">API Integration</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="glass-card">
+                <div class="icon-circle"><i class="fa-solid fa-briefcase"></i></div>
+                <h4 class="fw-bold mb-3">What We Offer</h4>
+                <ul class="list-unstyled small">
+                    <li class="mb-2 text-muted"><i class="fa-solid fa-circle-check text-primary me-2"></i> Real-time Order Tracking</li>
+                    <li class="mb-2 text-muted"><i class="fa-solid fa-circle-check text-primary me-2"></i> Dynamic Pricing System</li>
+                    <li class="mb-2 text-muted"><i class="fa-solid fa-circle-check text-primary me-2"></i> Automated Digital Invoices</li>
+                    <li class="mb-2 text-muted"><i class="fa-solid fa-circle-check text-primary me-2"></i> WhatsApp Integration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="glass-card">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="icon-circle mb-0 me-3"><i class="fa-solid fa-route"></i></div>
+                    <h4 class="fw-bold mb-0">অনবোর্ডিং গাইডলাইন (Step-by-Step)</h4>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="step-item">
+                            <div class="badge-number">01</div>
+                            <div>
+                                <h6 class="fw-bold mb-1">ইমেইল ভেরিফিকেশন</h6>
+                                <p class="small text-muted mb-0">রেজিস্ট্রেশনের পর আপনার ইনবক্সে পাঠানো ৬ ডিজিটের OTP ব্যবহার করুন।</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="step-item">
+                            <div class="badge-number">02</div>
+                            <div>
+                                <h6 class="fw-bold mb-1">প্রোফাইল কমপ্লিট করা</h6>
+                                <p class="small text-muted mb-0">আপনার দোকানের ট্রেড নাম, সঠিক লোকেশন এবং লোগো আপলোড করুন।</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="step-item">
+                            <div class="badge-number">03</div>
+                            <div>
+                                <h6 class="fw-bold mb-1">এডমিন এপ্রুভাল</h6>
+                                <p class="small text-muted mb-0">আমাদের টিম আপনার তথ্য ২৪ ঘণ্টার মধ্যে যাচাই করে এপ্রুভ করবে।</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="step-item">
+                            <div class="badge-number">04</div>
+                            <div>
+                                <h6 class="fw-bold mb-1">বিজনেস শুরু</h6>
+                                <p class="small text-muted mb-0">এপ্রুভ হওয়ার পর প্রোডাক্ট এড করুন এবং অর্ডার রিসিভ করা শুরু করুন।</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="#" class="btn btn-dark rounded-pill px-5 py-3 fw-bold">
+            <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <footer class="merchant-footer mt-5">
+        <div class="footer-top">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand mb-3">
+                        <h3 class="fw-800 text-white">Haat<span>Bazar</span></h3>
+                    </div>
+                    <p class="text-white-50 small pe-lg-5">
+                        HaatBazar is a next-gen wholesale merchant platform focused on digitizing traditional commerce with speed, security, and smart analytics.
+                    </p>
+                    <div class="social-links mt-4">
+                        <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="text-white fw-bold mb-4">Core Services</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#">Inventory Sync</a></li>
+                        <li><a href="#">Order Management</a></li>
+                        <li><a href="#">B2B Logistics</a></li>
+                        <li><a href="#">Digital Ledger</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="text-white fw-bold mb-4">Support Team</h6>
+                    <div class="team-member mb-3">
+                        <p class="mb-0 text-white small fw-bold">Rabbi Hasan</p>
+                        <span class="text-white-50 small">Lead Systems Architect</span>
+                    </div>
+                    <div class="team-member">
+                        <p class="mb-0 text-white small fw-bold">Support Desk</p>
+                        <span class="text-white-50 small">Available 24/7 for Merchants</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="text-white fw-bold mb-4">Legal & Terms</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Merchant Agreement</a></li>
+                        <li><a href="#">Cookie Settings</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom text-center">
+            <p class="mb-0 text-white-50 small">© 2026 HaatBazar Inc. All rights reserved. Designed & Maintained by <strong>Team Rabbi</strong></p>
+        </div>
+    </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

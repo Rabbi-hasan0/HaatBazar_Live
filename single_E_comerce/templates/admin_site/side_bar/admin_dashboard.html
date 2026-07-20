@@ -1,0 +1,182 @@
+{% extends 'owner_base.html' %}
+{% load static %}
+
+{% block title %} Dashboard | CRM Admin {% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h2 class="h3 mb-0 text-gray-800 fw-bold">Dashboard</h2>
+        <span class="text-muted">Welcome to your business overview</span>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 py-2" style="border-left: 4px solid #4e73df !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1" style="font-size: 12px;">Total Users</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">1,234</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 py-2" style="border-left: 4px solid #1cc88a !important;">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1" style="font-size: 12px;">Total Sell</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">$45,200</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shopping-cart fa-2x text-gray-300" style="color: #dddfeb;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 py-2" style="border-left: 4px solid #36b9cc !important;">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1" style="font-size: 12px;">Profit</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">$12,000</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 py-2" style="border-left: 4px solid #e74a3b !important;">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1" style="font-size: 12px;">Loss</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">$1,500</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-2 col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 py-2" style="border-left: 4px solid #f6c23e !important;">
+                <div class="card-body">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1" style="font-size: 11px;">Orders / Cancel</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">150 / 12</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header py-3 bg-white border-0">
+                    <h6 class="m-0 font-weight-bold text-dark">Today's Top Selling Products</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Sales</th>
+                                    <th>Revenue</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 me-3"><i class="fas fa-mobile-alt text-success"></i></div>
+                                            <span class="fw-medium">iPhone 15 Pro</span>
+                                        </div>
+                                    </td>
+                                    <td>Electronics</td>
+                                    <td>45</td>
+                                    <td>$54,000</td>
+                                    <td><span class="badge bg-success-subtle text-success">Hot</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 me-3"><i class="fas fa-tshirt text-primary"></i></div>
+                                            <span class="fw-medium">Nike Air Jordan</span>
+                                        </div>
+                                    </td>
+                                    <td>Fashion</td>
+                                    <td>32</td>
+                                    <td>$6,400</td>
+                                    <td><span class="badge bg-info-subtle text-info">Trending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 me-3"><i class="fas fa-laptop text-warning"></i></div>
+                                            <span class="fw-medium">MacBook M3 Air</span>
+                                        </div>
+                                    </td>
+                                    <td>Computing</td>
+                                    <td>18</td>
+                                    <td>$21,600</td>
+                                    <td><span class="badge bg-success-subtle text-success">Hot</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header py-3 bg-white border-0">
+                    <h6 class="m-0 font-weight-bold text-dark">Recent Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <p class="small mb-1">Stock Availability <span class="float-end fw-bold">85%</span></p>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="small mb-1">Order Completion <span class="float-end fw-bold">92%</span></p>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 py-3">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fas fa-circle text-danger me-2" style="font-size: 8px;"></i>
+                                <span>5 Orders were cancelled today</span>
+                                <span class="ms-auto">2h ago</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0 py-3">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fas fa-circle text-success me-2" style="font-size: 8px;"></i>
+                                <span>Target reached for Electronics category</span>
+                                <span class="ms-auto">5h ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-success-subtle { background-color: #d1e7dd; }
+    .bg-info-subtle { background-color: #cff4fc; }
+    .card { transition: transform 0.2s; }
+    .card:hover { transform: translateY(-5px); }
+</style>
+{% endblock %}

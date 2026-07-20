@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Single E-commerce</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            margin: 0; padding: 20px;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .register-container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            width: 450px;
+            max-width: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h2 { text-align: center; color: #f57c00; margin-bottom: 20px; font-size: 26px; }
+        
+        .error-message {
+            color: #d32f2f; background: #ffeaea; border: 1px solid #f8bbbc;
+            padding: 10px; border-radius: 6px; margin-bottom: 15px;
+            text-align: center; font-size: 14px;
+        }
+        
+        label { font-weight: 600; color: #444; display: block; margin-bottom: 5px; font-size: 13px; text-transform: uppercase; }
+        
+        input, select {
+            width: 100%; padding: 10px 12px; margin-bottom: 15px;
+            border: 1px solid #ddd; border-radius: 8px; font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            border-color: #f57c00; box-shadow: 0 0 5px rgba(245, 124, 0, 0.2); outline: none;
+        }
+
+        .file-input-label {
+            background: #f9f9f9; border: 2px dashed #ddd; padding: 10px;
+            text-align: center; cursor: pointer; border-radius: 8px;
+            display: block; margin-bottom: 15px; color: #777;
+        }
+        .file-input-label:hover { background: #f0f0f0; border-color: #f57c00; }
+
+        button[type="submit"] {
+            width: 100%; background: #f57c00; color: #fff; border: none;
+            padding: 14px; border-radius: 8px; font-size: 16px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        button[type="submit"]:hover { background: #e65100; }
+
+        .login-link { text-align: center; margin-top: 20px; font-size: 14px; color: #555; }
+        .login-link a { color: #f57c00; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="register-container">
+    <h2>Registration</h2>
+
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label>Full Name</label>
+        <input type="text" name="full_name" placeholder="John Doe" required>
+
+        <label>Username</label>
+        <input type="text" name="username" placeholder="johndoe123" required>
+
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="john@example.com" required>
+
+        <label>Phone Number</label>
+        <input type="text" name="phone" placeholder="01XXXXXXXXX" required>
+
+        <label>Profile Picture</label>
+        <input type="file" name="profile_pic" accept="image/*" class="file-input-label">
+
+        <div style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+                <label>Date of Birth</label>
+                <input type="date" name="date_of_birth" required>
+            </div>
+            <div style="flex: 1;">
+                <label>Gender</label>
+                <select name="gender" required>
+                    <option value="" disabled selected>Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+
+        <button type="submit">Create Account</button>
+    </form>
+
+    <div class="login-link">
+        Already registered? <a href="{% url 'user_login' %}">Login here</a>
+    </div>
+</div>
+
+</body>
+</html>

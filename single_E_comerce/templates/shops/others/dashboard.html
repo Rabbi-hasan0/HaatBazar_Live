@@ -1,0 +1,421 @@
+{% extends 'owner_base.html' %}
+{% load static %}
+
+{% block title %} Dashboard | CRM Admin {% endblock %}
+
+{% block content %}
+<span class="w-full py-8 sm:py-12 space-y-6">
+
+    <!-- Main Workspace -->
+    <main class="flex-1 max-w-8xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Quick Glance KPI Dashboard Cards -->
+        <div class="space-y-3">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Shop's Operational Ledger
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- KPI 2: Subscription Plan (Real-time Live Countdown Clock) -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-colors">
+                    <div class="space-y-1 overflow-hidden w-full">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Plan</span>
+                        <h4 class="text-xl font-extrabold text-slate-800 tracking-tight capitalize truncate pt-0.5">{{ plan.get_name_display }}</h4>
+                        
+                        <!-- Real-time Multi-Unit Clock Component -->
+                        <div id="countdown-wrapper" class="hidden pt-0.5">
+                            <div class="flex items-center gap-1 text-[11px] font-mono font-bold tracking-tight text-slate-600">
+                                <span id="cd-d" class="bg-slate-100 border border-slate-200 px-1 py-0.5 rounded">00</span><span class="text-slate-400 font-sans text-[10px]">d</span>
+                                <span id="cd-h" class="bg-slate-100 border border-slate-200 px-1 py-0.5 rounded">00</span><span class="text-slate-400 font-sans text-[10px]">h</span>
+                                <span id="cd-m" class="bg-slate-100 border border-slate-200 px-1 py-0.5 rounded">00</span><span class="text-slate-400 font-sans text-[10px]">m</span>
+                                <span id="cd-s" class="bg-rose-50 border border-rose-200 text-rose-600 px-1 py-0.5 rounded animate-pulse">00</span><span class="text-slate-400 font-sans text-[10px]">s</span>
+                            </div>
+                        </div>
+                        <!-- Fallback Message -->
+                        <p id="cd-expired" class="text-[11px] font-bold text-rose-500 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-lg inline-block hidden">Subscription Expired</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 rounded-xl transition-colors shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Active Coupons -->
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-sm grid grid-cols-1 sm:grid-cols-12 gap-4 items-center group hover:border-slate-300 transition-colors">
+                    
+                    <div class="space-y-0.5 sm:col-span-5">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Active Coupons</span>
+                        <h4 class="text-2xl font-extrabold text-slate-800 tracking-tight pt-0.5">{{ active_coupons_count }}</h4>
+                        <p class="text-[11px] text-slate-400 font-medium">Live promo code running</p>
+                    </div>
+
+                    <div class="hidden sm:block sm:col-span-1 justify-self-center h-8 w-[1px] bg-slate-200/80"></div>
+
+                    <div class="space-y-0.5 sm:col-span-4 mt-2 sm:mt-0">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Active Events</span>
+                        <h4 class="text-2xl font-extrabold text-slate-800 tracking-tight pt-0.5">{{ active_events_count|default:active_coupons_count }}</h4>
+                        <p class="text-[11px] text-slate-400 font-medium">Live offers active</p>
+                    </div>
+
+                    <div class="sm:col-span-2 justify-self-end mt-3 sm:mt-0">
+                        <div class="p-3 bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 rounded-xl transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2 space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Assets & Valuation</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Stock</span>
+                            <span class="text-lg font-extrabold text-slate-800 tracking-tight block pt-0.5">{{ total_stock|default:"0" }} <span class="text-xs text-slate-400 font-medium">products</span></span>
+                        </div>
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Investment</span>
+                            <span class="text-lg font-extrabold text-slate-800 tracking-tight block pt-0.5 truncate" title="{{ total_investment|default:'0' }}">{{ shop.currency }} {{ total_investment|default:"0" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- SaaS Plan Usage Engine (Progress Section) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <div class="p-1 bg-indigo-50 text-indigo-600 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z"/></svg>
+                </div>
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">SaaS Plan Resource Allocation</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Product Metric Threshold -->
+                <div class="space-y-2.5">
+                    <div class="flex justify-between items-baseline text-xs font-semibold">
+                        <span class="text-slate-500 uppercase tracking-wide">Products Multi-Store Limit</span>
+                        <span class="text-slate-700 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 font-mono"><strong class="text-slate-900 font-bold">{{ product_count }}</strong> / {{ plan.product_limit|default:"50" }}</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 h-2.5 rounded-full transition-all duration-500" style="width: {{ product_percentage }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Order Metric Threshold -->
+                <div class="space-y-2.5">
+                    <div class="flex justify-between items-baseline text-xs font-semibold">
+                        <span class="text-slate-500 uppercase tracking-wide">Orders Limit (Current Cycle)</span>
+                        <span class="text-slate-700 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100 font-mono"><strong class="text-slate-900 font-bold">{{ order_count }}</strong> / {{ plan.order_limit|default:"100" }}</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2.5 rounded-full transition-all duration-500" style="width: {{ order_percentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="space-y-3">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span> Today's Operational Ledger
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-colors">
+                    <div class="space-y-0.5">
+                        <span class="text-xs font-medium text-slate-400">Today's Orders</span>
+                        <h4 class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ today_orders_count|default:"0" }}</h4>
+                        <p class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded-md inline-block">New Entry</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 rounded-xl transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-colors">
+                    <div class="space-y-0.5">
+                        <span class="text-xs font-medium text-slate-400">Today's Gross Sales</span>
+                        <h4 class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ shop.currency }} {{ today_gross_sales|default:"0.00" }}</h4>
+                        <p class="text-[10px] text-slate-400 font-medium">Real-time volume</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 rounded-xl transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-colors">
+                    <div class="space-y-0.5">
+                        <span class="text-xs font-medium text-slate-400">Today's Deliveries</span>
+                        <h4 class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ today_deliveries_count|default:"0" }}</h4>
+                        <p class="text-[10px] text-indigo-600 font-medium bg-indigo-50 px-1.5 py-0.5 rounded-md inline-block">Dispatched</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 text-slate-400 group-hover:bg-sky-50 group-hover:text-sky-600 rounded-xl transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/></svg>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/70 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-colors">
+                    <div class="space-y-0.5">
+                        <span class="text-xs font-medium text-slate-400">Today's Net Profit</span>
+                        <h4 class="text-2xl font-extrabold text-emerald-600 tracking-tight">{{ shop.currency }} {{ today_net_profit|default:"0.00" }}</h4>
+                        <p class="text-[10px] text-slate-400 font-medium">After system margins</p>
+                    </div>
+                    <div class="p-3 bg-slate-50 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 rounded-xl transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                📁 Historical Financial Performance Matrix
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden divide-y divide-slate-100">
+                    <div class="px-5 py-3.5 bg-slate-50/50 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Last Month Balance</span>
+                        <span class="text-[10px] bg-slate-200/60 font-mono font-bold px-2 py-0.5 rounded text-slate-600">30 Days Summary</span>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500 font-medium">Last Month Profit</span>
+                            <span class="text-sm font-bold text-emerald-600">+ {{ shop.currency }} {{ last_month_profit|default:"0.00" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500 font-medium">Last Month Loss</span>
+                            <span class="text-sm font-bold text-rose-600">- {{ shop.currency }} {{ last_month_loss|default:"0.00" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden divide-y divide-slate-100">
+                    <div class="px-5 py-3.5 bg-slate-50/50 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Last Year Balance</span>
+                        <span class="text-[10px] bg-slate-200/60 font-mono font-bold px-2 py-0.5 rounded text-slate-600">365 Days Summary</span>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500 font-medium">Last Year Profit</span>
+                            <span class="text-sm font-bold text-emerald-600">+ {{ shop.currency }} {{ last_year_profit|default:"0.00" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500 font-medium">Last Year Loss</span>
+                            <span class="text-sm font-bold text-rose-600">- {{ shop.currency }} {{ last_year_loss|default:"0.00" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden divide-y divide-slate-100">
+                    <div class="px-5 py-3.5 bg-slate-50/50 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Total Cumulative Balance</span>
+                        <span class="text-[10px] bg-indigo-50 border border-indigo-100 text-indigo-600 font-bold px-2 py-0.5 rounded">All-Time</span>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500 font-bold">Total Net Profit</span>
+                            <span class="text-sm font-extrabold text-emerald-600">
+                                {{ shop.currency }} {{ total_net_profit|default:"0.00" }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500 font-bold">Total Business Loss</span>
+                            <span class="text-sm font-extrabold text-rose-600">
+                                {{ shop.currency }} {{ total_business_loss|default:"0.00" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {% comment %} <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-1 space-y-4">
+                <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Assets & Valuation</h3>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Stock</span>
+                        <span class="text-lg font-extrabold text-slate-800 tracking-tight block pt-0.5">{{ total_stock|default:"0" }} <span class="text-xs text-slate-400 font-medium">Units</span></span>
+                    </div>
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Investment</span>
+                        <span class="text-lg font-extrabold text-slate-800 tracking-tight block pt-0.5 truncate" title="{{ total_investment|default:'0' }}">{{ shop.currency }} {{ total_investment|default:"0" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2 flex flex-col justify-between group hover:border-slate-300 transition-colors">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2V9a2 2 0 012-2m8 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m8 0H7"/></svg>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Ecosystem Plan Gateway</h3>
+                    </div>
+                    
+                    <div id="countdown-wrapper" class="hidden">
+                        <div class="flex items-center gap-1 text-[11px] font-mono font-bold text-slate-600">
+                            <span id="cd-d" class="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded">00</span><span>d</span>
+                            <span id="cd-h" class="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded">00</span><span>h</span>
+                            <span id="cd-m" class="bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded">00</span><span>m</span>
+                            <span id="cd-s" class="bg-rose-50 border border-rose-200 text-rose-600 px-1.5 py-0.5 rounded animate-pulse">00</span><span>s</span>
+                        </div>
+                    </div>
+                    <p id="cd-expired" class="text-[10px] font-bold text-rose-500 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-md hidden">Subscription Expired</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-4">
+                    <div>
+                        <span class="text-[11px] text-slate-400 font-medium">Active Package Blueprint</span>
+                        <h5 class="text-base font-extrabold text-indigo-600 capitalize pt-0.5">{{ plan.get_name_display }}</h5>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[11px] text-slate-400 font-medium">Running Active Promotions</span>
+                        <h5 class="text-base font-extrabold text-slate-800 pt-0.5">{{ active_coupons_count }} Active Coupons</h5>
+                    </div>
+                </div>
+            </div>
+        </div> {% endcomment %}
+
+        <!-- Workspace Matrix Splitting: Business Meta & Activity Feed -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            
+            <!-- Left Block: Core Business Identity Cards -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-1 divide-y divide-slate-100 overflow-hidden">
+                <div class="p-5 bg-slate-50/50 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Business Profile</h3>
+                </div>
+                
+                <div class="p-5 space-y-4">
+                    <div class="space-y-0.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Shop Name</span>
+                        <span class="text-xs font-medium text-slate-700 break-all select-all">{{ shop.shop_name }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Owner Name</span>
+                        <span class="text-xs font-medium text-slate-700 break-all select-all">{{ shop.owner|default:"Not Provided" }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Phone Support</span>
+                        <span class="text-xs font-semibold text-slate-800 font-mono">{{ shop.phone }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Contact Email</span>
+                        <span class="text-xs font-medium text-slate-700 break-all select-all">{{ shop.email|default:"No email configured" }}</span>
+                    </div>
+                    <div class="space-y-0.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Shop Location</span>
+                        <span class="text-xs font-medium text-slate-700 block whitespace-pre-line leading-relaxed">{{ shop.shop_address }}</span>
+                    </div>
+                    <div class="space-y-1 pt-1">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Trade License</span>
+                        <span class="text-xs font-mono font-bold bg-slate-50 border border-slate-200 text-slate-700 px-2 py-1 rounded-lg inline-flex items-center gap-1.5 shadow-inner">
+                            📜 {{ shop.trade_license|default:"Not Provided" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Block: Real-time Audit Security Matrix -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm lg:col-span-2 overflow-hidden flex flex-col">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Recent Security Audit Logs</h3>
+                    </div>
+                    <span class="text-[10px] bg-indigo-50 border border-indigo-100 text-indigo-600 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Live Monitoring</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-100">
+                        <thead>
+                            <tr class="bg-slate-50/70 border-b border-slate-100">
+                                <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Timestamp</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Target Module</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trigger Action</th>
+                                <th class="px-5 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider">Origin IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-xs">
+                            {% for log in recent_logs %}
+                                <tr class="hover:bg-slate-50/60 transition-colors">
+                                    <td class="px-5 py-3.5 whitespace-nowrap text-slate-400 font-medium">{{ log.created_at|date:"M d, H:i" }}</td>
+                                    <td class="px-5 py-3.5 whitespace-nowrap">
+                                        <span class="bg-slate-100 text-slate-700 font-bold font-mono text-[10px] px-2 py-0.5 rounded-md border border-slate-200/40 uppercase">
+                                            {{ log.module }}
+                                        </span>
+                                    </td>
+                                    <td class="px-5 py-3.5 text-slate-700 font-semibold">{{ log.action }}</td>
+                                    <td class="px-5 py-3.5 whitespace-nowrap text-slate-400 font-mono tracking-tight select-all">{{ log.ip_address|default:"-" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="px-5 py-16 text-center text-slate-400 font-medium">
+                                        <div class="flex flex-col items-center justify-center gap-2">
+                                            <i class="fa-solid fa-shield-halved text-2xl opacity-20 mb-1"></i>
+                                            <p class="text-xs font-semibold text-slate-400/80">No recent activity sequences found on this ecosystem.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+
+    </main>
+
+    <!-- Live Counter Implementation Engine Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const rawDaysLeft = parseFloat("{{ days_left|default:0 }}");
+            
+            if (rawDaysLeft <= 0) {
+                document.getElementById('cd-expired').classList.remove('hidden');
+                return;
+            }
+            const targetDate = new Date(new Date().getTime() + rawDaysLeft * 24 * 60 * 60 * 1000);
+            const countdownWrapper = document.getElementById('countdown-wrapper');
+            const expiredLabel = document.getElementById('cd-expired');
+
+            const elD = document.getElementById('cd-d');
+            const elH = document.getElementById('cd-h');
+            const elM = document.getElementById('cd-m');
+            const elS = document.getElementById('cd-s');
+
+            function updateLiveClock() {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference <= 0) {
+                    countdownWrapper.classList.add('hidden');
+                    expiredLabel.classList.remove('hidden');
+                    clearInterval(clockInterval);
+                    return;
+                }
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                elD.textContent = String(days).padStart(2, '0');
+                elH.textContent = String(hours).padStart(2, '0');
+                elM.textContent = String(minutes).padStart(2, '0');
+                elS.textContent = String(seconds).padStart(2, '0');
+                countdownWrapper.classList.remove('hidden');
+            }
+            updateLiveClock();
+            const clockInterval = setInterval(updateLiveClock, 1000);
+        });
+    </script>
+
+</span>
+{% endblock %}

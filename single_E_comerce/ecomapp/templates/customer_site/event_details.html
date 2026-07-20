@@ -1,0 +1,160 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} {{ event.title }} - Mega Campaign {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="text-decoration-none text-success">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'customer_events_list' shop_slug=global_shop.shop_slug %}" class="text-decoration-none text-success">Offers</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-5 bg-white border">
+            <div class="row g-0">
+                <div class="col-12 position-relative bg-light" style="max-height: 400px; overflow: hidden;">
+                    <span class="position-absolute top-0 start-0 m-4 badge bg-danger text-white rounded-pill px-4 py-2.5 fw-bold fs-5 shadow" style="z-index: 10;">
+                        Flat {{ event.discount_percentage }}% OFF
+                    </span>
+                    <img src="{{ event.banner_desktop.url }}" alt="{{ event.title }}" class="w-100 h-100 object-fit-cover">
+                </div>
+                
+                <div class="col-12 p-4 bg-white">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 border-bottom pb-3 mb-3">
+                        <div>
+                            <span class="text-xs text-success fw-bold text-uppercase tracking-wider d-block mb-1">
+                                <i class="fas fa-store me-1"></i>Campaign Organized By: {{ event.shop.shop_name }}
+                            </span>
+                            <h2 class="fw-bold text-dark mb-0">{{ event.title }}</h2>
+                        </div>
+                        
+                        <div class="bg-danger/10 text-danger border border-danger rounded px-3 py-2 fw-semibold text-center">
+                            <div class="small opacity-75" style="font-size: 11px;"><i class="far fa-clock me-1"></i>HURRY UP! ENDS IN</div>
+                            <span class="countdown-timer fw-bold fs-5" data-seconds="{{ event.time_remaining_seconds }}">Calculating...</span>
+                        </div>
+                    </div>
+                    
+                    <h5 class="fw-bold text-secondary mb-2" style="font-size: 14px;">About this Shopping Event:</h5>
+                    <p class="text-muted text-sm line-height-md mb-0">{{ event.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="my-5">
+            <h3 class="fw-bold text-dark mb-4 position-relative section-title pb-2">
+                <i class="fas fa-shopping-basket text-success me-2"></i>Exclusive Campaign Products
+            </h3>
+            
+            <div class="row g-4">
+                {% for product in event.product.all %}
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative product-card bg-white">
+                        
+                        {% if user.is_authenticated %}
+                            <form action="{% url 'toggle_wishlist' shop_slug=global_shop.shop_slug slug=product.product_slug %}" method="POST" target="details_dummyframe" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm {% if product.id in user_wishlist_ids %}active{% endif %}" 
+                                        style="z-index: 5; border: none; background: #ffffff; width: 32px; height: 32px;"
+                                        onclick="this.classList.toggle('active'); updateHeaderWishlistCount(this);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'customer_login' %}" class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center shadow-sm text-decoration-none" style="z-index: 5; background: #ffffff; width: 32px; height: 32px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                </svg>
+                            </a>
+                        {% endif %}
+
+                        <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="d-flex align-items-center justify-content-center p-3 bg-light w-100" style="height: 180px;">
+                            {% if product.product_image %}
+                                <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="img-fluid h-100 w-100 object-fit-contain">
+                            {% else %}
+                                <div class="text-muted text-center">
+                                    <i class="far fa-image fs-2 d-block mb-1"></i>
+                                    <span class="small">No Image</span>
+                                </div>
+                            {% endif %}
+                        </a>
+
+                        <div class="card-body p-3 d-flex flex-column justify-content-between">
+                            <div>
+                                <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-decoration-none text-dark fw-semibold text-sm d-block mb-1 text-truncate">
+                                    {{ product.product_name }}
+                                </a>
+                                
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if product.discount_price %}
+                                        <span class="fw-bold text-danger fs-5">৳{{ product.discount_price }}</span>
+                                        <span class="text-muted text-decoration-line-through text-xs">৳{{ product.price }}</span>
+                                    {% else %}
+                                        <span class="fw-bold text-dark fs-5">৳{{ product.price }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="btn btn-sm btn-success w-100 mt-3 rounded-pill fw-semibold">
+                                Order Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5 bg-light rounded border">
+                    <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i>No exclusive products have been added to this campaign yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <iframe name="details_dummyframe" id="details_dummyframe" style="display: none;"></iframe>
+
+    <script>
+        // লাইভ কাউন্টডাউন টাইমার জাভাস্ক্রিপ্ট ইঞ্জিন
+        document.addEventListener('DOMContentLoaded', function () {
+            const timer = document.querySelector('.countdown-timer');
+            if (timer) {
+                let remainingSeconds = parseInt(timer.getAttribute('data-seconds')) || 0;
+                if (remainingSeconds <= 0) { timer.innerText = "Expired"; return; }
+                
+                const interval = setInterval(() => {
+                    if (remainingSeconds <= 0) { timer.innerText = "Expired"; clearInterval(interval); return; }
+                    remainingSeconds--;
+                    const days = Math.floor(remainingSeconds / (24 * 3600));
+                    const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600);
+                    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                    const seconds = remainingSeconds % 60;
+                    
+                    timer.innerText = (days > 0 ? `${days}d ` : '') + `${hours.toString().padStart(2, '0')}h : ${minutes.toString().padStart(2, '0')}m : ${seconds.toString().padStart(2, '0')}s`;
+                }, 1000);
+            }
+        });
+    </script>
+
+    <style>
+        .section-title::after { content: ''; position: absolute; bottom: 0; left: 0; width: 50px; height: 3px; background-color: #198754; }
+        .product-card { transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid #f1f5f9 !important; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.06)!important; }
+        .btn-favorite { color: #ccc; transition: all 0.2s ease; }
+        .btn-favorite.active { color: #ef4444 !important; }
+        .bg-danger\/10 { background-color: rgba(220, 53, 69, 0.1); }
+        .text-xs { font-size: 11px; }
+        .text-sm { font-size: 13px; }
+        .line-height-md { line-height: 1.6; }
+    </style>
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

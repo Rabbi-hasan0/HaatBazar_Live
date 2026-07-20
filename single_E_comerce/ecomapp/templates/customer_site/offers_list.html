@@ -1,0 +1,106 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Active Shopping Events & Offers {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="row mb-5">
+            <div class="col-12 text-center p-5 rounded-3 shadow-sm text-white" style="background: linear-gradient(135deg, #14552c, #198754);">
+                <h3 class="fw-bold">Mega Campaigns & Shopping with your offers</h3>
+                <p class="mb-0 opacity-75">Explore ongoing big sales events from shops and unlock exclusive discount campaigns!</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                {% for event in events %}
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden mb-5 p-0 bg-white border">
+                    <div class="row g-0">
+                        <div class="col-12 col-lg-5 position-relative bg-light" style="min-height: 250px;">
+                            <span class="position-absolute top-0 start-0 m-3 badge bg-danger text-white rounded-pill px-3 py-2 fw-bold fs-6" style="z-index: 10;">
+                                Flat {{ event.discount_percentage }}% OFF
+                            </span>
+                            {% if event.banner_desktop %}
+                                <img src="{{ event.banner_desktop.url }}" alt="{{ event.title }}" class="w-100 h-100 object-fit-cover position-absolute">
+                            {% else %}
+                                <div class="d-flex align-items-center justify-content-center h-100 w-100 text-muted bg-secondary/10">
+                                    <i class="far fa-image display-4"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-12 col-lg-7 d-flex flex-column justify-content-between p-4">
+                            <div>
+                                <span class="text-xs text-success fw-bold text-uppercase tracking-wider d-block mb-1">
+                                    <i class="fas fa-store me-1"></i>{{ event.shop.shop_name }}
+                                </span>
+                                <h3 class="fw-bold text-dark mb-2">{{ event.title }}</h3>
+                                <p class="text-muted text-sm mb-4">{{ event.description }}</p>
+                            </div>
+                            
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top mt-3">
+                                <div class="text-danger fw-semibold text-sm">
+                                    <i class="far fa-clock me-1"></i> Ends in: 
+                                    <span class="countdown-timer fw-bold" data-seconds="{{ event.time_remaining_seconds }}">Calculating...</span>
+                                </div>
+                                <a href="{% url 'customer_event_details' shop_slug=global_shop.shop_slug slug=event.slug %}" class="btn btn-sm btn-success rounded-pill px-4 fw-semibold">
+                                    Browse Event Products <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5 bg-light rounded-3 border">
+                    <i class="fas fa-calendar-times display-1 text-muted opacity-25 mb-3"></i>
+                    <h4 class="text-muted fw-semibold">No Active Events Available Right Now!</h4>
+                    <p class="text-muted small">Stay tuned for our upcoming mega sales and flash campaigns.</p>
+                    <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="btn btn-outline-success rounded-pill px-4 mt-2">Back to Home</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const timers = document.querySelectorAll('.countdown-timer');
+            timers.forEach(timer => {
+                let remainingSeconds = parseInt(timer.getAttribute('data-seconds')) || 0;
+                if (remainingSeconds <= 0) { timer.innerText = "Expired"; return; }
+                
+                const interval = setInterval(() => {
+                    if (remainingSeconds <= 0) { 
+                        timer.innerText = "Expired"; 
+                        clearInterval(interval); 
+                        return; 
+                    }
+                    remainingSeconds--;
+                    const days = Math.floor(remainingSeconds / (24 * 3600));
+                    const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600);
+                    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+                    const seconds = remainingSeconds % 60;
+                    
+                    timer.innerText = (days > 0 ? `${days}d ` : '') + `${hours.toString().padStart(2, '0')}h : ${minutes.toString().padStart(2, '0')}m : ${seconds.toString().padStart(2, '0')}s`;
+                }, 1000);
+            });
+        });
+    </script>
+
+    <style>
+        .text-xs { font-size: 11px; }
+        .text-sm { font-size: 13px; }
+    </style>
+{% endblock %}
+
+{% block delivery_note %}
+	{% include 'customer_site/dashboard/delivery_note.html' %}
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

@@ -1,0 +1,106 @@
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h6 class="fw-bold text-center mb-3 text-muted">Products by Category</h6>
+                <div style="height: 300px;">
+                    <canvas id="categoryPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h6 class="fw-bold text-center mb-3 text-muted">Products by Sub-Category</h6>
+                <div style="height: 300px;">
+                    <canvas id="subCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // --- ১. Main Category Chart ---
+        const mainLabels = [{% for item in chart_data %}"{{ item.main_cat_name }}",{% endfor %}];
+        const mainValues = [{% for item in chart_data %}{{ item.product_count }},{% endfor %}];
+
+        if (mainLabels.length > 0) {
+            new Chart(document.getElementById('categoryPieChart'), {
+                type: 'pie',
+                data: {
+                    labels: mainLabels,
+                    datasets: [{
+                        data: mainValues,
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label} (${data.datasets[0].data[i]})`, // এখানে Count যোগ করা হয়েছে
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        index: i
+                                    }));
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- ২. Sub Category Chart ---
+        const subLabels = [{% for item in sub_chart_data %}"{{ item.sub_cat_name }}",{% endfor %}];
+        const subValues = [{% for item in sub_chart_data %}{{ item.product_count }},{% endfor %}];
+
+        if (subLabels.length > 0) {
+            new Chart(document.getElementById('subCategoryChart'), {
+                type: 'doughnut', // সাব-ক্যাটাগরিকে ডোনাট দিলে দেখতে সুন্দর লাগবে
+                data: {
+                    labels: subLabels,
+                    datasets: [{
+                        data: subValues,
+                        backgroundColor: ['#6f42c1', '#fd7e14', '#20c997', '#007bff', '#ffc107', '#17a2b8'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label} (${data.datasets[0].data[i]})`, // এখানেও Count যোগ করা হয়েছে
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        index: i
+                                    }));
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>

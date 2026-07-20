@@ -1,0 +1,182 @@
+:root {
+    --primary-color: #4361ee;
+    --success-color: #4cc9f0;
+    --bg-gradient: linear-gradient(135deg, #f8f9ff 0%, #e0e7ff 100%);
+}
+
+body {
+    background: var(--bg-gradient);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Decorative Background Circles */
+.bg-circle {
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(80px);
+}
+.circle-1 { width: 300px; height: 300px; background: rgba(67, 97, 238, 0.15); top: -50px; right: -50px; }
+.circle-2 { width: 250px; height: 250px; background: rgba(76, 201, 240, 0.15); bottom: -50px; left: -50px; }
+
+.otp-card {
+    border: none;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card-header-custom {
+    padding: 40px 30px 10px;
+    text-align: center;
+}
+
+.otp-icon-wrapper {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    background: #ffffff;
+    
+    /* গোল ফ্রেমের জন্য মূল ম্যাজিক এখানে */
+    border-radius: 50% !important; 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    
+    /* ইমেজের বাড়তি অংশ কেটে ফেলার জন্য */
+    overflow: hidden; 
+    border: 3px solid #fff; /* সাদা বর্ডার দিলে প্রিমিয়াম লাগে */
+    outline: 2px solid #4361ee; /* চিকন নীল বর্ডার আউটলাইন (ঐচ্ছিক) */
+}
+
+.shop-logo-img {
+    width: 100%;
+    height: 100%;
+    
+    /* ইমেজ যেন গোল ফ্রেমে চ্যাপ্টা না হয় */
+    object-fit: cover; 
+    
+    /* ইমেজকেও গোল রেডিয়াস দিন বাড়তি নিরাপত্তার জন্য */
+    border-radius: 50%;
+}
+
+.otp-icon-wrapper i {
+    font-size: 35px;
+    color: #4361ee;
+}
+
+/* OTP Input Boxes Style */
+.otp-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.otp-field {
+    width: 45px;
+    height: 55px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    border: 2px solid #edf2f7;
+    border-radius: 12px;
+    background: #f8fafc;
+    transition: all 0.2s;
+}
+
+.otp-field:focus {
+    border-color: var(--primary-color);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+    outline: none;
+}
+
+.btn-verify {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+}
+
+.btn-verify:hover {
+    background: #3651d1;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(67, 97, 238, 0.2);
+}
+
+.resend-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.resend-link:hover { color: #3651d1; }
+
+/* Error Messages */
+.alert-error, .alert-danger {
+    border-radius: 12px;
+    border: none;
+    background-color: #fff1f2;
+    color: #e11d48;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+    .otp-field { width: 40px; height: 50px; }
+    .otp-card { margin: 15px; }
+}
+
+/* শপের নামের নতুন এবং পরিষ্কার স্টাইল */
+.shop-name-text {
+    font-size: 1.4rem;
+    color: #1a202c; /* গাঢ় কালার যাতে সহজে বোঝা যায় */
+    line-height: 1.4;
+}
+
+.shop-name-text .highlight {
+    color: #546ddd; /* সলিড গাঢ় নীল কালার */
+    background: rgba(183, 184, 187, 0.08); 
+    padding: 2px 10px;
+    border-radius: 8px;
+    font-weight: 800;
+    display: inline-block;
+    
+    /* টেক্সটটি যেন পপ করে ওঠে */
+    text-shadow: 0px 1px 2px rgba(67, 97, 238, 0.1); 
+}
+
+/* মার্চেন্ট ব্যাজটিকে আরও ক্লিন করা হয়েছে */
+.merchant-badge {
+    background: #e7f0ff;
+    color: #4361ee;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    border: 1px solid rgba(67, 97, 238, 0.1);
+}

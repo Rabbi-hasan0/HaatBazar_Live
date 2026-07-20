@@ -1,0 +1,190 @@
+/* --- General & Variables --- */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root { 
+    --primary-color: #6fb42c; 
+    --light-blue: #e9f5ff;
+    --transition: all 0.3s ease;
+    font-size: 16px; /* Base for zoom responsiveness */
+}
+
+/* --- Hero Section & Swiper --- */
+.hero-section { 
+    padding: 1.5rem 0; 
+}
+
+.main-swiper { 
+    height: auto; /* Height fixed na rekhe auto kora zoom consistency-r jonno */
+    border-radius: 1.25rem; 
+    overflow: hidden; 
+    background: var(--light-blue); 
+}
+
+.main-slide-item {
+    min-height: 30rem; /* Fixed pixel-er bodole rem use kora hoyeche */
+    background-color: var(--light-blue);
+    display: flex;
+    align-items: center;
+}
+
+/* Slide Content Area */
+.slide-content-area {
+    padding: 3.5rem;
+    z-index: 2;
+}
+
+.slide-content-area h2 {
+    font-size: 3rem; /* Zoom-e scale hobe */
+    margin-bottom: 1.2rem;
+    color: #222;
+}
+
+/* Slide Image Area - Shwapno style fluid handling */
+.slide-image-area {
+    min-height: 30rem;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    image-rendering: -webkit-optimize-contrast;
+    border: 0.6rem solid rgba(255, 255, 255, 0.8); 
+    border-radius: 1.8rem; 
+    transition: var(--transition);
+}
+
+.btn-shop-now {
+    color: #000;
+    padding: 0.8rem 2.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 0.3rem;
+    border: 1.5px solid #000;
+    transition: var(--transition);
+}
+
+.btn-shop-now:hover { 
+    background: #000; 
+    color: #fff; 
+}
+
+/* --- Category Section --- */
+.category-swiper .swiper-slide {
+    height: 18rem; /* Scalable card height */
+}
+
+.cat-item {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.2rem;
+    width: 100%;
+    height: 100%;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    text-decoration: none;
+    background-size: cover;
+    background-position: center;
+    transition: var(--transition);
+}
+
+.cat-item:hover {
+    transform: translateY(-0.5rem);
+}
+
+.cat-item::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 10%, transparent 60%);
+    z-index: 1;
+}
+
+.cat-item h5 {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    position: relative;
+    z-index: 2;
+}
+
+/* --- Product Cards --- */
+.product-card {
+    border: 1px solid #eee;
+    border-radius: 0.8rem;
+    overflow: hidden;
+    background: #fff;
+    transition: var(--transition);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-0.4rem);
+    box-shadow: 0 0.6rem 1.2rem rgba(0,0,0,0.08) !important;
+}
+
+.product-img-wrapper {
+    height: 12rem; /* Scalable image container */
+    padding: 1rem;
+    background: #f8f9fa;
+}
+
+.price { 
+    font-size: 1.1rem; 
+    font-weight: 800; 
+    color: var(--primary-color); 
+}
+
+/* --- Custom Nav Buttons --- */
+.custom-nav-btn {
+    width: 2.2rem;
+    height: 2.2rem;
+    background: #f1f1f1;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.custom-nav-btn:hover {
+    background: #000;
+    color: #fff;
+}
+
+/* --- Global Section Spacing --- */
+.py-5 {
+    padding-top: 3rem !important;
+    padding-bottom: 3rem !important;
+}
+
+/* --- Tablet & Mobile Responsiveness (For Zooming Safety) --- */
+@media (max-width: 1200px) {
+    .slide-content-area h2 { font-size: 2.2rem; }
+}
+
+@media (max-width: 991px) {
+    .main-slide-item { flex-direction: column-reverse; min-height: auto; }
+    .slide-content-area { 
+        padding: 2rem; 
+        text-align: center; 
+        width: 100%;
+    }
+    .slide-image-area { 
+        height: 18rem; 
+        width: 100%;
+        border-radius: 1.2rem;
+        border: 0.3rem solid #fff;
+    }
+    .main-swiper { border-radius: 1rem; }
+}
+
+@media (max-width: 576px) {
+    :root { font-size: 14px; } /* Mobile-e font ektu choto korbe zoom stability-r jonno */
+    .slide-content-area h2 { font-size: 1.8rem; }
+    .category-swiper .swiper-slide { height: 14rem; }
+}

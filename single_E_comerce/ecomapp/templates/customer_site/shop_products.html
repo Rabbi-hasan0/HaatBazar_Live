@@ -1,0 +1,222 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Products - {{ shop.shop_name }} {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="p-4 bg-white rounded-4 shadow-xs border border-light text-center text-md-start d-md-flex align-items-center justify-content-between">
+                    <div>
+                        <h1 class="h4 fw-extrabold text-dark mb-1 tracking-tight">{{ shop.shop_name }}</h1>
+                        <p class="text-muted text-xs mb-0 fw-medium">Welcome to our store! Browse products by categories and sub-categories below.</p>
+                    </div>
+                    <div class="mt-3 mt-md-0">
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold text-2xs tracking-wider text-uppercase">
+                            Official Store
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% for category in categories %}
+            {% if category.sub_categories.all %}
+                
+                {% if category.sub_categories.all %}
+                <div class="mb-4 p-3.5 p-md-4 rounded-4 bg-white shadow-xs border border-light">
+                    <h2 class="fw-extrabold text-dark mb-4 position-relative main-category-title pb-2.5 fs-5 tracking-tight">
+                        {{ category.main_cat_name }}
+                    </h2>
+
+                    {% for sub_cat in category.sub_categories.all %}
+                        {% if sub_cat.shop_assigned_products %}
+                        <div class="mb-4 sub-category-section">
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-light pb-2">
+                                <h4 class="fw-bold text-secondary mb-0 text-sm tracking-tight">
+                                    <i class="fas fa-chevron-right text-emerald me-1.5 text-xs"></i>
+                                    {{ sub_cat.sub_cat_name }} 
+                                    <span class="text-muted fw-normal text-xs ms-1">({{ sub_cat.shop_assigned_products|length }})</span>
+                                </h4>
+                                
+                                <a href="{% url 'sub_category_products' shop_slug=global_shop.shop_slug slug=sub_cat.sub_cat_slug %}" class="btn btn-view-more rounded-pill fw-bold text-2xs tracking-wide">
+                                    View More <i class="fas fa-arrow-right ms-1 text-2xs style-arrow"></i>
+                                </a>
+                            </div>
+
+                            <div class="row g-3">
+                                {% for product in sub_cat.shop_assigned_products|slice:":4" %}
+                                <div class="col-6 col-sm-4 col-md-3">
+                                    <div class="card h-100 border-0 shadow-xs rounded-4 overflow-hidden position-relative product-card card-hover-lift bg-white">
+                                        
+                                        {% if user.is_authenticated %}
+                                            <form action="{% url 'toggle_wishlist' shop_slug=global_shop.shop_slug slug=product.product_slug %}" method="POST" target="shop_dummyframe" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                        class="btn-favorite position-absolute top-0 end-0 m-2.5 rounded-circle d-flex align-items-center justify-content-center shadow-xs {% if product.id in user_wishlist_ids %}active{% endif %}" 
+                                                        style="z-index: 5; border: none; background: rgba(255, 255, 255, 0.9); width: 28px; height: 28px;"
+                                                        onclick="this.classList.toggle('active'); updateHeaderWishlistCount(this);">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                                        <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <a href="{% url 'customer_login' %}" 
+                                            class="btn-favorite position-absolute top-0 end-0 m-2.5 rounded-circle d-flex align-items-center justify-content-center shadow-xs text-decoration-none" 
+                                            style="z-index: 5; background: rgba(255, 255, 255, 0.9); width: 28px; height: 28px;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                                </svg>
+                                            </a>
+                                        {% endif %}
+
+                                        <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-center p-2 bg-neutral-subtle d-flex align-items-center justify-content-center overflow-hidden" style="height: 160px;">
+                                            {% if product.product_image %}
+                                                <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="img-fluid object-fit-contain h-100 w-100 transition-all product-img">
+                                            {% else %}
+                                                <div class="d-flex align-items-center justify-content-center text-muted opacity-40">
+                                                    <i class="far fa-image fs-3"></i>
+                                                </div>
+                                            {% endif %}
+                                        </a>
+
+                                        <div class="card-body d-flex flex-column justify-content-between p-2.5">
+                                            <div>
+                                                <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-decoration-none text-dark fw-bold d-block mb-1 text-sm text-truncate product-title-link tracking-tight" title="{{ product.product_name }}">
+                                                    {{ product.product_name }} 
+                                                    <span class="text-muted fw-normal text-xs ms-1">  (stock- {{ product.stock|default:"0" }})</span>
+                                                </a>
+                                                <span class="fw-extrabold text-emerald text-sm">৳{{ product.price }}</span>
+                                            </div>
+                                            <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="btn btn-emerald-soft btn-xs w-100 mt-2.5 rounded-2 fw-bold text-xs py-2 tracking-wide">
+                                                View Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endif %}
+        {% empty %}
+            <div class="text-center py-5 my-4">
+                <div class="text-muted mb-2 opacity-30">
+                    <i class="fas fa-box-open display-4"></i>
+                </div>
+                <h5 class="text-secondary fw-bold text-sm">No products matched your search in this shop.</h5>
+            </div>
+        {% endfor %}
+    </div>
+
+    <iframe name="shop_dummyframe" id="shop_dummyframe" style="display: none;"></iframe>
+
+    <script>
+        function updateHeaderWishlistCount(button) {
+            const countSpan = document.getElementById('wishlist-count');
+            if (!countSpan) return;
+            let currentCount = parseInt(countSpan.innerText) || 0;
+            if (button.classList.contains('active')) {
+                countSpan.innerText = currentCount + 1;
+            } else {
+                countSpan.innerText = Math.max(0, currentCount - 1);
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        .fw-extrabold { font-weight: 800; }
+        .tracking-tight { letter-spacing: -0.02em; }
+        .shadow-xs { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04); }
+        .text-sm { font-size: 0.875rem !important; }
+        .text-xs { font-size: 0.75rem !important; }
+        .text-2xs { font-size: 0.685rem !important; }
+        .p-3\.5 { padding: 1.15rem !important; }
+        .p-2.5 { padding: 0.65rem !important; }
+        .m-2\.5 { margin: 0.65rem !important; }
+        .mt-2\.5 { margin-top: 0.65rem !important; }
+        .pb-2\.5 { padding-bottom: 0.65rem !important; }
+        .me-1\.5 { margin-right: 0.4rem !important; }
+        .object-fit-contain { object-fit: contain; }
+
+        .text-emerald { color: #10b981 !important; }
+        .text-secondary { color: #4b5563 !important; }
+        .bg-neutral-subtle { background-color: #f8f9fa; }
+        .bg-primary-subtle { background-color: rgba(13, 110, 253, 0.06) !important; color: #0d6efd !important; }
+
+        .main-category-title::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 45px; height: 3px; background-color: #10b981; border-radius: 10px;
+        }
+
+        .btn-favorite { color: #9ca3af; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(0,0,0,0.03) !important; }
+        .btn-favorite:hover { transform: scale(1.08); background: #ffffff !important; color: #6b7280; }
+        .btn-favorite.active { color: #ef4444 !important; background: #ffffff !important; }
+
+        .card-hover-lift {
+            will-change: transform, box-shadow;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+        }
+        .card-hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0,0,0,0.08), 0 8px 16px -6px rgba(0,0,0,0.08) !important;
+        }
+        .card-hover-lift:hover .product-img {
+            transform: scale(1.03);
+        }
+        .product-img {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn-emerald-soft {
+            background-color: rgba(16, 119, 81, 0.06) !important;
+            color: #10b981 !important;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .btn-emerald-soft:hover {
+            background-color: #10b981 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-view-more {
+            background-color: transparent;
+            border: 1px solid #e5e7eb;
+            color: #4b5563;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.725rem;
+            transition: all 0.2s ease;
+        }
+        .btn-view-more:hover {
+            background-color: #f9fafb;
+            border-color: #d1d5db;
+            color: #111827;
+        }
+        .btn-view-more:hover .style-arrow {
+            transform: translateX(2px);
+        }
+        .style-arrow { display: inline-block; transition: transform 0.2s ease; }
+        
+        .product-title-link { color: #1f2937 !important; }
+        .product-title-link:hover { color: #10b981 !important; }
+        .sub-category-section:last-child { margin-bottom: 0 !important; }
+    </style>
+{% endblock %}
+
+{% block delivery_note %}
+    {% include 'customer_site/dashboard/delivery_note.html' %}
+{% endblock %}
+
+{% block footer %}
+    {% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

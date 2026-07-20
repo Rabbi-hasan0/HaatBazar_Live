@@ -1,0 +1,379 @@
+<div class="row align-items-center mb-4 g-3">
+    <div class="col-md-4">
+        <div class="d-flex align-items-center">
+            <div class="icon-box bg-primary-subtle text-primary rounded-3 p-2 me-3 shadow-sm">
+                 Filter: 
+            </div>
+            
+            <div class="dropdown">
+    <button class="btn btn-white border shadow-sm dropdown-toggle rounded-pill px-3" type="button" id="eventFilterDropdown" data-bs-toggle="dropdown">
+        <span class="text-muted small fw-bold"><i class="fas fa-sort-amount-down me-1"></i> Filter:</span> 
+        <span class="ms-1 fw-bold text-primary">
+            {% if current_filter == 'running' %}
+                Now Running
+            {% elif current_filter == 'upcoming' %}
+                Upcoming
+            {% elif current_filter == 'ended' %}
+                Ended
+            {% elif current_filter == 'draft' %}
+                Draft
+            {% else %}
+                All Events
+            {% endif %}
+        </span>
+    </button>
+    
+    <ul class="dropdown-menu border-0 shadow-lg mt-2">
+        <li>
+            <a class="dropdown-item {% if current_filter == 'all' %}active{% endif %}" href="?status=all">
+                <i class="fas fa-list me-2 text-secondary"></i>All Events
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item {% if current_filter == 'running' %}active{% endif %}" href="?status=running">
+            <i class="fas fa-bolt me-2 text-success"></i> Now Running
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item {% if current_filter == 'upcoming' %}active{% endif %}" href="?status=upcoming">
+                <i class="fas fa-calendar-plus me-2 text-primary"></i> Upcoming
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item {% if current_filter == 'ended' %}active{% endif %}" href="?status=ended">
+                <i class="fas fa-calendar-check me-2 text-danger"></i>Ended
+            </a>
+        </li>
+    </ul>
+</div>
+        </div>
+    </div>
+
+    <div class="col-md-8 text-end">
+        <div class="d-flex justify-content-md-end gap-2">
+            <button type="button" class="btn btn-primary px-3 rounded-pill d-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                <i class="fas fa-plus me-2"></i> <span>Add Events</span>
+            </button>
+            <a href="{% url 'events_management' %}" class="btn btn-white border shadow-sm rounded-circle" style="width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;">
+                <i class="fas fa-sync-alt text-secondary"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<hr>
+<div class="row g-4">
+    {% for event in events %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+        <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden" style="border-radius: 12px; transition: transform 0.2s;">
+            <div class="position-absolute m-2" style="top: 0; right: 0; z-index: 10;">
+                <span class="badge {% if event.status == 'active' %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill shadow-sm" style="font-size: 0.7rem;">
+                    {{ event.status|upper }}
+                </span>
+            </div>
+
+            <div class="ratio ratio-1x1 bg-light">
+                {% if event.banner_desktop %}
+                    <img src="{{ event.banner_desktop.url }}" class="card-img-top object-fit-cover" alt="{{ event.title }}">
+                {% else %}
+                    <div class="d-flex align-items-center justify-content-center text-muted">
+                        <i class="fas fa-image fa-3x"></i>
+                    </div>
+                {% endif %}
+                
+                <div class="card-img-overlay d-flex align-items-center justify-content-center opacity-0 hover-overlay" style="background: rgba(0,0,0,0.4); transition: 0.3s;">
+                    <div class="btn-group">
+                        <button class="btn btn-light btn-sm rounded-circle mx-1" data-bs-toggle="modal" data-bs-target="#editEventModal{{ event.id }}">
+                            <i class="fas fa-edit text-primary"></i>
+                        </button>
+                        <a href="{% url 'delete_event' event.id %}" class="btn btn-light btn-sm rounded-circle mx-1" onclick="return confirm('Delete this event?')">
+                            <i class="fas fa-trash text-danger"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-3">
+                <h6 class="fw-bold mb-1 text-dark text-truncate">{{ event.title }}</h6>
+                
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div>
+                        <span class="text-primary fw-bold small">{{ event.discount_percentage }}% OFF</span>
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fas fa-layer-group me-1"></i>{{ event.product.count }}
+                    </div>
+                </div>
+
+                <div class="mt-2 pt-2 border-top">
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">
+                        <i class="far fa-clock me-1"></i>{{ event.end_time|timesince }} left
+                    </p>
+                </div>
+            </div>
+            <div class="p-3 pt-0">
+                <div class="mb-2">
+                    <button type="button" class="btn btn-sm btn-primary w-100 rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#viewDetailsModal{{ event.id }}">
+                        <i class="fas fa-info-circle me-1"></i> View Details
+                    </button>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill" data-bs-toggle="modal" data-bs-target="#editEventModal{{ event.id }}">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                    <a href="{% url 'delete_event' event.id %}" class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="return confirm('Delete this event?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editEventModal{{ event.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="{% url 'edit_event' event.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="fw-bold">Edit Event: {{ event.title }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body px-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Title</label>
+                                <input type="text" name="title" class="form-control" value="{{ event.title }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small fw-bold">Discount %</label>
+                                <input type="number" name="discount" class="form-control" value="{{ event.discount_percentage }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small fw-bold">Priority</label>
+                                <input type="number" name="priority" class="form-control" value="{{ event.priority }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="small fw-bold">Description</label>
+                                <textarea name="description" class="form-control" rows="2">{{ event.description }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="small fw-bold">Select Products</label>
+                                <select name="product" class="form-select select2-multiple" multiple required>
+                                    {% for product in all_products %}
+                                        <option value="{{ product.id }}" {% if product in event.product.all %}selected{% endif %}>
+                                            {{ product.product_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold">Start Time</label>
+                                <input type="datetime-local" name="start_time" class="form-control" value="{{ event.start_time|date:'Y-m-d\TH:i' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold">End Time</label>
+                                <input type="datetime-local" name="end_time" class="form-control" value="{{ event.end_time|date:'Y-m-d\TH:i' }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="active" {% if event.status == 'active' %}selected{% endif %}>Active</option>
+                                    <option value="draft" {% if event.status == 'draft' %}selected{% endif %}>Draft</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Banner Desktop <span class="text-muted "> (1400 × 500) </span></label>
+                                <input type="file" name="banner_desktop" class="form-control">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold">Banner Mobile <span class="text-muted text-sm"> (500 × 500) </span></label>
+                                <input type="file" name="banner_mobile" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary px-4">Update Event</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="text-muted">
+            <i class="fas fa-calendar-times fa-3x mb-3 text-light"></i>
+            <p>No events found. Click "Add Events" to create your first event.</p>
+        </div>
+    </div>
+
+    <style>
+        /* Hover effect for the card */
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card:hover .hover-overlay {
+            opacity: 1 !important;
+        }
+        .object-fit-cover {
+            object-fit: cover;
+        }
+    </style>
+    {% endfor %}
+</div>
+
+
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <form action="{% url 'add_event' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="fw-bold mb-0">Create New Event</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Title</label>
+                            <input type="text" name="title" class="form-control" placeholder="Flash Sale 2026" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Discount %</label>
+                            <input type="number" name="discount" class="form-control" placeholder="10" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Priority</label>
+                            <input type="number" name="priority" class="form-control" value="0">
+                        </div>
+                        <div class="col-12">
+                            <label class="small fw-bold">Description</label>
+                            <textarea name="description" class="form-control" rows="2" placeholder="Describe your event..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="small fw-bold">Assign Products</label>
+                            <select name="product" class="form-select select2-multiple" multiple required>
+                                {% for product in all_products %}
+                                    <option value="{{ product.id }}">{{ product.product_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Start Time</label>
+                            <input type="datetime-local" name="start_time" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold">End Time</label>
+                            <input type="datetime-local" name="end_time" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="draft">Draft</option>
+                                <option value="active">Active</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Banner Desktop <span class="text-muted "> (1400 × 500) </span></label>
+                            <input type="file" name="banner_desktop" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Banner Mobile <span class="text-muted "> (500 × 500) </span></label>
+                            <input type="file" name="banner_mobile" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- View Details Modal -->
+{% for event in events %}
+<div class="modal fade" id="viewDetailsModal{{ event.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            
+            <div class="modal-body p-1 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-12">
+                        <div class="rounded-4 overflow-hidden object-fit-cover shadow-sm h-100">
+                            {% if event.banner_desktop %}
+                                <img src="{{ event.banner_desktop.url }}" class="img-fluid h-100 w-100 object-fit-cover" alt="{{ event.title }}" style="min-height: 250px; max-height: 450px;">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center h-100" style="min-height: 250px; max-height: 450px;">
+                                    <i class="fas fa-image fa-4x text-muted opacity-25"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 p-4 p-md-5">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                            <h2 class="fw-bold text-dark mb-0">{{ event.title }}</h2>
+                            <span class="badge {% if event.status == 'active' %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill px-4 py-2">
+                                {{ event.status|upper }}
+                            </span>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-4">
+                            <h4 class="text-primary fw-bold mb-0 me-3">{{ event.discount_percentage }}% DISCOUNT</h4>
+                            <div class="vr me-3"></div>
+                            <span class="text-muted"><i class="fas fa-layer-group me-1"></i> {{ event.product.count }} Products</span>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 bg-light-subtle">
+                                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 11px;">Starts At</small>
+                                    <h6 class="mb-0 fw-bold"><i class="far fa-calendar-alt text-primary me-2"></i> {{ event.start_time|date:"d M, Y - h:i A" }}</h6>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded-3 bg-light-subtle">
+                                    <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 11px;">Ends At</small>
+                                    <h6 class="mb-0 fw-bold"><i class="far fa-calendar-check text-danger me-2"></i> {{ event.end_time|date:"d M, Y - h:i A" }}</h6>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-2">Description</h6>
+                            <p class="text-secondary fs-6 lh-base">
+                                {{ event.description|default:"No description has been added for this event yet. This section highlights the special campaign features." }}
+                            </p>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="fw-bold mb-3">Linked Products</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for product in event.product.all %}
+                                    <span class="badge bg-white border text-dark fw-normal rounded-pill px-3 py-2 shadow-sm">
+                                        <i class="fas fa-tag text-primary me-1"></i> {{ product.product_name }}
+                                    </span>
+                                {% empty %}
+                                    <small class="text-muted">No products assigned.</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="modal-footer border-0">
+                            <button class="btn btn-outline-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#editEventModal{{ event.id }}">
+                                <i class="fas fa-edit me-1"></i> Edit Event
+                            </button>
+                            <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

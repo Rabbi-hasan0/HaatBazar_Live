@@ -1,0 +1,65 @@
+<nav class="navbar navbar-expand-lg main-nav shadow-sm sticky-top custom-fixed-navbar">
+    <div class="navbar-container-fixed container">
+        
+        <div class="dropdown">
+            <div class="dept-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bars me-2"></i> Shop by Departments <i class="fas fa-chevron-down ms-3 small-chevron"></i>
+            </div>
+            
+            <ul class="dropdown-menu shadow border-0 mt-2 main-category-dropdown" style="min-width: 250px; z-index: 1050;">
+                {% for main_cat in global_departments %}
+                <li class="nested-dropdown-item position-relative">
+                    <a class="dropdown-item py-2 d-flex align-items-center justify-content-between" href="#">
+                        <span>{{ main_cat.main_cat_name }}</span>
+                        {% if main_cat.sub_categories.all %}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-chevron-right text-muted" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708"/>
+                        </svg>
+                        {% endif %}
+                    </a>
+
+                    <ul class="dropdown-menu nested-sub-menu shadow border-0 position-absolute start-100 top-0">
+                        {% for sub_cat in main_cat.sub_categories.all %}
+                            {% if sub_cat.is_active %}
+                                <li>
+                                    <a class="dropdown-item py-2" href="{% url 'sub_category_products' shop_slug=global_shop.shop_slug slug=sub_cat.sub_cat_slug %}">
+                                        {{ sub_cat.sub_cat_name }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% empty %}
+                            <li><span class="dropdown-item py-2 text-muted fst-italic">No sub category</span></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% empty %}
+                <li><span class="dropdown-item py-2 text-muted text-center">No Departments Found</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto custom-nav-links">
+                <li class="nav-item"><a class="nav-link" href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}">Home</a></li>
+                {% if global_shop and global_shop.shop_slug %}
+                    <li class="nav-item">
+                        <a class="nav-link fw-bold" href="{% url 'shop_products' shop_slug=global_shop.shop_slug %}">Products</a>
+                    </li>
+                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'discount_products' shop_slug=global_shop.shop_slug %}">Discount</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'customer_events_list' shop_slug=global_shop.shop_slug %}">Offers</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'customer_coupons_list' shop_slug=global_shop.shop_slug %}">Coupons</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'cart_view' shop_slug=global_shop.shop_slug %}">My Cart</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'page_coming_soon' shop_slug=global_shop.shop_slug %}">My Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'shop_profile_media' shop_slug=global_shop.shop_slug %}">Shop Media</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'contact_us' shop_slug=global_shop.shop_slug %}">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'customer_about_us' shop_slug=global_shop.shop_slug %}">About Us</a></li>
+            </ul>
+        </div>
+        
+    </div>
+</nav>

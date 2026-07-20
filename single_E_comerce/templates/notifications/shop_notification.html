@@ -1,0 +1,217 @@
+{% extends 'owner_base.html' %} 
+{% load static %}
+{% block title %} Shop | Notifications Panel {% endblock %}
+
+{% block content %}
+<div class="p-4 md:p-6 w-full max-w-[1400px] mx-auto custom-notif-wrapper">
+    
+    {% comment %} {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-3 rounded-lg text-xs font-semibold mb-2 {% if message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-rose-50 text-rose-700 border border-rose-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %} {% endcomment %}
+    
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+        <div class="text-center sm:text-start">
+            <span class="custom-badge-emerald inline-block mb-1.5">Management</span>
+            <h1 class="text-xl md:text-2xl font-extrabold text-slate-950 tracking-tight">Notifications Center</h1>
+            <p class="text-slate-500 text-xs mt-0.5 font-medium">Manage and review incoming user inquiries, warnings, and system alerts for your store.</p>
+        </div>
+        
+        <div class="flex gap-2 items-center">
+            <button type="button" id="btn-bulk-read" class="btn-blur-light text-xs font-bold rounded-lg py-2 px-3 flex items-center" style="display: none;" onclick="submitBulkAction('read')">
+                <i class="fas fa-check-double mr-1.5 text-[10px]"></i>Mark Read
+            </button>
+            <button type="button" id="btn-bulk-delete" class="btn-danger-soft text-xs font-bold rounded-lg py-2 px-3 flex items-center" style="display: none;" onclick="submitBulkAction('delete')">
+                <i class="fas fa-trash-alt mr-1.5 text-[10px]"></i>Delete Selected
+            </button>
+        </div>
+    </div>
+
+    <div class="custom-filter-card p-1.5 bg-white mb-6">
+        <div class="flex flex-row gap-1 border-0" id="notificationTabs">
+            <button class="tab-btn active rounded-lg text-xs font-bold px-4 py-2 flex items-center gap-2" onclick="switchTab(this, 'all-notif')">
+                All Notifications <span class="bg-slate-900 text-white rounded-full text-[10px] px-1.5 py-0.5 font-bold">{{ notifications.count }}</span>
+            </button>
+            <button class="tab-btn rounded-lg text-xs font-bold px-4 py-2 flex items-center gap-2" onclick="switchTab(this, 'unread-notif')">
+                Unread <span class="bg-rose-500 text-white rounded-full text-[10px] px-1.5 py-0.5 font-bold">{{ unread_count }}</span>
+            </button>
+            <button class="tab-btn rounded-lg text-xs font-bold px-4 py-2 flex items-center gap-2" onclick="switchTab(this, 'alerts-notif')">
+                System Alerts <span class="bg-amber-500 text-white rounded-full text-[10px] px-1.5 py-0.5 font-bold">{{ alerts_count }}</span>
+            </button>
+        </div>
+    </div>
+
+    <form id="bulk-actions-form" action="{% url 'shop_notifications' shop.shop_slug %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" id="form-action-type" name="action" value="">
+        <input type="hidden" id="form-single-id" name="notification_id" value="">
+        
+        <div class="tab-content-item block" id="all-notif">
+            <div class="custom-list-card overflow-hidden bg-white">
+                <div class="p-3 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-500 font-bold text-[11px] uppercase tracking-wider">
+                        <input class="custom-cb-input shadow-none" type="checkbox" onchange="toggleSelectAll(this, 'all-notif')">
+                        <span>Select All Items</span>
+                    </label>
+                </div>
+                
+                <div class="divide-y divide-slate-100">
+                    {% for notif in notifications %}
+                        {% include "notifications/partials/notif_row.html" with item=notif %}
+                    {% empty %}
+                        <div class="text-center py-12">
+                            <div class="text-slate-300 mb-2"><i class="fas fa-bell-slash text-4xl"></i></div>
+                            <h5 class="text-slate-700 font-bold text-sm">Inbox Clear</h5>
+                            <p class="text-slate-400 text-xs font-medium">No notifications available.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content-item hidden" id="unread-notif">
+            <div class="custom-list-card overflow-hidden bg-white">
+                <div class="p-3 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-500 font-bold text-[11px] uppercase tracking-wider">
+                        <input class="custom-cb-input shadow-none" type="checkbox" onchange="toggleSelectAll(this, 'unread-notif')">
+                        <span>Select All Unread</span>
+                    </label>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    {% for notif in unread_notifications %}
+                        {% include "notifications/partials/notif_row.html" with item=notif %}
+                    {% empty %}
+                        <div class="text-center py-12 bg-white rounded-xl">
+                            <div class="text-slate-300 mb-2"><i class="fas fa-check-circle text-4xl text-emerald-400"></i></div>
+                            <h5 class="text-slate-700 font-bold text-sm">All Read!</h5>
+                            <p class="text-slate-400 text-xs font-medium">You have no unread notifications.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content-item hidden" id="alerts-notif">
+            <div class="custom-list-card overflow-hidden bg-white">
+                <div class="p-3 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer text-slate-500 font-bold text-[11px] uppercase tracking-wider">
+                        <input class="custom-cb-input shadow-none" type="checkbox" onchange="toggleSelectAll(this, 'alerts-notif')">
+                        <span>Select All Alerts</span>
+                    </label>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    {% for notif in alert_notifications %}
+                        {% include "notifications/partials/notif_row.html" with item=notif %}
+                    {% empty %}
+                        <div class="text-center py-12 bg-white rounded-xl">
+                            <div class="text-slate-300 mb-2"><i class="fas fa-shield-alt text-4xl text-slate-300"></i></div>
+                            <h5 class="text-slate-700 font-bold text-sm">No System Alerts</h5>
+                            <p class="text-slate-400 text-xs font-medium">Your store status is completely healthy.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+{% comment %} 
+আমরা কোড ছোট করার জন্য এবং ড্রপডাউন ভাঙা রোধ করতে 'partials/notif_row.html' এর লজিকটি সরাসরি এখানে ইনলাইন রি-ইউজও করতে পারি। নিচে ডাইনামিক রো স্ক্রিপ্ট হ্যান্ডলার দেওয়া হলো।
+{% endcomment %}
+
+<script>
+    // পিওর ফ্রন্টএন্ড ট্যাব ফিল্টারিং এবং ভিউ স্যুইচ মেথড
+    function switchTab(button, tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content-item').forEach(item => {
+            item.classList.remove('block');
+            item.classList.add('hidden');
+        });
+        
+        button.classList.add('active');
+        let activeTab = document.getElementById(tabId);
+        activeTab.classList.remove('hidden');
+        activeTab.classList.add('block');
+        
+        // ট্যাব বদলালে চেকবক্স রি-অ্যাসেস করা
+        evaluateBulkButtons();
+    }
+
+    // একটি নির্দিষ্ট সক্রিয় ট্যাবের সব চেকবক্স অন/অফ করা
+    function toggleSelectAll(masterCheckbox, tabId) {
+        let activeTabContainer = document.getElementById(tabId);
+        let checkboxes = activeTabContainer.querySelectorAll('.notif-checkbox');
+        checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+        evaluateBulkButtons();
+    }
+
+    // সিলেক্টেড চেকবক্সের সংখ্যার ওপর ভিত্তি করে বাল্ক বাটন অন/অফ করা
+    function evaluateBulkButtons() {
+        let activeTabItem = document.querySelector('.tab-content-item.block');
+        let checkedBoxes = activeTabItem ? activeTabItem.querySelectorAll('.notif-checkbox:checked') : [];
+        
+        let readBtn = document.getElementById('btn-bulk-read');
+        let deleteBtn = document.getElementById('btn-bulk-delete');
+        
+        if (checkedBoxes.length > 0) {
+            readBtn.style.display = 'inline-flex';
+            deleteBtn.style.display = 'inline-flex';
+        } else {
+            readBtn.style.display = 'none';
+            deleteBtn.style.display = 'none';
+        }
+    }
+
+    // বাল্ক একশন (একসাথে অনেকগুলো রিড/ডিলিট করা) সাবমিট করা
+    function submitBulkAction(actionType) {
+        if (actionType === 'delete' && !confirm('নির্বাচিত নোটিফিকেশনগুলো চিরতরে ডিলিট করতে চান?')) {
+            return;
+        }
+        document.getElementById('form-action-type').value = actionType;
+        document.getElementById('form-single-id').value = ''; // বাল্ক একশনে একক আইডি খালি থাকবে
+        document.getElementById('bulk-actions-form').submit();
+    }
+
+    // একক বাটন একশন (একটি নোটিফিকেশনে ক্লিক করা) সাবমিট করা
+    function submitSingleAction(actionType, notifId) {
+        if (actionType === 'delete' && !confirm('এই নোটিফিকেশনটি ডিলিট করতে চান?')) {
+            return;
+        }
+        document.getElementById('form-action-type').value = actionType;
+        document.getElementById('form-single-id').value = notifId;
+        document.getElementById('bulk-actions-form').submit();
+    }
+</script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    .custom-notif-wrapper { font-family: 'Plus Jakarta Sans', sans-serif !important; }
+    .custom-notif-wrapper .hidden { display: none !important; }
+    .custom-notif-wrapper .block { display: block !important; }
+    .custom-filter-card, .custom-list-card { border-radius: 12px !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important; }
+    .custom-badge-emerald { background-color: #ecfdf5 !important; color: #059669 !important; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; }
+    .custom-bg-primary-subtle { background-color: #eff6ff !important; }
+    .custom-bg-warning-subtle { background-color: #fffbeb !important; }
+    .tab-btn { color: #64748b !important; background-color: transparent !important; border: none !important; transition: all 0.2s ease; cursor: pointer; }
+    .tab-btn:hover { background-color: #f1f5f9 !important; color: #0f172a !important; }
+    .tab-btn.active { background-color: #0f172a !important; color: #ffffff !important; }
+    .custom-cb-input { width: 16px !important; height: 16px !important; border-radius: 4px !important; border: 1px solid #cbd5e1 !important; cursor: pointer; appearance: checkbox !important; -webkit-appearance: checkbox !important; }
+    .notif-item { background-color: #ffffff !important; }
+    .unread-row { background-color: #f8fafc !important; }
+    .inline-actions { opacity: 0; transition: opacity 0.2s ease; }
+    .notif-item:hover .inline-actions { opacity: 1; }
+    .btn-icon { width: 30px; height: 30px; border: 1px solid #e2e8f0 !important; background: #ffffff !important; cursor: pointer; }
+    .btn-icon:hover { background: #f1f5f9 !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+    .btn-icon-danger:hover { background: #fee2e2 !important; color: #ef4444 !important; border-color: #fca5a5 !important; }
+    .btn-blur-light { background: #ffffff !important; border: 1px solid #e2e8f0 !important; color: #334155 !important; cursor: pointer; }
+    .btn-blur-light:hover { background: #f1f5f9 !important; }
+    .btn-danger-soft { background-color: #fef2f2 !important; color: #ef4444 !important; border: 1px solid #fee2e2 !important; cursor: pointer; }
+    .btn-danger-soft:hover { background-color: #ef4444 !important; color: #ffffff !important; }
+</style>
+{% endblock %}

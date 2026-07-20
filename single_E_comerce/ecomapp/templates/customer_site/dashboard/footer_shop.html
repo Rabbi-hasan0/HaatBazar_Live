@@ -1,0 +1,58 @@
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <h3 class="fw-bold m-0" style="color: var(--primary-green); line-height: 1; letter-spacing: -0.5px;">
+                    {{ shop_first_half }}
+                    
+                    {% if shop_second_half %}
+                        <span class="text-dark"> {{ shop_second_half }}</span>
+                    {% endif %}
+                </h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-6 col-lg-2 mb-4">
+                <h6 class="footer-heading">Ultras</h6>
+                <ul class="footer-links">
+                    <li><a href="{% url 'customer_about_us' shop_slug=global_shop.shop_slug %}">About us</a></li>
+                    <li><a href="{% url 'page_coming_soon' shop_slug=global_shop.shop_slug%}">Conditions</a></li>
+                    <li><a href="{% url 'page_coming_soon' shop_slug=global_shop.shop_slug%}">Our Journals</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-lg-3 mb-4">
+                <h6 class="footer-heading">Customer Service</h6>
+                <ul class="footer-links">
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-4 mb-4">
+                <h6 class="footer-heading">Subscribe Us</h6>
+                <p class="small text-muted">Get updates about our grand offers.</p>
+                <div class="d-flex mt-3">
+                    <input type="email" class="newsletter-input" placeholder="Email Address">
+                    <button class="newsletter-btn">Subscribe</button>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="text-center py-2">
+            <div class="mb-2">
+                <a href="#" class="text-muted me-3">Terms of Service</a>
+                <a href="#" class="text-muted">Privacy Policy</a>
+            </div>
+            <p class="small text-muted">© 2026 Rabbi's Mart. All rights reserved.</p>
+            <p class="small text-muted mb-0">
+                Developed by 
+                <a href="#" class="text-decoration-none fw-bold" style="color: var(--primary-green);">Rabbi Hasan</a>
+            </p>
+        </div>
+    </div>
+</footer>

@@ -1,0 +1,215 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %}Contact Us - {{ shop.shop_name }}{% endblock %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="text-center mb-5 animate-fade-in">
+            <span class="badge bg-emerald-subtle text-emerald rounded-pill px-3 py-1.5 fw-bold text-2xs tracking-wider text-uppercase">
+                Get In Touch
+            </span>
+            <h2 class="fw-extrabold text-dark mt-2.5 mb-2 tracking-tight fs-2">Contact {{ shop.shop_name }}</h2>
+            <p class="text-muted text-xs mx-auto fw-medium" style="max-width: 500px;">Have questions, feedback, or inquiries? Send us a message and our team will get back to you shortly.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center align-items-stretch">
+            <div class="col-lg-4 d-flex flex-column justify-content-between gap-3">
+                
+                <div class="card border-0 shadow-xs rounded-4 p-3.5 bg-white card-hover-lift flex-grow-1 d-flex align-items-center">
+                    <div class="d-flex align-items-center gap-3 w-100">
+                        <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center icon-box" style="width: 46px; height: 46px; min-width: 46px;">
+                            <i class="fas fa-map-marker-alt fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0.5 text-sm">Our Location</h6>
+                            <p class="text-muted text-2xs mb-0 fw-medium">{{ shop.shop_address|default:"Address details not provided." }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-xs rounded-4 p-3.5 bg-white card-hover-lift flex-grow-1 d-flex align-items-center">
+                    <div class="d-flex align-items-center gap-3 w-100">
+                        <div class="bg-success-subtle text-success rounded-3 d-flex align-items-center justify-content-center icon-box" style="width: 46px; height: 46px; min-width: 46px;">
+                            <i class="fas fa-phone-alt fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0.5 text-sm">Call Store</h6>
+                            <p class="text-muted text-2xs mb-0 fw-medium">{{ shop.phone|default:"No public contact number." }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-xs rounded-4 p-3.5 bg-white card-hover-lift flex-grow-1 d-flex align-items-center">
+                    <div class="d-flex align-items-center gap-3 w-100">
+                        <div class="bg-warning-subtle text-warning rounded-3 d-flex align-items-center justify-content-center icon-box" style="width: 46px; height: 46px; min-width: 46px;">
+                            <i class="fas fa-envelope fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0.5 text-sm">Official Email</h6>
+                            <p class="text-muted text-2xs mb-0 text-break fw-medium">{{ shop.owner.user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-xs rounded-4 p-4 p-md-4.5 bg-white">
+                    <h4 class="fw-bold text-dark mb-4 text-sm tracking-tight">Send a Direct Message</h4>
+                    
+                    <form action="{% url 'contact_us' shop_slug=global_shop.shop_slug %}" method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-2xs fw-bold text-secondary">Your Name</label>
+                                <input type="text" name="name" class="form-control rounded-3 py-2 text-xs fw-medium shadow-none custom-input" placeholder="Enter your name" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label text-2xs fw-bold text-secondary">Your Email</label>
+                                <input type="email" name="email" class="form-control rounded-3 py-2 text-xs fw-medium shadow-none custom-input" placeholder="Enter your email" required>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label text-2xs fw-bold text-secondary">Subject</label>
+                                <input type="text" name="subject" class="form-control rounded-3 py-2 text-xs fw-medium shadow-none custom-input" placeholder="Inquiry about product delivery, support, etc." required>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label text-2xs fw-bold text-secondary">Message</label>
+                                <textarea name="message" rows="4" class="form-control rounded-3 text-xs fw-medium shadow-none custom-input py-2" placeholder="Type your message details here..." required></textarea>
+                            </div>
+                            
+                            <div class="col-12 mt-4 text-end">
+                                <button type="submit" class="btn btn-emerald rounded-pill px-4.5 py-2 fw-bold shadow-xs text-xs tracking-wide">
+                                    <i class="fas fa-paper-plane me-1.5 text-2xs"></i>Send Message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+        {% for message in messages %}
+        <div class="toast show align-items-center border-0 rounded-3 mb-2 backdrop-blur-md border-start border-3 {% if message.tags == 'success' %}border-success bg-white text-dark{% else %}border-danger bg-white text-dark{% endif %} shadow-sm animate-slide-up" role="alert">
+            <div class="d-flex">
+                <div class="toast-body text-xs fw-semibold py-2.5">
+                    {% if message.tags == 'success' %}
+                        <i class="fas fa-check-circle text-success me-2 fs-5 align-middle"></i>
+                    {% else %}
+                        <i class="fas fa-exclamation-circle text-danger me-2 fs-5 align-middle"></i>
+                    {% endif %}
+                    {{ message }}
+                </div>
+                <button type="button" class="btn-close me-2.5 m-auto shadow-none" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        setTimeout(function() {
+            let toasts = document.querySelectorAll('.toast');
+            toasts.forEach(toast => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            });
+        }, 4000);
+    </script>
+    {% endif %}
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+
+        /* Hierarchy Utility Adjustments */
+        .fw-extrabold { font-weight: 800; }
+        .tracking-tight { letter-spacing: -0.02em; }
+        .shadow-xs { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02); }
+        .text-sm { font-size: 0.875rem !important; }
+        .text-xs { font-size: 0.75rem !important; }
+        .text-2xs { font-size: 0.685rem !important; }
+        
+        .p-3\.5 { padding: 1.15rem !important; }
+        .p-md-4\.5 { padding: 1.5rem !important; }
+        .px-4\.5 { padding-left: 1.5rem !important; padding-right: 1.5rem !important; }
+        .mb-0\.5 { margin-bottom: 0.15rem !important; }
+        .mt-2\.5 { margin-top: 0.65rem !important; }
+        .me-1\.5 { margin-right: 0.4rem !important; }
+        .py-2\.5 { padding-top: 0.65rem !important; padding-bottom: 0.65rem !important; }
+        .me-2\.5 { margin-right: 0.65rem !important; }
+
+        /* Colors and Subtles */
+        .text-emerald { color: #10b981 !important; }
+        .bg-emerald-subtle { background-color: rgba(16, 185, 129, 0.08) !important; }
+        .bg-primary-subtle { background-color: rgba(13, 110, 253, 0.05) !important; color: #0d6efd !important; }
+        .bg-success-subtle { background-color: rgba(25, 135, 84, 0.05) !important; color: #198754 !important; }
+        .bg-warning-subtle { background-color: rgba(255, 193, 7, 0.05) !important; color: #f59e0b !important; }
+        
+        /* Modern Micro-Interactions */
+        .custom-input {
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .custom-input:focus {
+            background-color: #ffffff;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12) !important;
+        }
+
+        .btn-emerald {
+            background-color: #10b981 !important;
+            border: none;
+            color: #ffffff !important;
+            transition: background-color 0.2s ease;
+        }
+        .btn-emerald:hover {
+            background-color: #059669 !important;
+        }
+
+        .card-hover-lift {
+            border: 1px solid rgba(0, 0, 0, 0.02) !important;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+        }
+        .card-hover-lift:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 18px -4px rgba(0,0,0,0.05), 0 6px 12px -5px rgba(0,0,0,0.05) !important;
+        }
+        .card-hover-lift:hover .icon-box {
+            transform: scale(1.05);
+        }
+        .icon-box { transition: transform 0.3s ease; }
+
+        /* Keyframes Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* Elegant Light Toast Glassmorphism */
+        .backdrop-blur-md {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08) !important;
+        }
+    </style>
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

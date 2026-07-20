@@ -1,0 +1,274 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - {{ order.order_number }}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --purple: #7f56da;
+            --text-muted: #8094ae;
+            --text-dark: #364a63;
+            --light-bg: #f5f6fa;
+            --border-color: #e5e9f2;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Inter', sans-serif;
+            color: #526484;
+            margin: 0;
+            padding: 40px 0;
+        }
+
+        .invoice-wrap {
+            background: #fff;
+            max-width: 1000px;
+            margin: auto;
+            padding: 80px;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Header Logo Section */
+        .invoice-brand {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        .invoice-brand img {
+            height: 40px;
+        }
+        .invoice-brand span {
+            font-size: 24px;
+            font-weight: 700;
+            color: #364a63;
+            vertical-align: middle;
+        }
+
+        /* Print Button */
+        .print-btn-wrap {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .btn-print {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            color: var(--purple);
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+
+        /* Info Section */
+        .label-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        .customer-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+        .info-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .info-text i {
+            margin-right: 10px;
+            margin-top: 4px;
+            color: var(--purple);
+        }
+
+        .invoice-right-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--purple);
+            margin-bottom: 20px;
+        }
+        .meta-text {
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+        .meta-text b {
+            color: var(--text-dark);
+            margin-left: 10px;
+            text-transform: uppercase;
+        }
+
+        /* Table Design */
+        .invoice-bills {
+            margin-top: 50px;
+        }
+        .table thead th {
+            background: transparent;
+            border-top: none;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--purple);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 15px 10px;
+        }
+        .table tbody td {
+            padding: 15px 10px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(245, 246, 250, 0.5);
+        }
+
+        /* Summary Section */
+        .invoice-summary {
+            margin-top: 30px;
+            width: 300px;
+            float: right;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+        .summary-row.total {
+            border-top: 1px solid var(--border-color);
+            margin-top: 10px;
+            padding-top: 15px;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+
+        /* Footer Note */
+        .invoice-footer {
+            margin-top: 100px;
+            border-top: none;
+            font-size: 12px;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        /* Action bar for screen */
+        .no-print-bar {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+        }
+
+        @media print {
+            body { padding: 0; background: #fff; }
+            .invoice-wrap { box-shadow: none; width: 100%; padding: 20px; }
+            .no-print-bar, .print-btn-wrap { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print-bar">
+        <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="invoice-wrap">
+        <div class="print-btn-wrap">
+            <button onclick="window.print()" class="btn-print">
+                <i class="fa fa-print"></i> Print
+            </button>
+        </div>
+
+        <div class="invoice-brand">
+            <img src="{% static 'website/images/logo.png' %}" alt="">
+            <span>{{ site_name|default:"AB" }}<span style="color: var(--purple)">Shop</span></span>
+        </div>
+
+        <div class="row">
+            <div class="col-7">
+                <div class="label-title">Invoice To</div>
+                <div class="customer-name">{{ order.customer.user.get_full_name|default:"Gregory Ander son" }}</div>
+                <div class="info-text">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <div>{{ order.billing_address|default:"House #65, 4328 Marion Street <br> Newbury, VT 05051"|safe }}</div>
+                </div>
+                <div class="info-text">
+                    <i class="fa-solid fa-phone"></i>
+                    <div>{{ order.customer.phone|default:"+012 8764 556" }}</div>
+                </div>
+            </div>
+            <div class="col-5 text-end">
+                <div class="invoice-right-title">INVOICE</div>
+                <div class="meta-text">INVOICE ID: <b class="ms-4">{{ order.order_number|default:"66K5W3" }}</b></div>
+                <div class="meta-text">DATE: <b class="ms-5 ps-3">{{ order.created_at|date:"d M, Y"|default:"26 Jan, 2020" }}</b></div>
+            </div>
+        </div>
+
+        <div class="invoice-bills">
+            <table class="table table-striped table-borderless">
+                <thead>
+                    <tr>
+                        <th width="15%">Item ID</th>
+                        <th width="55%">Description</th>
+                        <th width="10%">Price</th>
+                        <th width="10%">Qty</th>
+                        <th width="10%" class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in order.order_details.all %}
+                    <tr>
+                        <td>{{ detail.product.product_code|default:detail.product.id }}</td>
+                        <td>{{ detail.product.product_name }}</td>
+                        <td>৳{{ detail.unit_price }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td class="text-end">৳{{ detail.total_price }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td>24108054</td><td>ABShop - Conceptual App Dashboard</td><td>৳40.00</td><td>5</td><td class="text-end">৳200.00</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="clearfix">
+            <div class="invoice-summary">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span class="fw-bold">৳{{ order.grand_total }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Processing fee</span>
+                    <span class="fw-bold">৳0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>TAX</span>
+                    <span class="fw-bold">৳0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Grand Total</span>
+                    <span>৳{{ order.grand_total }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="invoice-footer">
+            Thank you for your shoping! If you have any questions about this invoice, please contact us at "{{ site_email|default:"info@abshop.com" }}"
+        </div>
+    </div>
+
+</body>
+</html>

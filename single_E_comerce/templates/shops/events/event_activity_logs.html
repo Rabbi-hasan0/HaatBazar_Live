@@ -1,0 +1,114 @@
+{% extends 'owner_base.html' %}
+{% block title %} Shop | {{ page_title }} {% endblock %}
+
+{% block content %}
+<span class="w-full py-8 sm:py-12 space-y-6">
+    
+    <!-- হেডার সেকশন -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-slate-500"></i> {{ page_title }}
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">Monitor all administrative actions, creation logs, and status updates for your events.</p>
+        </div>
+        
+        <div>
+            <a href="{% url 'events_list' %}" class="flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold rounded-xl transition shadow-sm">
+                <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- লগ টেবিল কার্ড -->
+    <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/70 border-b border-slate-150 text-slate-500 text-[11px] font-bold uppercase tracking-wider">
+                        <th class="py-3.5 px-6" style="width: 180px;">Timestamp</th>
+                        <th class="py-3.5 px-4" style="width: 130px;">Action</th>
+                        <th class="py-3.5 px-4" style="width: 220px;">Event Title Backup</th>
+                        <th class="py-3.5 px-4">Logged Changes</th>
+                        <th class="py-3.5 px-4" style="width: 150px;">Operator</th>
+                        <th class="py-3.5 px-6 text-right" style="width: 140px;">IP Address</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700 text-xs">
+                    {% for log in activities %}
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        
+                        <!-- সময়কাল (Timestamp) -->
+                        <td class="py-4 px-6 text-[11px] font-medium text-slate-500 whitespace-nowrap">
+                            <i class="fa-regular fa-clock text-slate-400 me-1"></i>
+                            {{ log.timestamp|date:"d M Y, h:i A" }}
+                        </td>
+                        
+                        <!-- অ্যাকশন ব্যাজ (Action Type) -->
+                        <td class="py-4 px-4 whitespace-nowrap">
+                            {% if log.action == 'create' %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                    <span class="w-1 h-1 rounded-full bg-emerald-500"></span> CREATE
+                                </span>
+                            {% elif log.action == 'activate' %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                    <span class="w-1 h-1 rounded-full bg-indigo-500"></span> ACTIVATE
+                                </span>
+                            {% elif log.action == 'deactivate' %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                    <span class="w-1 h-1 rounded-full bg-amber-500"></span> DEACTIVATE
+                                </span>
+                            {% elif log.action == 'delete' %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                                    <span class="w-1 h-1 rounded-full bg-rose-500"></span> DELETE
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-50 text-slate-700 border border-slate-200">
+                                    <span class="w-1 h-1 rounded-full bg-slate-400"></span> UPDATE
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- ইভেন্ট টাইটেল ব্যাকআপ -->
+                        <td class="py-4 px-4 font-semibold text-slate-900">
+                            <span class="block max-w-[200px] truncate" title="{{ log.event_title_backup }}">
+                                {{ log.event_title_backup }}
+                            </span>
+                        </td>
+                        
+                        <!-- কি কি পরিবর্তন হয়েছে (Changes Logged) -->
+                        <td class="py-4 px-4 text-slate-600 font-medium break-words max-w-[400px]">
+                            {{ log.changes_logged }}
+                        </td>
+                        
+                        <!-- ইউজার বা অপারেটর -->
+                        <td class="py-4 px-4 text-slate-500 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <div class="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-bold text-[10px] uppercase">
+                                    {{ log.user.username|slice:":1" }}
+                                </div>
+                                <span class="font-medium text-slate-700">{{ log.user.username }}</span>
+                            </div>
+                        </td>
+                        
+                        <!-- আইপি এড্রেস -->
+                        <td class="py-4 px-6 text-right text-slate-400 font-mono text-[11px] whitespace-nowrap">
+                            <i class="fa-solid fa-network-wired text-[10px] text-slate-300 me-1"></i>
+                            {{ log.ip_address|default:"Unknown" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-16 text-center text-slate-400">
+                            <i class="fa-solid fa-receipt text-3xl mb-3 block text-slate-300"></i>
+                            <p class="text-xs font-semibold text-slate-600">No logs or system activities recorded yet.</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">All event operations will automatically be tracked here.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</span>
+{% endblock %}

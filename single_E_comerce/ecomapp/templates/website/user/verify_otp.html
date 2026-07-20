@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP | Security</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link href="{% static 'website/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .otp-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .card-header-custom {
+            background: #fff;
+            padding: 30px 30px 10px;
+            border: none;
+            text-align: center;
+        }
+        .otp-icon {
+            width: 70px;
+            height: 70px;
+            background: #e7f0ff;
+            color: #0d6efd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin: 0 auto 20px;
+        }
+        .form-control-otp {
+            letter-spacing: 12px;
+            font-size: 28px;
+            font-weight: 700;
+            border: 2px solid #eaedf1;
+            border-radius: 12px;
+            padding: 12px;
+            transition: all 0.3s ease;
+            color: #2d3748;
+        }
+        .form-control-otp:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+            outline: none;
+        }
+        .btn-verify {
+            background: #0d6efd;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .btn-verify:hover {
+            background: #0b5ed7;
+            transform: translateY(-2px);
+        }
+        .resend-link {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+        /* শুধুমাত্র এরর মেসেজের জন্য কাস্টম লাল স্টাইল */
+        .alert-error, .alert-danger {
+            color: #d90429 !important; /* একদম সলিড লাল টেক্সট */
+            background-color: #fff5f5 !important; /* হালকা লালচে ব্যাকগ্রাউন্ড */
+            border: 1px solid #ffccd5 !important; /* বর্ডার */
+        }
+
+        /* মেসেজের ভেতরের আইকনটিও লাল করার জন্য */
+        .alert-error i, .alert-danger i {
+            color: #ef233c !important;
+        }
+        /* Mobile adjustment */
+        @media (max-width: 576px) {
+            .otp-card {
+                margin: 20px;
+            }
+            .form-control-otp {
+                letter-spacing: 8px;
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card otp-card">
+                    <div class="card-header-custom">
+                        <div class="otp-icon">
+                            <i class="fa-solid fa-shield-envelope"></i>
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                        </div>
+                        <h3 class="fw-bold text-dark">Security Check</h3>
+                        <p class="text-muted px-3">We've sent a 6-digit code to <br> 
+                            <span class="text-primary fw-600">{{ email }}</span>
+                        </p>
+                    </div>
+
+                    <div class="card-body p-4 pt-2">
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show small py-2" role="alert">
+                                    <i class="fa-solid fa-circle-info me-2"></i> {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.7rem;"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="post" autocomplete="off">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label class="form-label d-block text-center text-muted small mb-3">Type your one-time password</label>
+                                <input type="text" 
+                                       name="otp" 
+                                       class="form-control form-control-otp text-center" 
+                                       maxlength="6" 
+                                       placeholder="------" 
+                                       pattern="\d*"
+                                       inputmode="numeric"
+                                       required 
+                                       autofocus>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-verify w-100 shadow-sm">
+                                Verify Account
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-4 pt-2">
+                            <p class="small text-muted mb-1">Didn't receive the code?</p>
+                            <a href="{% url 'request_otp' %}?email={{ email }}" class="resend-link small">
+                                <i class="fa-solid fa-rotate-right me-1"></i> Resend New OTP
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-light border-0 py-3 text-center">
+                        <a href="{% url 'user_login' %}" class="text-decoration-none small text-secondary">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Back to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

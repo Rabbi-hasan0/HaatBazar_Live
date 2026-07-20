@@ -1,0 +1,184 @@
+{% extends 'admin_site/admin_base.html' %}
+{% load static %}
+
+{% block title %} Admin Site | Events Management {% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    :root {
+        --primary-color: #14552c;
+        --secondary-color: #64748b;
+        --bg-light: #f8fafc;
+        --border-color: #e2e8f0;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f1f5f9;
+    }
+
+    /* Modern Navigation Tabs */
+    .settings-nav-card {
+        background: white;
+        border-radius: 16px;
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .settings-nav {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        overflow-x: auto;
+        scrollbar-width: none; /* Firefox */
+    }
+
+    .settings-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+    .settings-nav li { flex: 1; min-width: 150px; }
+
+    .nav-link-custom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        color: var(--secondary-color);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .nav-link-custom i {
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+
+    .nav-link-custom:hover {
+        background: #f1f5f9;
+        color: var(--primary-color);
+    }
+
+    .nav-link-custom.active-menu {
+        background: var(--primary-color);
+        color: white !important;
+        box-shadow: 0 10px 15px -3px rgba(20, 85, 44, 0.25);
+    }
+
+    /* Message Styling */
+    .alert-custom {
+        border-radius: 12px;
+        border: none;
+        font-weight: 500;
+    }
+
+    /* Main Content Wrapper */
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+        min-height: 400px;
+    }
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .header-icon {
+        width: 48px;
+        height: 48px;
+        background: #e6f4ea;
+        color: var(--primary-color);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-right: 15px;
+    }
+
+    /* Animation */
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-4 px-md-5">
+    <div class="col-md-6 mt-3 mt-md-0 position-relative">
+        {% if messages %}
+            <div style="position: absolute; top: 0; right: 25px; z-index: 9999; min-width: 300px; max-width: 100%;">
+                {% for message in messages %}
+                    <div class="alert alert-custom shadow-lg fade show mb-2 {% if message.tags == 'success' %}bg-success text-white{% elif message.tags == 'error' %}bg-danger text-white{% else %}bg-info text-white{% endif %} alert-dismissible" role="alert" style="border: none;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+                            <span class="small">{{ message }}</span> </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="content-card fade-in-up">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-primary-subtle text-primary rounded-3 p-2 me-3 shadow-sm">
+                        <i class="fas fa-calendar-alt fa-lg"></i>
+                    </div>
+                    
+                    <div>
+                        <h4 class="fw-bold mb-0 text-dark">
+                            {% if page_title == 'Events Management' %} 
+                                Events Management
+                            {% else %} 
+                                Events Management Section 
+                            {% endif %}
+                        </h4>
+                        
+                        <p class="text-muted small mb-0">
+                            Total Events: <span class="badge bg-primary text-white rounded-pill ms-1">{{ events|length }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    {% if page_title == 'Events Management' %} Explore Events {% else %} Explore Now {% endif %}
+                </button>
+            </div>
+        </div>
+
+        {% if page_title == 'Events Management' %}
+            {% include 'admin_site/event_table/event.html' with events=events %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        let alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            let bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 4000);
+</script>
+{% endblock %}

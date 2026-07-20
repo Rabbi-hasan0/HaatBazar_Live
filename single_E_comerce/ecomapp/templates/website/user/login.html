@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | HaatBazar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --bg-soft: #f0f2f5;
+            --text-dark: #1e293b;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-soft); /* পেজের ব্যাকগ্রাউন্ড হালকা গ্রে */
+        }
+
+        /* মূল কন্টেইনার যেখানে ১০% প্যাডিং থাকবে */
+        .page-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 5% 10%; /* ডানে-বামে ১০% প্যাডিং */
+        }
+
+        .main-login-card {
+            display: flex;
+            width: 100%;
+            max-width: 1100px;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            min-height: 600px;
+        }
+
+        /* --- Left Side: Branding --- */
+        .branding-side {
+            flex: 1.2;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .branding-content h1 { font-size: 42px; font-weight: 800; }
+        .branding-content p { opacity: 0.8; font-size: 16px; }
+
+        /* --- Right Side: Form --- */
+        .form-side {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-control {
+            height: 48px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-login {
+            height: 48px;
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            color: white;
+            transition: 0.3s;
+        }
+
+        .btn-login:hover { background: var(--secondary); transform: translateY(-2px); }
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 45px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .input-group .form-control {
+            border-radius: 10px !important; /* ইনপুট বক্সের রাউন্ড শেপ ঠিক রাখার জন্য */
+        }
+
+        #togglePassword:hover {
+            color: var(--primary) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .page-wrapper { padding: 20px; }
+            .branding-side { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div class="main-login-card">
+        
+        <div class="branding-side">
+            <div class="branding-content">
+                <h1>HaatBazar</h1>
+                <p>সবচেয়ে দ্রুত ডেলিভারি এবং সেরা পণ্যের নিশ্চয়তা।</p>
+                <div class="mt-4">
+                    <i class="fa-solid fa-bag-shopping fa-4x opacity-25"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <div class="mb-4">
+                <h3 class="fw-800">Login Portal, HaatBazar</h3>
+                <p class="text-muted small">Sign in and explor our shop</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Username</label>
+                    <input type="text" name="phone" class="form-control shadow-none" placeholder="Enter username">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Password</label>
+                    <div class="input-group" style="position: relative;">
+                        <input type="password" id="password" name="password" class="form-control shadow-none" placeholder="••••••••" required style="padding-right: 45px;">
+                        <span id="togglePassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; z-index: 10; color: #64748b;">
+                            <i class="fa-solid fa-eye" id="eyeIcon"></i>
+                        </span>
+                    </div>
+                </div>
+                <button type="submit" class="btn-login w-100">Sign In</button>
+            </form>
+
+            <div class="text-center my-3 text-muted small">OR</div>
+
+            <a href="#" class="btn-social">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="16"> Google
+            </a>
+            <a href="#" class="btn-social" style="background: #1877F2; color: white; border: none;">
+                <i class="fa-brands fa-facebook"></i> Facebook
+            </a>
+
+            <p class="text-center mt-4 small">
+                New here? <a href="{% url 'user_register' %}" class="text-primary fw-bold text-decoration-none">Create Account</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+    const eyeIcon = document.querySelector('#eyeIcon');
+
+    togglePassword.addEventListener('click', function () {
+        // টাইপ চেক করা (password না text)
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // আইকন টগল করা
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
+    });
+</script>
+</body>
+</html>

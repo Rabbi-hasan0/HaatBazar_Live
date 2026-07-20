@@ -1,0 +1,270 @@
+{% extends 'owner_base.html' %}
+{% load static %}
+
+<!-- প্রিন্ট মিডিয়া হ্যাক ও প্রফেশনাল পেপার রেন্ডারিং সিএসএস -->
+ {% block extra_css %}
+<style>
+    @media print {
+        body {
+            background: #ffffff !important;
+            color: #000000 !important;
+            font-size: 12px !important;
+        }
+        .print\:col-span-3 {
+            grid-column: span 3 / span 3 !important;
+            width: 100% !important;
+        }
+        .print\:hidden {
+            display: none !important;
+        }
+        /* পেজ ব্রেক ইন্টেলিজেন্স */
+        .print\:break-inside-avoid {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+    }
+</style>
+{% endblock %}
+{% block content %}
+<span class="w-full py-8 sm:py-12 space-y-6">
+
+    <!-- টপ অ্যাকশন ও হেডার এরিয়া -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 print:mb-6 print:border-b print:pb-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'order_list' %}" class="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 transition shadow-sm print:hidden">
+                    <i class="fa-solid fa-arrow-left text-xs"></i>
+                </a>
+                <div>
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Invoice #{{ order.order_number }}</h1>
+                        <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md border
+                            {% if order.status == 'pending' %} bg-amber-50 text-amber-700 border-amber-200
+                            {% elif order.status == 'delivered' %} bg-emerald-50 text-emerald-700 border-emerald-200
+                            {% elif order.status == 'cancelled' %} bg-rose-50 text-rose-700 border-rose-200
+                            {% else %} bg-blue-50 text-blue-700 border-blue-200 {% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Placed on {{ order.created_at|date:"d M Y, h:i A" }} &bull; Store: <span class="text-slate-600 font-medium">{{ order.shop.name }}</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="print:hidden">
+            <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition shadow-sm cursor-pointer group">
+                <i class="fa-solid fa-print opacity-80 group-hover:opacity-100 transition"></i> Print Official Invoice
+            </button>
+        </div>
+    </div>
+
+    <!-- মেইন গ্রিড লেআউট -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        
+        <!-- বামপাশের মেইন কনটেন্ট এরিয়া -->
+        <div class="lg:col-span-2 space-y-6 print:col-span-3">
+            
+            <!-- প্রোডাক্ট সামারি কার্ড -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden print:border-0 print:shadow-none">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/40 flex items-center justify-between print:bg-white print:px-0">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-box text-slate-400 text-[10px]"></i> Product Summary
+                    </h3>
+                    <span class="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md print:hidden">{{ items.count }} Items</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-100 text-slate-400 text-[10px] font-bold uppercase tracking-wider bg-slate-50/10">
+                                <th class="py-3.5 px-6">Product Item</th>
+                                <th class="py-3.5 px-4 text-center">Unit Price</th>
+                                <th class="py-3.5 px-4 text-center">Qty</th>
+                                <th class="py-3.5 px-4 text-center">Discount</th>
+                                <th class="py-3.5 px-6 text-right">Total Price</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700 text-xs">
+                            {% for item in items %}
+                            <tr class="hover:bg-slate-50/30 transition-colors">
+                                <td class="py-4 px-6 font-semibold text-slate-800">
+                                    {{ item.product.product_name }}
+                                </td>
+                                <td class="py-4 px-4 text-center text-slate-500 font-mono">৳{{ item.unit_price }}</td>
+                                <td class="py-4 px-4 text-center font-bold text-slate-600 bg-slate-50/30 font-mono">{{ item.quantity }}</td>
+                                <td class="py-4 px-4 text-center font-medium font-mono">
+                                    {% if item.is_discount %}
+                                        <span class="text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">-৳{{ item.discount_price }}</span>
+                                    {% else %}
+                                        <span class="text-slate-300">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4 px-6 text-right font-bold text-slate-900 font-mono">৳{{ item.total_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ইনভয়েস টোটাল ক্যালকুলেশন বক্স -->
+                <div class="p-6 bg-slate-50/30 border-t border-slate-100 flex justify-end print:bg-white print:px-0">
+                    <div class="w-full sm:w-80 space-y-3 text-xs">
+                        <div class="flex justify-between text-slate-500">
+                            <span>Subtotal Amount:</span>
+                            <span class="font-bold text-slate-700 font-mono">৳{{ order.order_amount }}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-500">
+                            <span>Shipping Charge:</span>
+                            <span class="font-bold text-slate-700 font-mono">+৳{{ order.shipping_charge }}</span>
+                        </div>
+                        
+                        {% if order.discount > 0 or order.coupon_discount > 0 %}
+                        <div class="flex justify-between text-rose-600 bg-rose-50/50 p-2 rounded-xl border border-rose-100/40">
+                            <span class="font-medium">Total Saved:</span>
+                            <span class="font-bold font-mono">-৳{{ order.discount|add:order.coupon_discount }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex justify-between text-slate-500">
+                            <span>VAT / Tax Assessment:</span>
+                            <span class="font-bold text-slate-700 font-mono">৳{{ order.vat_amount|add:order.tax_amount }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between border-t border-slate-200 pt-3 text-sm font-black text-slate-900">
+                            <span>Grand Total:</span>
+                            <span class="text-indigo-600 text-base font-mono">৳{{ order.grand_total }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between text-xs pt-1 border-dashed border-t border-slate-200/60 text-emerald-600 font-bold">
+                            <span>Paid Status:</span>
+                            <span class="font-mono">৳{{ order.paid_amount }}</span>
+                        </div>
+                        
+                        {% if order.due_amount > 0 %}
+                        <div class="flex justify-between text-xs pt-0.5 text-amber-600 font-bold">
+                            <span>Outstanding Balance:</span>
+                            <span class="font-mono">৳{{ order.due_amount }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- পেমেন্ট ইনফরমেশন গেটওয়ে লগ -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden print:break-inside-avoid">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/40 flex justify-between items-center print:bg-white print:px-0">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-credit-card text-slate-400 text-[10px]"></i> Gateway Transaction Logs
+                    </h3>
+                </div>
+                <div class="p-5 text-xs space-y-3 print:px-0">
+                    {% for payment in order.payments.all %}
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50/40 rounded-xl border border-slate-200/60 gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 font-black uppercase text-[10px] tracking-wider shadow-sm">
+                                {{ payment.payment_type }}
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 uppercase text-xs">{{ payment.get_payment_type_display }}</p>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Reference ID: <span class="font-mono font-semibold text-slate-600">{{ payment.transaction_id|default:"N/A" }}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2">
+                            <span class="font-black text-slate-900 font-mono text-sm">৳{{ payment.amount }}</span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border
+                                {% if payment.payment_status == 'paid' %} bg-emerald-50 text-emerald-700 border-emerald-100
+                                {% elif payment.payment_status == 'failed' %} bg-rose-50 text-rose-700 border-rose-100
+                                {% else %} bg-amber-50 text-amber-700 border-amber-100 {% endif %}">
+                                {{ payment.payment_status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-6 text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                        <i class="fa-solid fa-receipt text-lg opacity-30 block mb-1"></i> No formal gateway transaction records found.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ডানপাশের সাইডবার (কাস্টমার ও ট্র্যাকিং হিস্ট্রি) -->
+        <div class="space-y-6 print:hidden">
+            
+            <!-- কাস্টমার প্রোফাইল ও শিপিং ইনফো -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-user text-[10px]"></i> Profile & Fulfillment
+                </h3>
+                
+                <div class="flex items-center gap-3">
+                    {% if order.customer.profile_pic %}
+                        <img src="{{ order.customer.profile_pic.url }}" class="w-11 h-11 rounded-full object-cover border border-slate-200 ring-2 ring-slate-100">
+                    {% else %}
+                        <div class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-bold text-sm border border-indigo-100 shadow-inner">
+                            {{ order.customer.user.username|slice:":2"|upper }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900">{{ order.customer.user.get_full_name|default:order.customer.user.username }}</h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5"><i class="fa-solid fa-phone text-[9px] text-slate-400 mr-0.5"></i> {{ order.customer.phone }}</p>
+                    </div>
+                </div>
+
+                <div class="pt-1 space-y-3 text-xs">
+                    <div class="bg-slate-50/50 p-3.5 rounded-xl border border-slate-200/60">
+                        <p class="font-bold text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-truck text-[9px]"></i> Shipping Address
+                        </p>
+                        <p class="font-medium text-slate-700 leading-relaxed">{{ order.shipping_address|default:"No explicit shipping address provided." }}</p>
+                    </div>
+                    <div class="bg-slate-50/50 p-3.5 rounded-xl border border-slate-200/60">
+                        <p class="font-bold text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-file-invoice text-[9px]"></i> Billing Address
+                        </p>
+                        <p class="font-medium text-slate-700 leading-relaxed">{{ order.billing_address|default:"Configured identical to shipping address." }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- অর্ডার ট্র্যাকিং লাইফসাইকেল টাইমলাইন -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider pb-3 border-b border-slate-100 mb-5 flex items-center gap-2">
+                    <i class="fa-solid fa-timeline text-[10px]"></i> Audit Trail & Timeline
+                </h3>
+                
+                <div class="relative pl-5 border-l-2 border-slate-100 space-y-6">
+                    {% for log in order.logs.all|dictsortreversed:"changed_at" %}
+                    <div class="relative">
+                        <!-- কাস্টম বুলেট ইন্ডিকেটর -->
+                        <span class="absolute -left-[29px] top-0.5 w-3.5 h-3.5 rounded-full bg-white border-2 flex items-center justify-center transition-all
+                            {% if forloop.first %} border-indigo-600 ring-4 ring-indigo-50 {% else %} border-slate-300 {% endif %}">
+                            <span class="w-1.5 h-1.5 rounded-full {% if forloop.first %} bg-indigo-600 {% else %} bg-slate-300 {% endif %}"></span>
+                        </span>
+                        
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-bold text-xs uppercase tracking-tight
+                                    {% if forloop.first %} text-indigo-600 {% else %} text-slate-700 {% endif %}">
+                                    {{ log.status }}
+                                </span>
+                                <span class="text-[9px] font-semibold text-slate-400 font-mono bg-slate-100 px-1.5 py-0.5 rounded">{{ log.changed_at|date:"d M, h:i A" }}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">{{ log.note|default:"No secondary notation provided." }}</p>
+                            <p class="text-[10px] font-medium text-slate-400 flex items-center gap-1 pt-0.5">
+                                <i class="fa-solid fa-user-circle text-[10px]"></i> Actor: <span class="text-slate-600 font-semibold">{{ log.changed_by.username|default:"Automated System" }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-6 text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                        <i class="fa-solid fa-clock-rotate-left text-lg opacity-30 block mb-1"></i> No history logs generated yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</span>
+{% endblock %}

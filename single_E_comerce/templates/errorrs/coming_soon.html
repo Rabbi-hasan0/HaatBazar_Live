@@ -1,0 +1,71 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Coming Soon {% endblock %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    /* গ্লোবাল সাইড পুশ এবং ডানে সরে যাওয়া লক করার মাস্টার সিএসএস */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .cs-master-container {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        width: 100% !important;
+        padding: 100px 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    .animated-pulse-tool {
+        animation: cs-tool-pulse 2s infinite ease-in-out;
+        color: #0d6efd !important;
+    }
+
+    @keyframes cs-tool-pulse {
+        0% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.08); opacity: 1; }
+        100% { transform: scale(1); opacity: 0.6; }
+    }
+</style>
+
+<div class="cs-master-container">
+    <div class="container">
+        <div class="row justify-content-center text-center mx-0">
+            <div class="col-12 col-md-8 col-lg-6 px-3">
+                
+                <div class="mb-4">
+                    <i class="fas fa-tools display-1 animated-pulse-tool"></i>
+                </div>
+                
+                <h2 class="fw-bold text-dark mb-3">Feature Under Construction</h2>
+                <p class="text-muted mb-4">We are working hard to bring this feature live. Stay tuned! It will be available very soon.</p>
+                
+                {% if global_shop and global_shop.shop_slug %}
+                    <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Shopping
+                    </a>
+                {% else %}
+                    <a href="/" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Home
+                    </a>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block footer %}
+    {% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

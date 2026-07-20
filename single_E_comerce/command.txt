@@ -1,0 +1,6 @@
+
+# dependency installation
+pip freeze > requirements.txt   
+
+# load data 
+python manage.py loaddata fixtures/fixtures.json

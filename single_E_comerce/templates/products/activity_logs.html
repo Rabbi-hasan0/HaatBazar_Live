@@ -1,0 +1,156 @@
+{% extends 'owner_base.html' %} 
+{% block title %} Shop | Inventory Activity Logs {% endblock %}
+
+{% block content %}
+<div class="w-full py-8 sm:py-12 space-y-6">
+    
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-0">
+        <div>
+            <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2.5">
+                <i class="fa-solid fa-list-check text-slate-600"></i> {{ page_title|default:"Inventory Activity Center" }}
+            </h1>
+        </div>
+        
+        <div class="shrink-0 flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm w-fit">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span class="text-xs font-mono font-bold text-slate-600">Real-time Stream Matrix</span>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white border border-slate-200 rounded-2xl mb-6 shadow-sm">
+        <form method="GET" action="" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Target Module</label>
+                <select name="module" onchange="this.form.submit()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 text-slate-700 font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20">
+                    <option value="">All Inventory Components</option>
+                    <option value="main_cat" {% if current_module == 'main_cat' %}selected{% endif %}>Main Categories Only</option>
+                    <option value="sub_cat" {% if current_module == 'sub_cat' %}selected{% endif %}>Sub Categories Only</option>
+                    <option value="product" {% if current_module == 'product' %}selected{% endif %}>Products Records Base</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Mutation Action Scope</label>
+                <select name="action" onchange="this.form.submit()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 text-slate-700 font-semibold outline-none focus:ring-2 focus:ring-emerald-500/20">
+                    <option value="">All Record Transforms</option>
+                    <option value="add" {% if current_action == 'add' %}selected{% endif %}>Created Log Actions</option>
+                    <option value="edit" {% if current_action == 'edit' %}selected{% endif %}>Updated/Mutated States</option>
+                    <option value="delete" {% if current_action == 'delete' %}selected{% endif %}>Purged/Deleted Entries</option>
+                </select>
+            </div>
+            
+            {% if current_module or current_action %}
+            <div class="sm:col-span-2 md:col-span-2 flex items-end">
+                <a href="?" class="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition duration-200 shadow-sm">
+                    Reset Filter Indexes
+                </a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/70 border-b border-slate-200/80">
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Timestamp Trace</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Inventory Scope</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Mutation Target Item</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Detailed Transition Narrative</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Authorized Operator</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-sans">
+                    {% for log in logs %}
+                    <tr class="group hover:bg-slate-50/40 transition-colors duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-xs text-slate-500 font-mono font-medium block">
+                                {{ log.created_at|date:"d M, Y" }}
+                            </span>
+                            <span class="text-[10px] text-slate-400 font-mono block mt-0.5">
+                                {{ log.created_at|date:"h:i:s A" }}
+                            </span>
+                        </td>
+                        
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-[9px] px-2.5 py-1 rounded-lg font-bold uppercase tracking-tight inline-block border
+                                {% if log.module_type == 'main_cat' %} bg-purple-50/60 text-purple-700 border-purple-100/80
+                                {% elif log.module_type == 'sub_cat' %} bg-indigo-50/60 text-indigo-700 border-indigo-100/80
+                                {% else %} bg-sky-50/60 text-sky-700 border-sky-100/80 {% endif %}">
+                                {{ log.get_module_type_display }}
+                            </span>
+                        </td>
+                        
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full shrink-0
+                                    {% if log.action_type == 'add' %} bg-emerald-500
+                                    {% elif log.action_type == 'edit' %} bg-blue-500
+                                    {% else %} bg-rose-500 {% endif %}">
+                                </span>
+                                <h6 class="font-bold text-slate-800 text-xs tracking-tight line-clamp-1">{{ log.item_name }}</h6>
+                            </div>
+                        </td>
+                        
+                        <td class="px-6 py-4 max-w-sm md:max-w-md lg:max-w-lg">
+                            <div class="flex flex-col gap-1">
+                                <p class="text-xs text-slate-600 font-medium leading-relaxed font-sans">{{ log.details }}</p>
+                                <span class="text-[9px] font-bold font-mono tracking-wide uppercase px-1.5 py-0.5 rounded w-fit
+                                    {% if log.action_type == 'add' %} text-emerald-600 bg-emerald-50/50
+                                    {% elif log.action_type == 'edit' %} text-blue-600 bg-blue-50/50
+                                    {% else %} text-rose-600 bg-rose-50/50 {% endif %}">
+                                    Operation Type: {{ log.get_action_type_display }}
+                                </span>
+                            </div>
+                        </td>
+                        
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            <div class="inline-flex flex-col items-end gap-0.5">
+                                <span class="text-xs font-bold text-slate-700 tracking-tight flex items-center gap-1.5 justify-end">
+                                    <i class="fa-regular fa-circle-user text-slate-400 text-[11px]"></i>
+                                    {{ log.performed_by.user.username|default:"System Automaton" }}
+                                </span>
+                                <span class="text-[9px] font-mono text-slate-400 block uppercase tracking-tighter">Shop Administrator</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-24 text-center">
+                            <div class="max-w-xs mx-auto flex flex-col items-center justify-center">
+                                <div class="w-16 h-16 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center text-slate-300 shadow-inner mb-3">
+                                    <i class="fa-solid fa-clock-rotate-left text-xl"></i>
+                                </div>
+                                <h4 class="text-xs font-bold text-slate-800 tracking-tight">No Transaction Sequences Found</h4>
+                                <p class="text-slate-400 text-[11px] mt-1 leading-normal">The active query filtration configuration matrix yielded zero matching event trails inside the system cache storage layer.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if paginator_list %}
+        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400 tracking-tight">Monitoring dynamic structural audit data stream logs indexes grid</span>
+            
+            <div class="flex items-center gap-1.5">
+                {% for page_num in paginator_list %}
+                <a href="?module={{ current_module }}&action={{ current_action }}&page={{ page_num }}" 
+                   class="w-8 h-8 rounded-xl flex items-center justify-center font-mono text-xs font-bold border transition-all duration-200
+                   {% if page_num == request.GET.page|default:'1'|add:0 %} bg-[#14552c] text-white border-[#14552c] shadow-sm shadow-emerald-900/10
+                   {% else %} bg-white text-slate-600 border-slate-200 hover:bg-slate-100/80 hover:border-slate-300 {% endif %}">
+                    {{ page_num }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Rabbi's E-commerce {% endblock %}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-green: #19803f;
+            --bg-light: #f9fafb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Design */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background: #fff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #64748b;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+        }
+
+        .nav-link:hover, .nav-item.active .nav-link {
+            background-color: var(--primary-green);
+            color: white !important;
+        }
+
+        /* Header Design */
+        .header {
+            margin-left: var(--sidebar-width);
+            height: 70px;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .search-container {
+            flex-grow: 1;
+        }
+
+        .search-input {
+            background: #f3f4f6;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            width: 300px;
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Main Content area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: var(--primary-green);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-cube text-success me-2"></i> {{ user.first_name }}'S  BUSINESS CRM
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <a href="{% url 'admin_dashboard' %}" class="nav-link">
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" class="nav-link"><i class="fa-solid fa-users"></i> Contacts</a>
+            </li>
+
+            <li class="nav-item {% if 'product' in request.path or 'menu-list' in request.path %}active{% endif %}">
+                <a href="{% url 'menu_list' %}" class="nav-link">
+                    <i class="fa-solid fa-building"></i> Products Catalog Management 
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" class="nav-link"><i class="fa-solid fa-chart-line"></i> Orders</a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" class="nav-link"><i class="fa-solid fa-check-double"></i> Tasks </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="/backend/setting-dashboard/" class="nav-link">
+                    <i class="fa-solid fa-gear"></i> Settings
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <header class="header">
+        <div class="search-container">
+            <form action="#" method="GET">
+                <i class="fa-solid fa-magnifying-glass position-absolute ms-3 mt-2 text-muted"></i>
+                <input type="search" name="q" class="search-input ps-5" placeholder="Search..." value="{{ request.GET.q|default:'' }}">
+            </form>
+        </div>
+
+        <div class="header-right">
+            <div class="dropdown">
+                <div class="user-profile dropdown-toggle" data-bs-toggle="dropdown">
+                    <div class="user-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <span class="d-none d-md-inline fw-medium text-dark">{{ user.first_name }}</span>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user-gear me-2"></i> Account</a></li>
+                    <li><a class="dropdown-item" href="#"><i class="fa-solid fa-key me-2"></i> Password</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'user_logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% block content %}
+        <div class="container-fluid">
+            <h2 class="fw-bold">Dashboard</h2>
+            <p class="text-muted">Welcome back to your CRM dashboard.</p>
+        </div>
+        {% endblock %}
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

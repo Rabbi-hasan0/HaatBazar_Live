@@ -1,0 +1,517 @@
+{% extends 'owner_base.html' %} 
+{% block title %} Shop | {{ page_title|default:"Products Catalog" }} {% endblock %}
+
+{% block content %}
+<span class="w-full py-8 sm:py-12 space-y-6">
+
+    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+                {{ page_title }}
+                <span class="text-xs bg-slate-100 text-slate-500 font-mono px-2 py-0.5 rounded-lg border border-slate-200 font-normal">All Products</span>
+            </h1>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <form method="GET" action="{% url 'product_list' %}" class="relative min-w-[280px]">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="search" name="q" value="{{ query|default:'' }}" class="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-400 shadow-sm" placeholder="Search product matrix...">
+            </form>
+
+            <button type="button" id="bulkDeleteBtn" class="hidden flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-md bg-rose-600 hover:bg-rose-700 transition-all">
+                <i class="fas fa-trash"></i> Delete Selected (<span id="selectCount">0</span>)
+            </button>
+
+            <button type="button" data-bs-target="#addProductModal" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-md bg-[#14552c]">
+                <i class="fas fa-plus"></i> Create Product
+            </button>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white border border-slate-200 rounded-2xl mb-6 shadow-sm">
+        <form method="GET" action="{% url 'product_list' %}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <input type="hidden" name="q" value="{{ query|default:'' }}">
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Sort Valuation</label>
+                <select name="sort" onchange="this.form.submit()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 outline-none">
+                    <option value="">Default Chronological</option>
+                    <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Stock Status</label>
+                <select name="stock" onchange="this.form.submit()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 outline-none">
+                    <option value="">All Inventory</option>
+                    <option value="low_stock" {% if request.GET.stock == 'low_stock' %}selected{% endif %}>Low Stock (<=5)</option>
+                    <option value="out_of_stock" {% if request.GET.stock == 'out_of_stock' %}selected{% endif %}>Out of Stock (0)</option>
+                </select>
+            </div>
+            <div class="md:col-span-2 flex items-end">
+                <a href="{% url 'product_list' %}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition">Clear Filters</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/70 border-b border-slate-200">
+                        <th class="px-4 py-4 w-10 text-center">
+                            <input type="checkbox" id="selectAllCheckbox" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20 w-4 h-4 cursor-pointer">
+                        </th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Product Identity</th>
+                        <th class="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Class Relations</th>
+                        <th class="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Review & Ratings</th>
+                        <th class="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Price Valuation</th>
+                        <th class="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Stock Unit Matrix</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Operations</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for item in items %}
+                    <tr class="group hover:bg-slate-50/50 transition-colors">
+                        <td class="px-4 py-4 text-center">
+                            <input type="checkbox" name="product_ids" value="{{ item.id }}" class="product-checkbox rounded border-slate-300 text-emerald-600 focus:ring-emerald-500/20 w-4 h-4 cursor-pointer">
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200/60 overflow-hidden shrink-0 shadow-inner">
+                                    {% if item.product_image %}
+                                        <img src="{{ item.product_image.url }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <i class="fas fa-box text-slate-300 text-base"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="font-bold text-slate-800 text-sm leading-tight mb-1">{{ item.product_name }}</h6>
+                                    <span class="text-[10px] font-mono bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">ID: #{{ item.id }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-xs">
+                            <div class="flex flex-col gap-1">
+                                <span class="font-semibold text-slate-700 flex items-center gap-1"><span class="text-emerald-600">&bull;</span> MC: {{ item.main_category.main_cat_name }}</span>
+                                {% if item.sub_category %}
+                                <span class="font-medium text-slate-500 flex items-center gap-1"><span class="text-blue-500">&bull;</span> SC: {{ item.sub_category.sub_cat_name }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-center text-xs">
+                            <div class="flex flex-col items-center gap-1.5 justify-center">
+                                <button type="button" data-target-modal="reviewsModal{{ item.id }}" class="flex items-center gap-1 hover:text-emerald-700 outline-none transition template-reviews-modal-trigger">
+                                    <i class="fas fa-star {% if item.avg_rating %} text-amber-500 {% else %} text-slate-200 {% endif %} text-[11px]"></i>
+                                    <span class="font-bold text-slate-700 font-mono text-[11px]">
+                                        {{ item.avg_rating|default:"0.0"|floatformat:1 }}
+                                    </span>
+                                    <span class="text-[10px] font-medium text-slate-400 font-sans underline decoration-dotted">
+                                        ({{ item.total_reviews }} reviews)
+                                    </span>
+                                </button>
+                                
+                                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 border border-rose-100 text-[10px] font-semibold text-rose-600 shadow-sm">
+                                    <i class="fas fa-heart text-[9px]"></i>
+                                    <span>{{ item.total_wishlist }} Liked</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-center text-xs font-bold text-slate-800">
+                            ${{ item.price }}
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            {% if item.stock <= 5 %}
+                                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-tighter bg-amber-50 rounded-lg px-2.5 py-1 border border-amber-100 inline-block">Low Stock ({{ item.stock }})</span>
+                            {% else %}
+                                <span class="text-xs font-semibold text-slate-600">{{ item.stock }} units</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button type="button" class="p-2 bg-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition edit-product-trigger" 
+                                    data-id="{{ item.id }}"
+                                    data-name="{{ item.product_name }}"
+                                    data-mcat="{{ item.main_category.id }}"
+                                    data-scat="{{ item.sub_category.id|default:'' }}"
+                                    data-price="{{ item.price }}"
+                                    data-stock="{{ item.stock }}"
+                                    data-desc="{{ item.description|default:'' }}">
+                                    <i class="far fa-edit text-sm"></i>Edit
+                                </button>
+                                <button type="button" class="p-2 bg-red-500 text-white hover:text-red-600 hover:bg-red-50 rounded-xl transition delete-product-trigger"
+                                    data-id="{{ item.id }}"
+                                    data-name="{{ item.product_name }}">
+                                    <i class="far fa-trash-alt text-sm"></i>Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <div id="reviewsModal{{ item.id }}" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 generic-review-modal transition-opacity duration-300">
+                        <div id="reviewContent{{ item.id }}" class="bg-white w-full max-w-4xl rounded-2xl overflow-hidden border-0 shadow-2xl transform transition-all scale-95 opacity-0 duration-300">
+                            <div class="px-6 py-4 flex items-center justify-between text-white bg-[#14552c]">
+                                <div>
+                                    <h5 class="font-bold tracking-tight text-sm">{{ item.product_name }}</h5>
+                                    <p class="text-[10px] text-emerald-100 font-sans mt-0.5">Product Reviews Log</p>
+                                </div>
+                                <button type="button" class="text-white/80 hover:text-white text-lg focus:outline-none close-review-modal">&times;</button>
+                            </div>
+                            
+                            <div class="p-6 bg-slate-50 max-h-[380px] overflow-y-auto space-y-3">
+                                {% for rev in item.reviews.all %}
+                                    {% if rev.is_active %}
+                                    <div class="p-3.5 bg-white rounded-xl border border-slate-200/60 shadow-sm space-y-1.5 text-left">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-slate-700 font-mono">@{{ rev.user.username }}</span>
+                                            <div class="flex items-center gap-0.5 text-amber-400">
+                                                {% if rev.rating >= 1 %}<i class="fas fa-star text-xs"></i>{% endif %}
+                                                {% if rev.rating >= 2 %}<i class="fas fa-star text-xs"></i>{% endif %}
+                                                {% if rev.rating >= 3 %}<i class="fas fa-star text-xs"></i>{% endif %}
+                                                {% if rev.rating >= 4 %}<i class="fas fa-star text-xs"></i>{% endif %}
+                                                {% if rev.rating >= 5 %}<i class="fas fa-star text-xs"></i>{% endif %}
+                                            </div>
+                                        </div>
+                                        <p class="text-slate-600 text-xs leading-relaxed font-medium">
+                                            {{ rev.comment|default:"<span class='text-slate-300 italic'>No description left.</span>" }}
+                                        </p>
+                                        <div class="text-[9px] text-slate-400 text-right font-sans">{{ rev.created_at|date:"Y-m-d h:i A" }}</div>
+                                    </div>
+                                    {% endif %}
+                                {% empty %}
+                                    <div class="py-12 text-center text-slate-400 text-xs font-medium">
+                                        <i class="far fa-comment-dots text-xl mb-2 text-slate-300 block"></i>
+                                        Zero user records available in relationship matrix.
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="px-6 py-3 bg-white border-t border-slate-100 flex justify-end">
+                                <button type="button" class="px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl close-review-modal">Close View</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="py-20 text-center">
+                            <div class="max-w-xs mx-auto flex flex-col items-center">
+                                <i class="fas fa-cubes text-2xl text-slate-300 mb-2"></i>
+                                <h4 class="text-sm font-bold text-slate-800">No Products Found</h4>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if paginator_list %}
+        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Dynamic system structural pagination</span>
+            <div class="flex items-center gap-1">
+                {% for page_num in paginator_list %}
+                <a href="?sort={{ request.GET.sort|default:'' }}&stock={{ request.GET.stock|default:'' }}&q={{ query|default:'' }}&page={{ page_num }}" class="w-8 h-8 rounded-lg flex items-center justify-center font-mono text-xs font-bold border {% if page_num == request.GET.page|default:'1'|add:0 %} bg-[#14552c] text-white border-[#14552c] {% else %} bg-white text-slate-600 border-slate-200 hover:bg-slate-50 {% endif %}">
+                    {{ page_num }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</span>
+
+<div id="addProductModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+    <div id="addModalContent" class="bg-white w-full max-w-4xl rounded-2xl overflow-hidden border-0 shadow-2xl transform transition-all scale-95 opacity-0 duration-300">
+        <div class="px-6 py-4 flex items-center justify-between text-white bg-[#14552c]">
+            <h5 class="font-bold tracking-tight text-sm">Add New Core Product</h5>
+            <button type="button" class="text-white/80 hover:text-white text-lg focus:outline-none close-add-modal">&times;</button>
+        </div>
+        <form action="{% url 'product_add' %}" method="post" enctype="multipart/form-data" class="p-6 bg-white space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Product Name*</label>
+                <input type="text" name="product_name" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500" required>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Main Category*</label>
+                    <select name="main_category" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs bg-white outline-none" required>
+                        <option value="">Select</option>
+                        {% for mc in product_main_categories %}
+                        <option value="{{ mc.id }}">{{ mc.main_cat_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Sub Category</label>
+                    <select name="sub_category" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs bg-white outline-none">
+                        <option value="">Select (Optional)</option>
+                        {% for sc in product_sub_categories %}
+                        <option value="{{ sc.id }}">{{ sc.sub_cat_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price ($)*</label>
+                    <input type="number" step="0.01" name="price" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500" required>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Initial Stock*</label>
+                    <input type="number" name="stock" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500" required>
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Product Media Image</label>
+                <input type="file" name="product_image" class="w-full text-xs text-slate-500 border border-slate-200 rounded-xl p-1">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Description</label>
+                <textarea name="description" rows="3" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" class="px-4 py-2 text-xs font-bold text-slate-400 close-add-modal">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#14552c] rounded-xl shadow-sm">Save Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editProductModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+    <div id="editModalContent" class="bg-white w-full max-w-4xl rounded-2xl overflow-hidden border-0 shadow-2xl transform transition-all scale-95 opacity-0 duration-300">
+        <div class="px-6 py-4 flex items-center justify-between text-white bg-[#14552c]">
+            <h5 class="font-bold tracking-tight text-sm">Update Product</h5>
+            <button type="button" class="text-white/80 hover:text-white text-lg focus:outline-none close-edit-modal">&times;</button>
+        </div>
+        <form id="editProductForm" method="post" enctype="multipart/form-data" class="p-6 bg-white space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Product Name*</label>
+                <input type="text" name="product_name" id="editProdName" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500" required>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Main Category*</label>
+                    <select name="main_category" id="editProdMainCat" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs bg-white outline-none" required>
+                        {% for mc in product_main_categories %}
+                        <option value="{{ mc.id }}">{{ mc.main_cat_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Sub Category</label>
+                    <select name="sub_category" id="editProdSubCat" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs bg-white outline-none">
+                        <option value="">None (Optional)</option>
+                        {% for sc in product_sub_categories %}
+                        <option value="{{ sc.id }}">{{ sc.sub_cat_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Price ($)*</label>
+                    <input type="number" step="0.01" name="price" id="editProdPrice" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500" required>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Inventory Stock*</label>
+                    <input type="number" name="stock" id="editProdStock" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500" required>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Discount (%)</label>
+                    <input type="number" min="0" max="100" name="discount_percentage" id="editProdDiscount" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500" placeholder="0">
+                </div>
+            </div>
+            
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Update Image Asset</label>
+                <input type="file" name="product_image" class="w-full text-xs text-slate-500 border border-slate-200 rounded-xl p-1">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 block">Description</label>
+                <textarea name="description" id="editProdDesc" rows="3" class="w-full px-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-emerald-500"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" class="px-4 py-2 text-xs font-bold text-slate-400 close-edit-modal">Cancel</button>
+                <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#14552c] rounded-xl">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="deleteProductModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+    <div id="deleteModalContent" class="bg-white w-full max-w-[380px] p-6 rounded-2xl border-0 shadow-2xl text-center transform transition-all scale-95 opacity-0 duration-300">
+        <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-inner">
+            <i class="fas fa-trash-alt text-lg"></i>
+        </div>
+        <h4 class="text-base font-bold text-slate-800 tracking-tight">Purge Product Entry?</h4>
+        <p class="text-slate-500 text-xs mt-2 leading-relaxed">Are you certain about deleting <span id="delProdName" class="font-bold text-slate-800"></span>? Order matrix dependencies might block operations.</p>
+        <form id="deleteProductForm" method="POST" class="mt-6 grid grid-cols-2 gap-3">
+            {% csrf_token %}
+            <button type="button" class="py-2.5 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl close-delete-modal">Cancel</button>
+            <button type="submit" class="py-2.5 bg-rose-600 text-white font-bold text-xs rounded-xl shadow-md">Delete</button>
+        </form>
+    </div>
+</div>
+
+<div id="bulkDeleteModal" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity duration-300">
+    <div id="bulkDeleteContent" class="bg-white w-full max-w-[380px] p-6 rounded-2xl border-0 shadow-2xl text-center transform transition-all scale-95 opacity-0 duration-300">
+        <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-100 shadow-inner">
+            <i class="fas fa-exclamation-triangle text-lg"></i>
+        </div>
+        <h4 class="text-base font-bold text-slate-800 tracking-tight">Mass Purge Entries?</h4>
+        <p class="text-slate-500 text-xs mt-2 leading-relaxed">Are you absolutely sure you want to delete <span id="bulkConfirmCount" class="font-bold text-rose-600"></span> selected products? This structural change cannot be undone.</p>
+        <form id="bulkDeleteForm" action="{% url 'product_bulk_delete' %}" method="POST" class="mt-6 grid grid-cols-2 gap-3">
+            {% csrf_token %}
+            <input type="hidden" name="selected_ids" id="selectedIdsInput">
+            <button type="button" class="py-2.5 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl close-bulk-modal">Cancel</button>
+            <button type="submit" class="py-2.5 bg-rose-600 text-white font-bold text-xs rounded-xl shadow-md">Delete All</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Core Engine: Animation Handlers
+        function openModal(modalEl, contentEl) {
+            modalEl.classList.remove('hidden');
+            setTimeout(() => {
+                contentEl.classList.remove('scale-95', 'opacity-0');
+                contentEl.classList.add('scale-100', 'opacity-100');
+            }, 20);
+        }
+
+        function closeModal(modalEl, contentEl) {
+            contentEl.classList.remove('scale-100', 'opacity-100');
+            contentEl.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modalEl.classList.add('hidden');
+            }, 200);
+        }
+
+        // --- DYNAMIC REVIEW MODALS LOGIC ---
+        document.querySelectorAll('.template-reviews-modal-trigger').forEach(btn => {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                const modalId = this.getAttribute('data-target-modal');
+                const modalEl = document.getElementById(modalId);
+                const contentEl = modalEl.querySelector('[id^="reviewContent"]');
+                openModal(modalEl, contentEl);
+            }
+        });
+
+        document.querySelectorAll('.close-review-modal').forEach(btn => {
+            btn.onclick = function() {
+                const modalEl = this.closest('.generic-review-modal');
+                const contentEl = modalEl.querySelector('[id^="reviewContent"]');
+                closeModal(modalEl, contentEl);
+            }
+        });
+
+        // --- ADD CORE PRODUCT ---
+        const addModal = document.getElementById('addProductModal');
+        const addContent = document.getElementById('addModalContent');
+        
+        document.querySelectorAll('[data-bs-target="#addProductModal"]').forEach(btn => {
+            btn.onclick = (e) => { e.preventDefault(); openModal(addModal, addContent); }
+        });
+        document.querySelectorAll('.close-add-modal').forEach(btn => {
+            btn.onclick = () => closeModal(addModal, addContent);
+        });
+
+        // --- EDIT CORE PRODUCT ---
+        const editModal = document.getElementById('editProductModal');
+        const editContent = document.getElementById('editModalContent');
+
+        document.querySelectorAll('.edit-product-trigger').forEach(btn => {
+            btn.onclick = function() {
+                document.getElementById('editProdName').value = this.dataset.name;
+                document.getElementById('editProdMainCat').value = this.dataset.mcat;
+                document.getElementById('editProdSubCat').value = this.dataset.scat;
+                document.getElementById('editProdPrice').value = this.dataset.price;
+                document.getElementById('editProdStock').value = this.dataset.stock;
+                document.getElementById('editProdDesc').value = this.dataset.desc;
+                
+                document.getElementById('editProductForm').action = `/products/product/edit/${this.dataset.id}/`;
+                openModal(editModal, editContent);
+            };
+        });
+        document.querySelectorAll('.close-edit-modal').forEach(btn => {
+            btn.onclick = () => closeModal(editModal, editContent);
+        });
+
+        // --- SINGLE ROW DELETE PRODUCT ---
+        const deleteModal = document.getElementById('deleteProductModal');
+        const deleteContent = document.getElementById('deleteModalContent');
+
+        document.querySelectorAll('.delete-product-trigger').forEach(btn => {
+            btn.onclick = function() {
+                document.getElementById('delProdName').innerText = this.dataset.name;
+                document.getElementById('deleteProductForm').action = `/products/product/delete/${this.dataset.id}/`;
+                openModal(deleteModal, deleteContent);
+            };
+        });
+        document.querySelectorAll('.close-delete-modal').forEach(btn => {
+            btn.onclick = () => closeModal(deleteModal, deleteContent);
+        });
+
+        // --- MASS SELECTION BULK DELETE ENGINE ---
+        const masterCheckbox = document.getElementById('selectAllCheckbox');
+        const productCheckboxes = document.querySelectorAll('.product-checkbox');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const selectCountSpan = document.getElementById('selectCount');
+        
+        const bulkModal = document.getElementById('bulkDeleteModal');
+        const bulkContent = document.getElementById('bulkDeleteContent');
+        const selectedIdsInput = document.getElementById('selectedIdsInput');
+        const bulkConfirmCount = document.getElementById('bulkConfirmCount');
+
+        function updateBulkInterface() {
+            const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
+            selectCountSpan.innerText = checkedBoxes.length;
+            if (checkedBoxes.length > 0) {
+                bulkDeleteBtn.classList.remove('hidden');
+            } else {
+                bulkDeleteBtn.classList.add('hidden');
+            }
+        }
+
+        masterCheckbox.addEventListener('change', function() {
+            productCheckboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+            updateBulkInterface();
+        });
+
+        productCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (!this.checked) masterCheckbox.checked = false;
+                if (document.querySelectorAll('.product-checkbox:checked').length === productCheckboxes.length) {
+                    masterCheckbox.checked = true;
+                }
+                updateBulkInterface();
+            });
+        });
+
+        bulkDeleteBtn.onclick = function() {
+            const checkedBoxes = document.querySelectorAll('.product-checkbox:checked');
+            let ids = [];
+            checkedBoxes.forEach(cb => ids.push(cb.value));
+            selectedIdsInput.value = ids.join(',');
+            bulkConfirmCount.innerText = checkedBoxes.length;
+            openModal(bulkModal, bulkContent);
+        };
+
+        document.querySelectorAll('.close-bulk-modal').forEach(btn => {
+            btn.onclick = () => closeModal(bulkModal, bulkContent);
+        });
+
+        // Backdrop Click Closure logic
+        window.onclick = function(event) {
+            if (event.target.classList.contains('fixed')) {
+                const modalContent = event.target.querySelector('[id$="Content"], [id^="reviewContent"]');
+                if(modalContent) closeModal(event.target, modalContent);
+            }
+        }
+    });
+</script>
+{% endblock %}

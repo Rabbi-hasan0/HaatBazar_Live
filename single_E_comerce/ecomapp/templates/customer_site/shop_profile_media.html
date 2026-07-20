@@ -1,0 +1,315 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %}{{ shop.shop_name }} - Verified Profile{% endblock %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="position-relative bg-dark overflow-hidden rounded-4" style="height: 260px;">
+            {% if shop_banners %}
+                <img src="{{ shop_banners.0.file.url }}" class="w-100 position-absolute start-0 top-0 h-100" style="object-fit: cover; filter: brightness(0.65);" alt="Shop Banner">
+            {% else %}
+                <div class="w-100 position-absolute start-0 top-0 h-100" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); opacity: 0.95;"></div>
+            {% endif %}
+        </div>
+
+        <div class="position-relative px-4" style="margin-top: -60px; z-index: 3;">
+            <div class="row pt-3">
+                <div class="col-12 text-center text-md-start d-md-flex align-items-end gap-4">
+                    <div class="bg-white rounded-4 p-2 shadow-lg mb-3 mb-md-0 mx-auto mx-md-0 border border-3 border-white position-relative" style="width: 140px; height: 140px; min-width: 140px;">
+                        {% if shop.shop_logo %}
+                            <img src="{{ shop.shop_logo.url }}" class="w-100 h-100 rounded-4" style="object-fit: cover;" alt="{{ shop.shop_name }}">
+                        {% else %}
+                            <div class="w-100 h-100 bg-primary-subtle text-primary rounded-4 d-flex align-items-center justify-content-center fw-bold fs-2 text-uppercase">
+                                {{ shop.shop_name|slice:":2" }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-2 text-center text-md-start">
+                        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+                            <h1 class="fw-extrabold m-0 tracking-tight fs-2 text-white" style="text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ shop.shop_name }}</h1>
+                            <span class="badge bg-success border border-success border-opacity-25 rounded-pill px-3 py-2 text-xs shadow-sm fw-semibold">
+                                <i class="fas fa-check-circle me-1 text-white animate-pulse"></i> Verified Store
+                            </span>
+                        </div>
+                        <p class="text-primary small mb-0 fw-medium">
+                            <i class="fas fa-map-marker-alt me-2 text-warning"></i>{{ shop.shop_address|default:"Location not specified" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4 card-hover-lift">
+                    <h5 class="fw-bold text-dark mb-4 position-relative pb-2" style="border-bottom: 2px solid #f1f3f5;">
+                        Store Overview
+                    </h5>
+                    <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-3 hover-bg-light transition-all">
+                        <div class="bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center transition-all icon-box" style="width: 52px; height: 52px;">
+                            <i class="fas fa-box fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-extrabold text-dark mb-0">{{ total_products }}+</h5>
+                            <small class="text-muted fw-medium">Active Products</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 p-2 rounded-3 hover-bg-light transition-all">
+                        <div class="bg-success-subtle text-success rounded-3 d-flex align-items-center justify-content-center transition-all icon-box" style="width: 52px; height: 52px;">
+                            <i class="fas fa-eye fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-extrabold text-dark mb-0">{{ shop.total_views|default:"0" }}+</h5>
+                            <small class="text-muted fw-medium">Profile Visits</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white card-hover-lift">
+                    <h5 class="fw-bold text-dark mb-2">Connect With Us</h5>
+                    <p class="text-muted text-xs mb-4">Follow our official social channels for regular updates and announcements.</p>
+                    
+                    <div class="d-grid gap-2">
+                        {% if social_links %}
+                            {% for link in social_links %}
+                                <a href="{{ link.profile_url }}" target="_blank" class="btn btn-social-link rounded-3 text-start d-flex align-items-center justify-content-between p-3 transition-all border border-light-subtle">
+                                    <span class="fw-semibold text-dark small d-flex align-items-center">
+                                        {% if 'facebook' in link.platform_name|lower %}<i class="fab fa-facebook text-primary me-3 fs-4"></i>
+                                        {% elif 'instagram' in link.platform_name|lower %}<i class="fab fa-instagram text-danger-gradient me-3 fs-4"></i>
+                                        {% elif 'youtube' in link.platform_name|lower %}<i class="fab fa-youtube text-danger me-3 fs-4"></i>
+                                        {% elif 'linkedin' in link.platform_name|lower %}<i class="fab fa-linkedin text-info me-3 fs-4"></i>
+                                        {% else %}<i class="fas fa-link text-muted me-3 fs-5"></i>{% endif %}
+                                        {{ link.platform_name }}
+                                    </span>
+                                    <i class="fas fa-arrow-right text-muted small transition-all arrow-icon"></i>
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4 text-muted small">
+                                <div class="bg-light rounded-circle d-inline-flex p-3 mb-2">
+                                    <i class="fas fa-share-alt fs-4 text-secondary opacity-70"></i>
+                                </div>
+                                <p class="mb-0 fw-medium">No social media links added yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-4 bg-white mb-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-success-subtle text-success p-2.5 rounded-3">
+                            <i class="fas fa-file-contract fs-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold text-dark mb-0">Legal Badges & Certificates</h4>
+                            <p class="text-muted text-xs mb-0 mt-0.5">Verified business documents, government trade licenses, or partnership certificates.</p>
+                        </div>
+                    </div>
+                    <hr class="text-black-50 opacity-10 my-3">
+                    
+                    <div class="row g-3">
+                        {% if shop_certificates %}
+                            {% for cert in shop_certificates %}
+                                <div class="col-sm-6 col-md-4">
+                                    <div class="card border-0 bg-light rounded-3 overflow-hidden h-100 hover-zoom-container shadow-xs">
+                                        <div class="position-relative overflow-hidden group" style="height: 160px;">
+                                            <img src="{{ cert.file.url }}" class="w-100 h-100 img-fluid cursor-pointer transition-all" style="object-fit: cover;" data-bs-toggle="modal" data-bs-target="#imagePreviewModal" data-bs-img-src="{{ cert.file.url }}" data-bs-title="{{ cert.title }}" alt="{{ cert.title }}">
+                                            <div class="gallery-overlay d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#imagePreviewModal" data-bs-img-src="{{ cert.file.url }}" data-bs-title="{{ cert.title }}">
+                                                <i class="fas fa-search-plus text-white fs-4"></i>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-white text-center border-top border-light">
+                                            <span class="small fw-bold text-dark text-truncate d-block">{{ cert.title }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12 text-center py-5 text-muted border border-dashed rounded-4 bg-light bg-opacity-50">
+                                <i class="fas fa-shield-alt display-6 text-muted mb-3 opacity-50"></i>
+                                <p class="mb-0 fw-medium small text-dark">Official legal documents have been securely verified by our administrators.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 p-md-4 bg-white">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="bg-primary-subtle text-primary p-2.5 rounded-3">
+                            <i class="fas fa-images fs-4"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold text-dark mb-0">Store Outlet & Gallery</h4>
+                            <p class="text-muted text-xs mb-0 mt-0.5">Take a virtual tour inside our physical facility, inventory rooms, and processing units.</p>
+                        </div>
+                    </div>
+                    <hr class="text-black-50 opacity-10 my-3">
+                    
+                    <div class="row g-3">
+                        {% if shop_gallery %}
+                            {% for media in shop_gallery %}
+                                <div class="col-6 col-md-4">
+                                    <div class="position-relative rounded-3 overflow-hidden shadow-xs bg-light cursor-pointer hover-zoom-container group" style="height: 140px;" data-bs-toggle="modal" data-bs-target="#imagePreviewModal" data-bs-img-src="{{ media.file.url }}" data-bs-title="{{ media.title }}">
+                                        <img src="{{ media.file.url }}" class="w-100 h-100 transition-all" style="object-fit: cover;" alt="{{ media.title }}">
+                                        <div class="gallery-overlay d-flex align-items-end p-2">
+                                            <span class="text-white fw-medium text-xs text-truncate w-100 bg-dark bg-opacity-50 px-2 py-1 rounded-2 backdrop-blur-xs">
+                                                {{ media.title }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12 text-center py-5 text-muted border border-dashed rounded-4 bg-light bg-opacity-50">
+                                <i class="fas fa-store-alt display-6 text-muted mb-3 opacity-50"></i>
+                                <p class="mb-0 fw-medium small text-dark">No physical workplace gallery media added yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-2xl rounded-4 bg-blur-md overflow-hidden">
+                <div class="modal-header border-0 bg-white bg-opacity-90 py-3 px-4 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-certificate text-primary fs-5"></i>
+                        <h6 class="modal-title fw-bold text-dark mb-0" id="modalImageTitle">Preview</h6>
+                    </div>
+                    <button type="button" class="btn-close shadow-none bg-light p-2 rounded-circle" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-2 bg-dark bg-opacity-5">
+                    <div class="position-relative d-inline-block max-w-100">
+                        <img id="modalPreviewImage" src="" class="img-fluid rounded-3 shadow-sm max-vh-75" alt="Large Preview">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        .fw-extrabold { font-weight: 800; }
+        .tracking-tight { letter-spacing: -0.025em; }
+        .text-xs { font-size: 0.75rem; }
+        .text-sm { font-size: 0.875rem; }
+        .cursor-pointer { cursor: pointer; }
+        .border-dashed { border-style: dashed !important; border-width: 2px !important; border-color: #dee2e6 !important; }
+        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .p-2\.5 { padding: 0.65rem !important; }
+        .max-vh-75 { max-height: 75vh; object-fit: contain; }
+
+        /* Gradients & Subtles */
+        .bg-primary-subtle { background-color: rgba(13, 110, 253, 0.06) !important; color: #0d6efd !important; }
+        .bg-success-subtle { background-color: rgba(25, 135, 84, 0.06) !important; color: #198754 !important; }
+        .text-danger-gradient {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Card Hover Interactions */
+        .card-hover-lift {
+            will-change: transform, box-shadow;
+        }
+        .card-hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.05), 0 8px 16px -6px rgba(0, 0, 0, 0.05) !important;
+        }
+        .hover-bg-light:hover {
+            background-color: #f8f9fa;
+        }
+        .hover-bg-light:hover .icon-box {
+            transform: scale(1.05);
+        }
+
+        /* Social Media Button Custom Styling */
+        .btn-social-link {
+            background-color: #ffffff;
+            border-color: #f1f3f5;
+        }
+        .btn-social-link:hover {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            padding-left: 1.25rem !important;
+        }
+        .btn-social-link:hover .arrow-icon {
+            transform: translateX(3px);
+            color: #0d6efd !important;
+        }
+
+        /* Gallery Overlays and Zoom Effect */
+        .hover-zoom-container {
+            position: relative;
+        }
+        .hover-zoom-container img {
+            will-change: transform;
+        }
+        .hover-zoom-container:hover img {
+            transform: scale(1.06);
+        }
+        .gallery-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+        .hover-zoom-container:hover .gallery-overlay {
+            opacity: 1;
+        }
+        .backdrop-blur-xs {
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* High Fidelity Modal Blur */
+        .bg-blur-md {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const previewModal = document.getElementById('imagePreviewModal');
+            if(previewModal) {
+                previewModal.addEventListener('show.bs.modal', function (event) {
+                    const triggerElement = event.relatedTarget;
+                    const imgSrc = triggerElement.getAttribute('data-bs-img-src');
+                    const imgTitle = triggerElement.getAttribute('data-bs-title');
+                    
+                    document.getElementById('modalPreviewImage').setAttribute('src', imgSrc);
+                    document.getElementById('modalImageTitle').textContent = imgTitle || "Image View";
+                });
+            }
+        });
+    </script>
+
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

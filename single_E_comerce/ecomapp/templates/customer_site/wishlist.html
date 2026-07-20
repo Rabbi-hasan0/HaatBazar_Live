@@ -1,0 +1,170 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} wishlists {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <div class="row mb-4">
+            <div class="col-12 text-center text-md-start">
+                <h4 class="fw-bold">
+                    <span class="text-success">My</span> Wishlist
+                </h4>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-3 p-4">
+                    <div class="table-responsive">
+                        <table class="table align-middle text-center" id="wishlist-table">
+                            <thead class="table-light text-muted">
+                                <tr>
+                                    <th scope="col" class="text-start">Product</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Stock Status</th>
+                                    <th scope="col">Action</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in wishlist_items %}
+                                    <tr id="wishlist-row-{{ item.product.product_slug }}">
+                                        <td class="text-start">
+                                            <div class="d-flex align-items-center gap-3">
+                                                {% if item.product.product_image %}
+                                                    <img src="{{ item.product.product_image.url }}" alt="{{ item.product.product_name }}" class="rounded-2 object-fit-contain" style="width: 60px; height: 60px; background-color: #f8f9fa;">
+                                                {% else %}
+                                                    <div class="rounded-2 d-flex align-items-center justify-content-center bg-light text-muted" style="width: 60px; height: 60px;">
+                                                        <i class="far fa-image"></i>
+                                                    </div>
+                                                {% endif %}
+                                                <div>
+                                                    <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug  slug=item.product.product_slug %}" class="text-decoration-none text-dark fw-semibold d-block mb-1">
+                                                        {{ item.product.product_name }}
+                                                    </a>
+                                                    <small class="text-muted d-block" style="font-size: 12px;">
+                                                        Shop: <strong class="text-secondary">{{ item.shop.shop_name }}</strong>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        
+                                        <td>
+                                            <span class="fw-bold text-dark">${{ item.product.price }}</span>
+                                        </td>
+                                        
+                                        <td>
+                                            {% if item.product.is_active %}
+                                                <span class="badge bg-success-subtle text-success px-3 py-1.5 rounded-pill">In Stock</span>
+                                            {% else %}
+                                                <span class="badge bg-danger-subtle text-danger px-3 py-1.5 rounded-pill">Out of Stock</span>
+                                            {% endif %}
+                                        </td>
+                                        
+                                        <td>
+                                            <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=item.product.product_slug %}" class="btn btn-sm btn-success rounded-pill px-3">
+                                                View Product
+                                            </a>
+                                        </td>
+                                        
+                                        <td>
+                                            <form action="{% url 'toggle_wishlist' shop_slug=global_shop.shop_slug slug=item.product.product_slug %}" method="POST" target="wishlist_dummyframe" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                        class="btn btn-link text-danger p-0 border-0 focus-none" 
+                                                        onclick="removeItemFromDOM('{{ item.product.product_slug }}')"
+                                                        title="Remove Item">
+                                                    <i class="fas fa-trash-alt fs-5"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr id="empty-wishlist-row">
+                                        <td colspan="5" class="py-5 text-center">
+                                            <div class="text-muted mb-3">
+                                                <i class="far fa-heart display-4 text-danger-subtle"></i>
+                                            </div>
+                                            <h5 class="fw-semibold">Your Wishlist is Empty</h5>
+                                            <p class="text-muted text-sm mb-4">You haven't added any products to your wishlist yet.</p>
+                                            <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="btn btn-primary rounded-pill px-4">Continue Shopping</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <iframe name="wishlist_dummyframe" id="wishlist_dummyframe" style="display: none;"></iframe>
+
+    <script>
+    function removeItemFromDOM(slug) {
+        // ডাটাবেজ থেকে ডিলিট করার রিকোয়েস্ট সাবমিট হওয়ার সাথে সাথে এইচটিএমএল রো-টি ডিলেট করে দেবে
+        const row = document.getElementById(`wishlist-row-${slug}`);
+        if (row) {
+            // সুন্দর একটি ফেড-আউট অ্যানিমেশন
+            row.style.transition = "all 0.4s ease";
+            row.style.opacity = "0";
+            row.style.transform = "translateX(30px)";
+            
+            setTimeout(() => {
+                row.remove();
+                
+                // হেডারের উইশলিস্ট কাউন্ট লাইভ কমানো
+                const countSpan = document.getElementById('wishlist-count');
+                if (countSpan) {
+                    let currentCount = parseInt(countSpan.innerText) || 0;
+                    countSpan.innerText = Math.max(0, currentCount - 1);
+                }
+                
+                // সব আইটেম ডিলিট হয়ে গেলে খালি উইশলিস্টের মেসেজ দেখানো
+                const tbody = document.querySelector('#wishlist-table tbody');
+                if (tbody && tbody.children.length === 0) {
+                    tbody.innerHTML = `
+                        <tr id="empty-wishlist-row">
+                            <td colspan="5" class="py-5 text-center">
+                                <div class="text-muted mb-3">
+                                    <i class="far fa-heart display-4 text-danger-subtle"></i>
+                                </div>
+                                <h5 class="fw-semibold">Your Wishlist is Empty</h5>
+                                <p class="text-muted text-sm mb-4">You haven't added any products to your wishlist yet.</p>
+                                <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="btn btn-primary rounded-pill px-4">Continue Shopping</a>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }, 400);
+        }
+    }
+    </script>
+
+    <style>
+        /* ফোকাস করলে বাটন আউটলাইন বন্ধ করার জন্য */
+        .focus-none:focus {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+        /* টেবিল ডিজাইন টিউনিং */
+        .table th {
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+    </style>
+{% endblock %}
+
+{% block delivery_note %}
+	{% include 'customer_site/dashboard/delivery_note.html' %}
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

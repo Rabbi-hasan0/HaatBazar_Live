@@ -1,0 +1,159 @@
+{% extends 'web_base.html' %}
+{% load static %}
+
+{% block title %}Explore Products{% endblock %}
+
+{% block content %}
+
+<style>
+    .product-container { max-width: 1200px; margin: 40px auto; padding: 0 15px; }
+    .product-title { font-size: 28px; font-weight: 700; margin-bottom: 30px; text-align: center; color: #333; }
+    
+    .product-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+        gap: 25px; 
+    }
+
+    .product-card { 
+        background: #fff; 
+        border-radius: 15px; 
+        overflow: hidden; 
+        transition: all 0.3s ease; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+        border: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover { 
+        transform: translateY(-8px); 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.12); 
+    }
+
+    .product-img { position: relative; width: 100%; height: 220px; overflow: hidden; }
+    .product-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .product-card:hover .product-img img { transform: scale(1.1); }
+
+    .product-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+    
+    .product-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; color: #2d3436; text-decoration: none; display: block; }
+    .product-name:hover { color: #274d37; }
+
+    .view-details-link { font-size: 13px; color: #0984e3; text-decoration: none; margin-bottom: 10px; display: inline-block; }
+
+    .product-price { color: #116634; font-weight: 700; margin-bottom: 15px; font-size: 20px; }
+
+    /* কাস্টম কোয়ান্টিটি বক্স */
+    .qty-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f1f2f6;
+        border-radius: 8px;
+        padding: 5px;
+        margin-bottom: 15px;
+    }
+
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: none;
+        background: #fff;
+        color: #333;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .qty-input {
+        width: 40px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .add-cart-box {
+        margin: auto; /* বাটনটিকে কার্ডের একদম নিচে পুশ করবে */
+        background-color: #0e1310; /* আপনার থিম অনুযায়ী কালার পরিবর্তন করতে পারেন */
+        width: 100%;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .add_to_cart {
+        width: 100%;
+        padding: 8px;
+        color: white;
+        border: none;
+        text-decoration: none;
+        transition: background 0.3s ease;
+    }
+
+    .add-cart-box:hover {
+        background-color: #3d413f;
+    }
+</style>
+
+<div class="product-container">
+    <div class="product-title">🔥 Explore Our Best Products</div>
+
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-img">
+                <a href="{% url 'products_details' product.product_slug %}">
+                    {% if product.product_image %}
+                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+                    {% else %}
+                        <img src="{% static 'website/images/default.png' %}" alt="Default Image">
+                    {% endif %}
+                </a>
+            </div>
+
+            <div class="product-body">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                    <a href="{% url 'products_details' product.product_slug %}" class="product-name" style=" flex: 1; padding-right: 10px;">
+                        {{ product.product_name }}
+                    </a>
+                    <a href="{% url 'products_details' product.product_slug %}" class="view-details-link" style="font-size: 13px; color: #3498db; white-space: nowrap;">
+                        View Details <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+                    </a>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <div class="product-price" style="margin-bottom: 0;">
+                        ৳{{ product.price|floatformat:2 }}
+                    </div>
+                    <div class="stock-info">
+                        <span style="color: #1d5e38; font-weight: bold; font-size: 14px;">
+                            In stock: {{ product.stock }}
+                        </span>
+                    </div>
+                </div>
+
+                {% csrf_token %}
+
+                <div class="add-cart-box">
+                    <a type="button" 
+                            class="add_to_cart fico-button button_white" 
+                            href="{% url 'products_details' product.product_slug %}">
+                        Buy Now
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block linkScript %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}

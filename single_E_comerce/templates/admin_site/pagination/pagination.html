@@ -1,0 +1,113 @@
+{% if items.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-5 mb-4">
+    <ul class="pagination justify-content-center gap-2">
+        
+        {% if items.has_previous %}
+        <li class="page-item">
+            <a class="page-link border-0 shadow-sm rounded-3 px-3 py-2 text-dark d-flex align-items-center" 
+               href="?page={{ items.previous_page_number }}{% if type %}&type={{ type }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                <i class="fas fa-chevron-left me-2 small text-muted"></i> 
+                <span class="fw-medium">Prev</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link border-0 bg-light rounded-3 px-3 py-2 text-muted opacity-50 d-flex align-items-center">
+                <i class="fas fa-chevron-left me-2 small"></i> 
+                <span class="fw-medium">Prev</span>
+            </span>
+        </li>
+        {% endif %}
+
+        {% for num in paginator_list %}
+            {% if items.number == num %}
+            <li class="page-item active" aria-current="page">
+                <span class="page-link border-0 shadow-sm rounded-3 px-3 py-2 fw-bold text-white" 
+                      style="background-color: #0d6efd; min-width: 42px;">
+                    {{ num }}
+                </span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link border-0 shadow-sm rounded-3 px-3 py-2 text-dark bg-white hover-effect" 
+                   style="min-width: 42px;"
+                   href="?page={{ num }}{% if type %}&type={{ type }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if items.has_next %}
+        <li class="page-item">
+            <a class="page-link border-0 shadow-sm rounded-3 px-3 py-2 text-dark d-flex align-items-center" 
+               href="?page={{ items.next_page_number }}{% if type %}&type={{ type }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                <span class="fw-medium">Next</span>
+                <i class="fas fa-chevron-right ms-2 small text-muted"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link border-0 bg-light rounded-3 px-3 py-2 text-muted opacity-50 d-flex align-items-center">
+                <span class="fw-medium">Next</span>
+                <i class="fas fa-chevron-right ms-2 small"></i>
+            </span>
+        </li>
+        {% endif %}
+
+        {% if last_page and items.number < last_page|add:"-5" %}
+        <li class="page-item d-none d-sm-block">
+            <span class="px-1 text-muted">...</span>
+        </li>
+        <li class="page-item d-none d-sm-block">
+            <a class="page-link border-0 shadow-sm rounded-3 px-3 py-2 text-dark bg-white" 
+               href="?page={{ last_page }}{% if type %}&type={{ type }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                {{ last_page }}
+            </a>
+        </li>
+        {% endif %}
+
+    </ul>
+</nav>
+
+<style>
+    /* প্যাগিনেশন ডিজাইন কাস্টমাইজেশন */
+    .pagination .page-link {
+        color: #444;
+        font-size: 14px;
+        transition: all 0.2s ease-in-out;
+        text-align: center;
+    }
+
+    /* হোভার ইফেক্ট */
+    .pagination .page-link.hover-effect:hover {
+        background-color: #f8f9fa !important;
+        color: #0d6efd !important;
+        transform: translateY(-2px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+    }
+
+    /* একটিভ পেজ স্টাইল */
+    .pagination .page-item.active .page-link {
+        z-index: 3;
+        box-shadow: 0 .25rem .5rem rgba(13, 110, 253, 0.4) !important;
+    }
+
+    /* ডিসেবল্ড বাটন স্টাইল */
+    .pagination .page-item.disabled .page-link {
+        cursor: not-allowed;
+        background-color: #f1f3f5 !important;
+    }
+
+    /* ছোট স্ক্রিনে মার্জিন ঠিক করা */
+    @media (max-width: 576px) {
+        .pagination {
+            gap: 4px !important;
+        }
+        .page-link {
+            padding: 8px 12px !important;
+            font-size: 13px;
+        }
+    }
+</style>
+{% endif %}

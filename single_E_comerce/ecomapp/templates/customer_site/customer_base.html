@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}  {% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/static/css/user/customer_base.css">
+    <base href="/">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        /* মেইন আইটেম রিলেটিভ পজিশন */
+        .nested-dropdown-item {
+            position: relative;
+            list-style: none;
+        }
+
+        /* সাব-মেনু ডিফল্ট অবস্থায় হাইড এবং ডানপাশে পজিশন */
+        .nested-dropdown-item .nested-sub-menu {
+            display: none !important;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            min-width: 220px;
+            border-radius: 0.5rem;
+            z-index: 1050;
+        }
+
+        /* হোভার করলে সাব-ক্যাটাগরি ভেসে উঠবে */
+        .nested-dropdown-item:hover > .nested-sub-menu {
+            display: block !important;
+        }
+
+        /* হোভার হাইলাইট */
+        .nested-dropdown-item:hover > .dropdown-item {
+            background-color: #f8fafc;
+            color: #0d6efd;
+        }
+
+
+        /* অ্যালার্টের মেইন কন্টেইনার স্পেসিং */
+        .dynamic-alerts-container {
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        /* প্রিমিয়াম অ্যালার্টের বেস ডিজাইন */
+        .premium-alert {
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 16px 20px !important;
+            font-size: 15px;
+            letter-spacing: -0.2px;
+        }
+
+        /* ১. লাল (Error) - সফট ব্যাকগ্রাউন্ড ও স্ট্রং টেক্সট */
+        .alert-danger {
+            background-color: #fef2f2 !important;
+            color: #dc2626 !important;
+            border-left: 4px solid #dc2626 !important;
+        }
+
+        /* ২. হলুদ (Warning/Alert) */
+        .alert-warning {
+            background-color: #fffbeb !important;
+            color: #d97706 !important;
+            border-left: 4px solid #d97706 !important;
+        }
+
+        /* ৩. সবুজ (Success) */
+        .alert-success {
+            background-color: #f0fdf4 !important;
+            color: #16a34a !important;
+            border-left: 4px solid #16a34a !important;
+        }
+
+        /* ৪. নীল (Info/Default) */
+        .alert-info {
+            background-color: #f0f9ff !important;
+            color: #0284c7 !important;
+            border-left: 4px solid #0284c7 !important;
+        }
+
+        /* ক্লোজ বাটনের ফোকাস আউটলাইন রিমুভ */
+        .premium-alert .btn-close:focus {
+            box-shadow: none !important;
+        }
+    </style>
+    {% block linkcss %}
+    {% endblock %}
+</head>
+<body>
+    <header class="top-header">
+        <div class="container">
+            <div class="row align-items-center">
+                
+                <div class="col-lg-2 col-5">
+                    {% if global_shop %}
+                        <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="text-decoration-none">
+                    {% else %}
+                        <a href="{% url 'haatbazar_home' %}" class="text-decoration-none">
+                    {% endif %}
+                        <h3 class="fw-bold m-0" style="color: var(--primary-green); line-height: 1; letter-spacing: -0.5px;">
+                            {{ shop_first_half }}
+                            
+                            {% if shop_second_half %}
+                                <span class="text-dark"> {{ shop_second_half }}</span>
+                            {% endif %}
+                        </h3>
+                        <small class="text-muted d-block" style="font-size: 10px; letter-spacing: 2px;">{{ global_shop.shop_type }}</small>
+                    </a>
+                </div>
+
+                <div class="col-lg-6 d-none d-lg-block">
+                    {% if global_shop %}
+                        <form action="{% url 'shop_products' shop_slug=global_shop.shop_slug %}" method="GET" class="search-group d-flex align-items-center shadow-sm">
+                            <input type="text" name="product_search" style="font-size:18px;" placeholder="Search products in this shop..." class="flex-grow-1" value="{{ request.GET.product_search|default:'' }}">
+                            <button type="submit" class="btn p-0 border-0 me-2">
+                                <i class="fas fa-search text-muted"></i>
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="" method="GET" class="search-group d-flex align-items-center shadow-sm">
+                            <input type="text" name="shop_search" style="font-size:18px;" placeholder="Search for shops and markets..." class="flex-grow-1" value="{{ search_query }}">
+                            <button type="submit" class="btn p-0 border-0 me-2">
+                                <i class="fas fa-search text-muted"></i>
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+
+                <div class="col-lg-4 col-7">
+                    <div class="header-action-group d-flex align-items-center justify-content-end gap-3">
+
+                        <div class="support-box d-none d-xl-flex align-items-center text-start me-2">
+                            <i class="fas fa-headset fs-4 text-muted me-2"></i>
+                            <div class="lh-sm">
+                                <span class="text-muted d-block" style="font-size: 14px;">For Support?</span>
+                                <strong style="font-size: 16px;">
+                                    {% if global_shop.phone %}
+                                        {{ global_shop.phone }}
+                                    {% elif shop.phone %}
+                                        {{ shop.phone }}
+                                    {% else %}
+                                        01607396525 
+                                    {% endif %}
+                                </strong>
+                            </div>
+                        </div>
+
+                        {% if global_shop %}
+                            <div class="cart-box ms-2">
+                                <a href="{% url 'cart_view' shop_slug=global_shop.shop_slug %}" class="d-flex align-items-center text-decoration-none bg-light p-2 rounded-3 border">
+                                    <div class="position-relative me-2">
+                                        <i class="fas fa-shopping-basket fs-4 text-dark"></i>
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success border border-light cart-count-nav" style="font-size: 9px;">
+                                            {{ global_cart_count|default:"0" }}
+                                        </span>
+                                    </div>
+                                    <div class="text-start d-none d-md-block lh-1">
+                                        <span class="text-muted d-block" style="font-size: 12px;">Cart</span>
+                                        {% comment %} <strong class="cart-total-nav" style="color: var(--primary-green); font-size: 13px;">৳{{ global_cart_total|default:"0.00" }}</strong> {% endcomment %}
+                                    </div>
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        <div class="user-action-box d-flex align-items-center">
+                           {% if global_shop %}
+                                {% if request.user.is_authenticated %}
+                                    <a href="{% url 'wishlist_list' shop_slug=global_shop.shop_slug username=request.user.username %}" class="icon-link position-relative me-4 text-dark" style="text-decoration: none;">
+                                {% else %}
+                                    <a href="{% url 'customer_login' %}" class="icon-link position-relative me-4 text-dark" style="text-decoration: none;">
+                                {% endif %}
+                                        <i class="far fa-heart fs-5"></i>
+                                        <span id="wishlist-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 9px;">
+                                            {{ global_wishlist_count|default:"0" }}
+                                        </span>
+                                    </a>
+                            {% endif %}
+
+                            {% if user.is_authenticated %}
+                                <div class="dropdown d-inline">
+                                    <a href="#" class="icon-link dropdown-toggle me-3 ml-2 text-decoration-none d-flex align-items-center gap-2" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {% if request.user.is_authenticated %}
+                                            {% if request.user.customer_profile.profile_pic %}
+                                                <img src="{{ request.user.customer_profile.profile_pic.url }}" alt="User" class="rounded-circle border" style="width: 28px; height: 28px; object-fit: cover;">
+                                            {% elif request.user.shop_owner_profile.profile_pic %}
+                                                <img src="{{ request.user.shop_owner_profile.profile_pic.url }}" alt="Owner" class="rounded-circle border" style="width: 28px; height: 28px; object-fit: cover;">
+                                            {% else %}
+                                                <i class="far fa-user-circle fs-5"></i>
+                                            {% endif %}
+                                        {% else %}
+                                            <i class="far fa-user-circle fs-5"></i>
+                                        {% endif %}
+                                        
+                                        <span>{{ user.first_name|default:user.username }}</span>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                                        <li><a class="dropdown-item" href="{% url 'customer_account_setting' %}"><i class="fas fa-user-edit me-2"></i> Profile Settings</a></li>
+                                        <li><a class="dropdown-item" href=""><i class="fas fa-shopping-bag me-2"></i> My Orders</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'reset_password' %}"><i class="fas fa-key me-2"></i> Reset Password</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form action="{% url 'customer_logout' %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <a style="text-decoration: none;" href="{% url 'customer_login' %}" class="icon-link me-3 ml-2">
+                                    <i class="far fa-user fs-5"></i> Login/Signup
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </header>
+    
+    {% block navbar %}
+    {% comment %} {% include 'customer_site/dashboard/navbar.html' %} {% endcomment %}
+    {% endblock %}
+
+    <main>
+        {% if messages %}
+            <div class="container mt-3 dynamic-alerts-container">
+                {% for message in messages %}
+                    <div class="alert 
+                        {% if message.tags == 'error' %}alert-danger
+                        {% elif message.tags == 'warning' %}alert-warning
+                        {% elif message.tags == 'success' %}alert-success
+                        {% else %}alert-info{% endif %} 
+                        alert-dismissible fade show premium-alert shadow-sm d-flex align-items-center justify-content-between" role="alert">
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            {% if message.tags == 'error' %}
+                                <i class="fa-solid fa-circle-exclamation fs-5"></i>
+                            {% elif message.tags == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                            {% elif message.tags == 'success' %}
+                                <i class="fa-solid fa-circle-check fs-5"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info fs-5"></i>
+                            {% endif %}
+                            
+                            <span class="alert-message-text fw-medium">{{ message }}</span>
+                        </div>
+                        
+                        <button type="button" class="btn-close position-static p-0 m-0" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </main>
+
+
+    {% block delivery_note %}
+    {% endblock %}
+    
+        <!-- Floating Button Markup -->
+    <div class="floating-btn-container">
+        <!-- ১. Go to Home Button -->
+        <a href="{% url 'haatbazar_home' %}" class="floating-btn btn-home">
+            <i class="fas fa-store"></i>
+            <span class="btn-text">Go to Haatbazar's Home</span>
+        </a>
+
+        <!-- ২. View Shoplist Button -->
+        <a href="{% url 'haatbazar_home' %}" class="floating-btn btn-shoplist">
+            <i class="fas fa-list-ul"></i>
+            <span class="btn-text">View Our Shoplist</span>
+        </a>
+    </div>
+
+    <!-- Dynamic CSS Styling -->
+    <style>
+        /* ভাসমান কন্টেইনারের পজিশন সেটআপ */
+        .floating-btn-container {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 9999; /* যেন এটি সব কন্টেন্টের উপরে ভেসে থাকে */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        /* বাটনের মূল ডিজাইন */
+        .floating-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border-radius: 50px;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(5px);
+        }
+
+        /* হোম বাটনের কালার */
+        .btn-home {
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+        }
+
+        /* শপ-লিস্ট বাটনের কালার */
+        .btn-shoplist {
+            background: linear-gradient(135deg, #198754, #146c43);
+        }
+
+        /* মাউস নেওয়ার পর (Hover Effect) চমৎকার এনিমেশন */
+        .floating-btn:hover {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* মোবাইল ডিভাইসের জন্য সাইজ অ্যাডজাস্টমেন্ট */
+        @media (max-width: 576px) {
+            .floating-btn-container {
+                bottom: 15px;
+                right: 15px;
+                gap: 8px;
+            }
+            .floating-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+
+    {% block footer %}
+    {% endblock %}
+    
+    {% block linkScript %}
+    {% endblock %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.addEventListener('click', function(e) {
+            const btn = e.target.closest('.add-to-cart-btn');
+            if (!btn) return;
+
+            e.preventDefault();
+
+            const productId = btn.getAttribute('data-product-id');
+            const shopSlug = btn.getAttribute('data-shop-slug');
+
+            if (!productId || !shopSlug) {
+                console.error("Product ID or Shop Slug is missing in button attributes!");
+                return;
+            }
+
+            const url = `/haatbazar/${shopSlug}/cart/add-or-update/`;
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') ? 
+                            document.querySelector('[name=csrfmiddlewaretoken]').value : '';
+
+            const formData = new FormData();
+            formData.append('product_id', productId);
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Please login first to add items to cart.');
+                    window.location.href = '/login/';
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.status === 'success') {
+                    
+                    const cartCountNav = document.querySelector('.cart-count-nav');
+                    if (cartCountNav) {
+                        cartCountNav.textContent = data.cart_item_count;
+                    }
+
+                    const cartTotalNav = document.querySelector('.cart-total-nav');
+                    if (cartTotalNav) {
+                        let totalAmount = '0.00';
+                        if (data.amount_summary) {
+                            totalAmount = data.amount_summary.subtotal || data.amount_summary.total || '0.00';
+                        } else if (data.total_amount) {
+                            totalAmount = data.total_amount;
+                        }
+                        cartTotalNav.textContent = '৳' + parseFloat(totalAmount).toFixed(2);
+                    }
+
+                    const modalProductName = document.querySelector('.modal-body .product-name') || document.getElementById('modal-product-name');
+                    if (modalProductName) modalProductName.textContent = data.product_name;
+
+                    const modalQuantity = document.querySelector('.modal-body .quantity') || document.getElementById('modal-product-qty');
+                    if (modalQuantity) modalQuantity.textContent = data.quantity;
+
+                    const modalUnitPrice = document.querySelector('.modal-body .unit-price') || document.getElementById('modal-product-price');
+                    if (modalUnitPrice) modalUnitPrice.textContent = '৳' + parseFloat(data.product_price).toFixed(2);
+
+                    const modalSubTotal = document.querySelector('.modal-body .subtotal') || document.getElementById('modal-product-subtotal');
+                    if (modalSubTotal) modalSubTotal.textContent = '৳' + parseFloat(data.total_amount).toFixed(2);
+
+                    const modalImg = document.querySelector('.modal-body img') || document.getElementById('modal-product-img');
+                    if (modalImg) {
+                        if (data.product_image_url) {
+                            modalImg.src = data.product_image_url;
+                        } else {
+                            modalImg.src = '/static/images/default-product.png';
+                        }
+                    }
+
+                    const cartModalEl = document.getElementById('cartModal'); 
+                    if (cartModalEl) {
+                        const cartModal = bootstrap.Modal.getOrCreateInstance(cartModalEl);
+                        cartModal.show();
+                    } else {
+                        const genericModalEl = document.querySelector('.modal');
+                        if (genericModalEl) {
+                            const cartModal = bootstrap.Modal.getOrCreateInstance(genericModalEl);
+                            cartModal.show();
+                        }
+                    }
+
+                } else {
+                    alert(data.message || 'Something went wrong!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

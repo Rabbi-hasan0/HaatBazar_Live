@@ -1,0 +1,178 @@
+@font-face {
+    font-family: 'MontserratMedium';
+    src: url(../fonts/Montserrat/Montserrat-Medium.ttf);
+}
+/* Main Module Menu desigh  */
+.main_module_box {
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.main_module_box a {
+    color: #434343;
+    font-weight: 500;
+    text-decoration: none;
+    margin-bottom: 8px;
+    display: block;
+    font-size: 13px;
+}
+
+.main_module_box ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.main_module_box ul li {
+    float: none;
+}
+
+.main_module_box a i {
+    color: #7f7f7f;
+    margin-right: 0;
+    width: 30px;
+    height: 28px;
+    margin-left: 12px;
+    position: relative;
+    top: -3px;
+    text-align: center;
+    padding-top: 7px;
+    background-color: #f4f5f6;
+    border-radius: 5px;
+}
+
+.main_module_box a i.icon {
+    font-size: 7px;
+    margin-right: 5px;
+}
+.main_module_box ul li a {
+    line-height: 20px;
+}
+
+.main_module_box.dashboard-space a {
+    display: flex;
+    font-size: var(--text-md);
+    padding: 4px;
+    margin-left: -4px;
+    margin-bottom: 4px;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    text-decoration: none;
+    color: #575757;
+    font-weight: normal;
+    line-height: 20px;
+}
+
+.main_module_box.dashboard-space a i.icon {
+    font-size: 5px;
+    margin-right: 5px;
+}
+
+.main_module_box.dashboard-space {
+    padding: 0;
+    margin: 0;
+}
+
+.main_module_box.dashboard-space a:hover {
+    color: #203040;
+    background-color: transparent;
+}
+
+.main_module_box.dashboard-space a:hover i {
+    color: #203040;
+    background-color: #c0c6cc;
+}
+
+.main_module_box.dashboard-space a i {
+    color: #7f7f7f;
+    margin-right: 0;
+    width: 30px;
+    height: 28px;
+    margin-left: 12px;
+    position: relative;
+    top: 0px;
+    text-align: center;
+    padding-top: 7px;
+    background-color: #f4f5f6;
+    border-radius: 5px;
+}
+
+.main_module_box ul li a i {
+    color: #7f7f7f;
+    margin-right: 0;
+    width: 30px;
+    height: 28px;
+    margin-left: 12px;
+    position: relative;
+    top: 0px;
+    text-align: center;
+    padding-top: 7px;
+    background-color: #f4f5f6;
+    border-radius: 5px;
+}
+
+.main_content .main_module_box a i,
+.main_content .main_module_box ul li a i {
+    width: 22px;
+    height: 21px;
+    padding-top: 8px;
+    margin-left: 0;
+}
+
+.main_content .main_module_box ul li a i.fa-circle-dot {
+    font-size: 8px;
+    padding-top: 7px;
+    margin-right: 5px;
+}
+
+.main_content .main_module_box ul li .icon {
+    font-size: 5px;
+    margin-right: 5px;
+}
+
+.main_module_box ul li a:hover {
+    color: #203040;
+    background-color: transparent;
+}
+.main_module_box ul li a:hover i {
+    color: #203040;
+    background-color: #c0c6cc;
+}
+
+.main_module_box ul li a span {
+    background-color: #f4f5f6;
+    padding: 4px 8px;
+    border-radius: 5px;
+    padding-top: 2px;
+}
+.main_module_box .bullet-title span {
+    background-color: #f4f5f6;
+    border-radius: 5px;
+    padding-top: 2px;
+}
+.main_content {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.main_content .menu_item {
+    width: calc(33.33%);
+}
+.main_module_box .bullet-title {
+    font-size: 16px;
+    font-family: 'MontserratMedium';
+}
+.main_module_box .bullet-title {
+    font-size: 15px;
+    font-family: 'MontserratMedium';
+    margin-bottom: 11px;
+}
+.main_module_box .bullet {
+    font-size: 22px;
+    line-height: 8px;
+    height: 17px;
+    display: inline-block;
+    padding: 4px 6px;
+}
+/* End Module Menu design  */

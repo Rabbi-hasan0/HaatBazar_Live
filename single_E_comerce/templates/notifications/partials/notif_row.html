@@ -1,0 +1,45 @@
+<div class="p-4 flex items-start gap-3.5 transition-all notif-item {% if not item.is_read %}unread-row{% endif %}">
+    
+    <div class="pt-1">
+        <input class="custom-cb-input shadow-none notif-checkbox" type="checkbox" name="notification_ids" value="{{ item.id }}" onchange="evaluateBulkButtons()">
+    </div>
+    
+    <div class="flex-shrink-0">
+        {% if 'Alert' in item.title or 'Warning' in item.title %}
+        <div class="icon-indicator rounded-xl flex items-center justify-content-center custom-bg-warning-subtle text-amber-500" style="width: 42px; height: 42px;">
+            <i class="fas fa-exclamation-triangle text-sm"></i>
+        </div>
+        {% else %}
+        <div class="icon-indicator rounded-xl flex items-center justify-content-center custom-bg-primary-subtle text-blue-600" style="width: 42px; height: 42px;">
+            <i class="fas fa-envelope-open text-sm"></i>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="flex-grow">
+        <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-1">
+            <h6 class="text-sm font-bold text-slate-900 tracking-tight">{{ item.title }}</h6>
+            <span class="text-slate-400 text-[11px] font-medium">{{ item.created_at|timesince }} আগে</span>
+        </div>
+        <p class="text-slate-600 text-xs mb-2.5 font-medium pr-6 whitespace-pre-wrap leading-relaxed">{{ item.message }}</p>
+        
+        <div class="flex items-center gap-2">
+            {% if not item.is_read %}
+                <span class="inline-block bg-rose-100 text-rose-600 font-bold text-[10px] px-2 py-0.5 rounded-full">New</span>
+            {% else %}
+                <span class="inline-block bg-slate-100 text-slate-500 font-medium text-[10px] px-2 py-0.5 rounded-full border border-slate-200">Read</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="flex items-center gap-1.5 inline-actions self-center">
+        {% if not item.is_read %}
+        <button type="button" onclick="submitSingleAction('read', '{{ item.id }}')" class="btn-icon rounded-full flex items-center justify-content-center text-slate-400" title="Mark as Read">
+            <i class="fas fa-check text-[10px]"></i>
+        </button>
+        {% endif %}
+        <button type="button" onclick="submitSingleAction('delete', '{{ item.id }}')" class="btn-icon btn-icon-danger rounded-full flex items-center justify-content-center text-slate-400" title="Delete Notification">
+            <i class="fas fa-trash-alt text-[10px]"></i>
+        </button>
+    </div>
+</div>

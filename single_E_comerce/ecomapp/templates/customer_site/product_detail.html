@@ -1,0 +1,638 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Rabbi's Mart {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent p-0 mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug  %}" class="text-decoration-none text-muted">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'sub_category_products' shop_slug=global_shop.shop_slug slug=product.sub_category.sub_cat_slug %}" class="text-decoration-none text-muted">{{ product.main_category.main_cat_name }}</a></li>
+                        <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">{{ product.product_name }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row g-5 mb-5">
+            <div class="col-12 col-md-6">
+                <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-light text-center py-5 position-relative" style="min-height: 450px; display: flex; align-items: center; justify-content: center;">
+                    {% if product.product_image %}
+                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}" class="img-fluid object-fit-contain" style="max-height: 400px;">
+                    {% else %}
+                        <div class="text-muted">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/>
+                            </svg>
+                            <p class="mt-2 mb-0 text-sm">No Image Available</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if product.is_featured %}
+                    <span class="position-absolute top-0 start-0 m-3 badge bg-emerald-500 text-white rounded-pill px-3 py-1.5 style-badge" style="background-color: #10b981;">
+                        Featured
+                    </span>
+                    {% endif %}
+
+                    <div class="position-absolute bottom-0 end-0 m-3" style="z-index: 5;">
+                        {% if user.is_authenticated %}
+                            <form action="{% url 'toggle_wishlist' shop_slug=global_shop.shop_slug slug=product.product_slug %}" method="POST" target="dummyframe" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" 
+                                        class="style-fav-btn btn {% if is_in_wishlist %}btn-danger text-white{% else %}btn-outline-danger{% endif %} btn-lg rounded-circle d-flex align-items-center justify-content-center transition shadow-sm"
+                                        style="width: 45px; height: 45px; padding: 0;"
+                                        onclick="toggleBigButtonClasses(this)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'customer_login' %}" 
+                            class="btn btn-outline-danger btn-lg rounded-circle d-flex align-items-center justify-content-center transition shadow-sm"
+                            style="width: 45px; height: 45px; padding: 0;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                </svg>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+            <div class="col-12 col-md-6 d-flex flex-column justify-content-between">
+                <div>
+                    <h1 class="h2 fw-bold text-slate-800 mb-2">{{ product.product_name }}</h1>
+                    
+                    <div class="d-flex align-items-center gap-3 mb-3 flex-wrap">
+                        <div class="d-flex align-items-center text-warning gap-1">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span class="text-muted text-xs ms-1">({{ reviews.count|default:"2" }} Reviews)</span>
+                        </div>
+                        <div class="text-muted text-xs border-start ps-3 d-flex align-items-center gap-1">
+                            <i class="fas fa-heart text-danger"></i> 
+                            <span><strong id="fav-count">{{ wishlist_count|default:"0" }}</strong> people liked this</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill text-xs">
+                            Category: {{ product.main_category.main_cat_name }}
+                        </span>
+                        {% if product.sub_category %}
+                        <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill text-xs">
+                            Sub-category: {{ product.sub_category.sub_cat_name }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex align-items-baseline gap-3 mb-4">
+                        <span class="h3 fw-bold text-primary mb-0">৳{{ product.price }}</span>
+                        {% if product.old_price %}
+                        <span class="h5 text-muted text-decoration-line-through mb-0">৳{{ product.old_price }}</span>
+                        {% endif %}
+                    </div>
+
+                    <hr class="text-muted opacity-25 my-4">
+
+                    <h5 class="fw-bold text-slate-700 h6 mb-2">Description</h5>
+                    <p class="text-muted lh-base mb-4" style="text-align: justify;">
+                        {{ product.description|default:"No description available for this product." }}
+                    </p>
+
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span class="fw-bold text-slate-700 text-sm">Availability:</span>
+                        {% if product.stock > 0 %}
+                            <span class="badge bg-success-subtle text-success px-3 py-1.5 rounded-pill text-xs fw-semibold">
+                                In Stock ({{ product.stock }} items available)
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger px-3 py-1.5 rounded-pill text-xs fw-semibold">
+                                Out of Stock
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+                   <button class="btn btn-primary btn-lg flex-grow-1 rounded-3 d-flex align-items-center justify-content-center gap-2 fw-semibold py-3 style-cart-btn add-to-cart-btn" 
+                            data-product-id="{{ product.id }}" 
+                            data-shop-slug="{{ global_shop.shop_slug }}"
+                            {% if product.stock <= 0 %}disabled{% endif %}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-cart3" viewBox="0 0 16 16">
+                            <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a1 1 0 1 0 0 2 1 1 0 0 0 0-2m7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
+                        </svg>
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-12 col-lg-8 mx-auto">
+                
+                <!-- ১. রিভিউ দেওয়ার ফর্ম সেকশন -->
+                <div class="card border-0 shadow-sm rounded-3 p-4 mb-5 bg-white">
+                    <h4 class="h5 fw-bold text-slate-800 mb-3">Write your comment </h4>
+                    
+                    {% if user.is_authenticated %}
+                        <!-- কোনো মেসেজ/অ্যালার্ট থাকলে তা দেখানোর জন্য -->
+
+                        <form action="{% url 'add_product_review' shop_slug=global_shop.shop_slug slug=product.product_slug %}" method="POST">
+                            {% csrf_token %}
+                            <!-- স্টার রেটিং সিলেক্ট ড্রপডাউন -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-muted d-block" style="font-size: 14px;">Your Rating</label>
+                                <div class="star-rating-wrapper d-flex flex-row-reverse justify-content-end gap-1">
+                                    <input type="radio" id="star5" name="rating" value="5" class="d-none" required />
+                                    <label for="star5" class="fas fa-star cursor-pointer" style="font-size: 22px; color: #ccc; transition: color 0.2s;"></label>
+                                    
+                                    <input type="radio" id="star4" name="rating" value="4" class="d-none" />
+                                    <label for="star4" class="fas fa-star cursor-pointer" style="font-size: 22px; color: #ccc; transition: color 0.2s;"></label>
+                                    
+                                    <input type="radio" id="star3" name="rating" value="3" class="d-none" />
+                                    <label for="star3" class="fas fa-star cursor-pointer" style="font-size: 22px; color: #ccc; transition: color 0.2s;"></label>
+                                    
+                                    <input type="radio" id="star2" name="rating" value="2" class="d-none" />
+                                    <label for="star2" class="fas fa-star cursor-pointer" style="font-size: 22px; color: #ccc; transition: color 0.2s;"></label>
+                                    
+                                    <input type="radio" id="star1" name="rating" value="1" class="d-none" />
+                                    <label for="star1" class="fas fa-star cursor-pointer" style="font-size: 22px; color: #ccc; transition: color 0.2s;"></label>
+                                </div>
+                            </div>
+
+
+                            <!-- কমেন্ট টেক্সট বক্স -->
+                            <div class="mb-3">
+                                <label for="review_text" class="form-label fw-semibold text-muted" style="font-size: 14px;">Your Comment</label>
+                                <textarea class="form-control" id="review_text" name="review_text" rows="4" placeholder="Share your honest experience with this product..." required style="font-size: 14px; border-radius: 0.5rem;"></textarea>
+                            </div>
+
+                            <!-- সাবমিট বাটন -->
+                            <button type="submit" class="btn btn-success px-4 py-2 rounded-pill fw-semibold shadow-sm transition" style="background-color: var(--primary-green, #10b981); border: none; font-size: 13px;">
+                                Submit Review
+                            </button>
+                        </form>
+                    {% else %}
+                        <!-- ইউজার লগইন না থাকলে এই মেসেজটি দেখাবে -->
+                        <div class="p-4 bg-light rounded-3 text-center border">
+                            <i class="fas fa-user-lock text-muted fs-3 mb-2"></i>
+                            <p class="text-muted small mb-3">You must be logged in to post a review on this product.</p>
+                            <a href="{% url 'customer_login' %}" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-semibold">Login / Signup</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <!-- ২. রিভিউ দেখানোর সেকশন -->
+                <h3 class="h4 fw-bold text-slate-800 mb-4">Customer Reviews ({{ reviews.count|default:"2" }})</h3>
+                
+                <div class="review-container d-flex flex-column gap-3">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                        <div class="card border-0 bg-light p-3 rounded-3 review-item shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 14px;">
+                                        {{ review.user.username|slice:":1"|upper }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 14px;">{{ review.user.username }}</h6>
+                                        {% comment %} <h6 class="text-muted text-xs mb-0"> &nbsp {{ review.comment|default:"No comment provided" }} </h6> {% endcomment %}
+                                        <small class="text-muted text-xs">{{ review.created_at|date:"d M, Y" }}</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- জ্যাঙ্গো টেমপ্লেট ফিল্টার দিয়ে ডায়নামিক স্টার রেটিং দেখানোর লজিক -->
+                                <div class="text-warning text-xs">
+                                    {% if review.rating >= 1 %}<i class="fas fa-star"></i>{% endif %}
+                                    {% if review.rating >= 2 %}<i class="fas fa-star"></i>{% endif %}
+                                    {% if review.rating >= 3 %}<i class="fas fa-star"></i>{% endif %}
+                                    {% if review.rating >= 4 %}<i class="fas fa-star"></i>{% endif %}
+                                    {% if review.rating >= 5 %}<i class="fas fa-star"></i>{% endif %}
+                                </div>
+                            </div>
+                            <!-- আপনার views.py এর মডেল ফিল্টার দিয়ে ডায়নামিক স্টার রেটিং দেখানোর লজিক -->
+                            <p class="text-muted text-sm mb-0 lh-base">{{ review.comment }}</p> 
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- ডাটাবেজে কোনো রিভিউ না থাকলে ডেমো রিভিউ দেখাবে -->
+                        <div class="card border-0 bg-light p-3 rounded-3 review-item shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 14px;">R</div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 14px;">Rahat Khan</h6>
+                                        <small class="text-muted text-xs">08 Jun, 2026</small>
+                                    </div>
+                                </div>
+                                <div class="text-warning text-xs"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            </div>
+                            <p class="text-muted text-sm mb-0 lh-base">Premium quality product! Delivered safely and packaging was highly satisfactory. Highly recommended!</p>
+                        </div>
+
+                        <div class="card border-0 bg-light p-3 rounded-3 review-item shadow-sm">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 14px;">M</div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-dark" style="font-size: 14px;">Mizanur Rahman</h6>
+                                        <small class="text-muted text-xs">28 May, 2026</small>
+                                    </div>
+                                </div>
+                                <div class="text-warning text-xs"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                            </div>
+                            <p class="text-muted text-sm mb-0 lh-base">Absolutely original product! The authentication scan passed without issues. Outstanding.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-center mt-3">
+                    <button id="show-more-reviews-btn" class="btn btn-outline-secondary btn-sm px-4 py-2 rounded-pill fw-semibold shadow-sm transition" style="font-size: 13px;">
+                        Show More Reviews
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% if related_products %}
+        <div class="row mt-5 pt-4 border-top">
+            <div class="col-12 mb-4">
+                <h3 class="h4 fw-bold text-slate-800">Related Products</h3>
+            </div>
+            
+            {% for rel_product in related_products %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100 border-0 rounded-3 overflow-hidden rel-product-card position-relative shadow-sm transition" style="min-height: 380px;">
+                    <div class="position-absolute inset-0 w-100 h-100">
+                        {% if rel_product.product_image %}
+                            <img src="{{ rel_product.product_image.url }}" alt="{{ rel_product.product_name }}" class="w-100 h-100 object-fit-cover">
+                        {% else %}
+                            <div class="w-100 h-100 bg-secondary d-flex align-items-center justify-content-center text-white">
+                                <span class="text-xs">No Image</span>
+                            </div>
+                        {% endif %}
+                        <div class="image-gradient-overlay position-absolute inset-0"></div>
+                    </div>
+
+                    <div class="position-absolute top-0 w-100 d-flex align-items-center justify-content-between p-3" style="z-index: 10;">
+                        <div>
+                            {% if rel_product.is_featured %}
+                            <span class="badge bg-emerald-500 text-white rounded-pill text-xs px-2 py-1" style="background-color: #10b981;">Featured</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card-body position-relative d-flex flex-column justify-content-end p-3 mt-auto h-100" style="z-index: 10;">
+                        <div class="p-2 rounded-2 backdrop-blur-sm">
+                            <h5 class="card-title h6 text-white fw-bold text-truncate mb-1" title="{{ rel_product.product_name }}">
+                                {{ rel_product.product_name }}
+                            </h5>
+                            <p class="card-text text-light opacity-75 text-xs mb-2 text-truncate-2-lines">
+                                {{ rel_product.description|default:"No description available."|truncatechars:45 }}
+                            </p>
+                            <div class="mb-3">
+                                {% if rel_product.product_slug %}
+                                    <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=rel_product.product_slug %}" class="text-white text-xs font-semibold d-inline-flex align-items-center gap-1 text-decoration-none view-details-link transition">
+                                        View Details 
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-arrow-right transition-transform" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                                        </svg>
+                                    </a>
+                                {% else %}
+                                    <a href="#" class="text-white opacity-50 text-xs font-semibold d-inline-flex align-items-center gap-1 text-decoration-none view-details-link transition">
+                                        No Details
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="mt-2">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="h6 text-warning fw-bold mb-0">৳{{ rel_product.price }}</span>
+                                    {% if rel_product.old_price %}
+                                    <span class="text-light opacity-50 text-xs text-decoration-line-through">৳{{ rel_product.old_price }}</span>
+                                    {% endif %}
+                                </div>
+                                <a href="#" 
+                                    data-product-id="{{ product.id }}" 
+                                    data-shop-slug="{{ global_shop.shop_slug }}" 
+                                    class="btn btn-success btn-sm w-100 rounded-2 d-flex align-items-center justify-content-center gap-1 font-semibold py-2 custom-cart-btn add-to-cart-btn"
+                                    style="background-color: var(--primary-green, #10b981);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-cart3" viewBox="0 0 16 16">
+                                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .49.598l-1 5a.5.5 0 0 1-.465.401l-9.397.472L4.415 11H13a.5.5 0 0 1 0 1H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l.84 4.479 9.144-.459L13.89 4zM5 12a1 1 0 1 0 0 2 1 1 0 0 0 0-2m7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2"/>
+                                    </svg>
+                                    Add to Bag
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="modal fade" id="addToCartSuccessModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg"> 
+            <div class="modal-content border-0 shadow-lg rounded-3">
+                
+                <div class="modal-header border-0 pb-0">
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body pt-0 px-4 px-md-5 pb-4">
+                    <div class="d-flex align-items-center gap-2 mb-4 pb-2 border-bottom">
+                        <i class="fas fa-check-circle text-success fs-3"></i>
+                        <h5 class="modal-title fw-bold text-dark" id="successModalLabel">Product successfully added to your bag.</h5>
+                    </div>
+                    
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-5 text-center">
+                            <img id="modal-product-image" src="" alt="Product Image" class="img-fluid rounded border shadow-sm" style="max-height: 260px; object-fit: cover; width: 100%;">
+                        </div>
+                        
+                        <div class="col-md-7">
+                            <div class="d-flex flex-column gap-2 py-2">
+                                <div class="fs-6 text-muted">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">Product Name:</span> 
+                                    <span id="modal-product-name" class="text-secondary fw-semibold">Loading...</span>
+                                </div>
+                                <div class="fs-6 text-muted">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">Quantity:</span> 
+                                    <span id="modal-product-qty" class="text-secondary fw-bold">1</span>
+                                </div>
+                                <div class="fs-6 text-muted">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">Unit Price:</span> 
+                                    <span class="text-primary fw-bold">৳<span id="modal-product-price">0.00</span></span>
+                                </div>
+                                <div class="fs-6 text-muted border-top pt-2 mt-2">
+                                    <span class="fw-bold text-dark d-inline-block" style="width: 120px;">SubTotal:</span> 
+                                    <span class="text-success h5 fw-bold mb-0">৳<span id="modal-product-total">0.00</span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer bg-light border-0 d-flex justify-content-between p-3 px-md-5">
+                    <button type="button" class="btn btn-outline-secondary rounded-0 px-4 py-2 text-uppercase fw-bold tracking-wider fs-7" data-bs-dismiss="modal">
+                        Continue Exploring
+                    </button>
+                    <a href="#" id="modal-go-to-cart" class="btn btn-success rounded-0 px-4 py-2 text-uppercase fw-bold tracking-wider fs-7">
+                        View Bag <i class="fas fa-arrow-right ms-2 small"></i>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .star-rating-wrapper label:hover,
+        .star-rating-wrapper label:hover ~ label,
+        .star-rating-wrapper input:checked ~ label {
+            color: #ffc107 !important;
+        }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .object-fit-contain { object-fit: contain; }
+        .object-fit-cover { object-fit: cover; }
+        
+        .style-cart-btn {
+            background-color: var(--primary-green, #10b981) !important;
+            border: none;
+        }
+        .style-cart-btn:hover { opacity: 0.9; }
+        
+        .style-cart-btn-rel {
+            background-color: var(--primary-green, #10b981) !important;
+            border: none;
+        }
+        
+        .style-fav-btn {
+            color: #64748b;
+            border-color: #cbd5e1;
+        }
+        .style-fav-btn:hover, .style-fav-btn.active {
+            background-color: #fff1f2 !important;
+            border-color: #f43f5e !important;
+            color: #e11d48 !important;
+        }
+
+        .image-gradient-overlay {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.85) 100%);
+        }
+
+        .rel-product-card {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
+        .rel-product-card img { transition: transform 0.5s ease; }
+        .rel-product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15) !important;
+        }
+        .rel-product-card:hover img { transform: scale(1.06); }
+
+        .backdrop-blur-sm {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .text-truncate-2-lines {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+        .view-details-link { opacity: 0.8; }
+        .view-details-link:hover { opacity: 1; color: #f1f5f9 !important; }
+        .view-details-link:hover .bi-arrow-right { transform: translateX(3px); }
+        .transition-transform { transition: transform 0.2s ease-in-out; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xs { font-size: 0.75rem; }
+
+        /* কাস্টম রিভিউর জন্য সিএসএস হোভার */
+        .review-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .review-item:hover {
+            background-color: #f1f5f9 !important;
+            transform: scale(1.005);
+        }
+    </style>
+
+    <script>
+        function toggleFavorite(button, productId) {
+            const isActive = button.classList.toggle('active');
+            const favCountEl = document.getElementById('fav-count');
+            
+            if(favCountEl) {
+                let currentCount = parseInt(favCountEl.innerText);
+                if (isActive) {
+                    favCountEl.innerText = currentCount + 1;
+                } else {
+                    favCountEl.innerText = currentCount - 1;
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const reviewItems = document.querySelectorAll('.review-item');
+            const showMoreBtn = document.getElementById('show-more-reviews-btn');
+            const defaultVisibleCount = 3; 
+            if (reviewItems.length <= defaultVisibleCount) {
+                if (showMoreBtn) showMoreBtn.style.display = 'none';
+            } else {
+                for (let i = defaultVisibleCount; i < reviewItems.length; i++) {
+                    reviewItems[i].style.display = 'none';
+                }
+            }
+
+            if (showMoreBtn) {
+                showMoreBtn.addEventListener('click', function () {
+                    let isHidden = showMoreBtn.innerText === "Show More Reviews";
+                    
+                    if (isHidden) {
+                        reviewItems.forEach(item => item.style.display = 'block');
+                        showMoreBtn.innerText = "Show Less Reviews";
+                        showMoreBtn.classList.replace('btn-outline-secondary', 'btn-secondary');
+                    } else {
+                        for (let i = defaultVisibleCount; i < reviewItems.length; i++) {
+                            reviewItems[i].style.display = 'none';
+                        }
+                        showMoreBtn.innerText = "Show More Reviews";
+                        showMoreBtn.classList.replace('btn-secondary', 'btn-outline-secondary');
+                    }
+                });
+            }
+        });
+        function toggleBigButtonClasses(button) {
+            if (button.classList.contains('btn-outline-danger')) {
+                button.classList.remove('btn-outline-danger');
+                button.classList.add('btn-danger', 'text-white');
+            } else {
+                button.classList.remove('btn-danger', 'text-white');
+                button.classList.add('btn-outline-danger');
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = this.getAttribute('data-product-id');
+                const shopSlug = this.getAttribute('data-shop-slug');
+                
+                if (!shopSlug || !productId) {
+                    console.error("Missing shop slug or product ID");
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('product_id', productId);
+
+                fetch(`/haatbazar/${shopSlug}/cart/add-or-update/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (response.status === 401) {
+                        return response.json().then(data => {
+                            if (data && data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                window.location.href = `/haatbazar/accounts/login/?next=${encodeURIComponent(window.location.href)}`;
+                            }
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return; 
+                    if (data.status === "success") {
+                        const counter = document.getElementById('cart-counter');
+                        if (counter) {
+                            counter.innerText = data.cart_item_count;
+                        }
+                        if (document.getElementById('modal-product-name')) {
+                            document.getElementById('modal-product-name').innerText = data.product_name || "N/A";
+                        }
+                        if (document.getElementById('modal-product-qty')) {
+                            document.getElementById('modal-product-qty').innerText = data.quantity || "1";
+                        }
+                        if (document.getElementById('modal-product-price')) {
+                            document.getElementById('modal-product-price').innerText = parseFloat(data.product_price).toFixed(2);
+                        }
+                        if (document.getElementById('modal-product-total')) {
+                            document.getElementById('modal-product-total').innerText = parseFloat(data.total_amount).toFixed(2);
+                        }
+                        
+                        const imgElement = document.getElementById('modal-product-image');
+                        if (imgElement) {
+                            if (data.product_image_url) {
+                                imgElement.src = data.product_image_url;
+                            } else {
+                                imgElement.src = '/static/images/default-product.png';
+                            }
+                        }
+                        const goCartBtn = document.getElementById('modal-go-to-cart');
+                        if (goCartBtn) {
+                            goCartBtn.href = `/haatbazar/${shopSlug}/cart/`;
+                        }
+                        const cartModalElement = document.getElementById('addToCartSuccessModal');
+                        if (cartModalElement) {
+                            const successModal = new bootstrap.Modal(cartModalElement);
+                            successModal.show();
+                        }
+
+                    } else {
+                        console.error("Error from server:", data.message);
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Fetch Error:", error));
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

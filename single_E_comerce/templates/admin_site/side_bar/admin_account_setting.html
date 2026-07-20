@@ -1,0 +1,399 @@
+{% extends 'admin_site/admin_base.html' %} 
+{% block title %} Admin Site | Settings {% endblock %}
+{% block content %}
+<div class="col-md-6 mt-3 mt-md-0 position-relative">
+    {% if messages %}
+    <div style="position: absolute; top: 0; right: 25px; z-index: 9999; min-width: 300px; max-width: 100%;">
+        {% for message in messages %}
+            <div class="alert alert-custom shadow-lg fade show mb-2 {% if message.tags == 'success' %}bg-success text-white{% elif message.tags == 'error' %}bg-danger text-white{% else %}bg-info text-white{% endif %} alert-dismissible" role="alert" style="border: none;">
+                <div class="d-flex align-items-center">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+                    <span class="small">{{ message }}</span> </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="container-fluid bg-light min-vh-100 p-0">
+    <div class="row g-0">
+        <div class="col-md-3 bg-white border-end min-vh-100 shadow-sm">
+            <div class="p-4 border-bottom d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                   <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 overflow-hidden" 
+                        style="width: 45px; height: 45px; font-weight: bold; position: relative;">
+                        
+                        {% if admin.profile_pic %}
+                            <img src="{{ admin.profile_pic.url }}" 
+                                alt="Profile" 
+                                class="w-100 h-100 object-fit-cover shadow-sm">
+                        {% else %}
+                            <span class="text-white fw-bold" style="font-size: 14px; letter-spacing: 0.5px;">
+                                {{ request.user.username|slice:":2"|upper }}
+                            </span>
+                        {% endif %}
+                        {% if admin.is_active %}
+                            <div class="status dot dot-lg dot-success"></div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <h6 class="mb-0 fw-bold">{{ request.user.get_full_name|default:request.user.username }}</h6>
+                        <small class="text-muted">{{ request.user.email|truncatechars:15 }}</small>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v text-muted"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li>
+                            <a class="dropdown-item small" href="javascript:void(0)" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#updateProfilePhotoModal">
+                                <i class="fas fa-camera me-2"></i> Change Photo
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item small" href="#" data-bs-toggle="modal" data-bs-target="#updateProfileModal">
+                                <i class="fas fa-pen me-2"></i> Update Profile
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="p-3">
+                <small class="text-muted text-uppercase fw-bold mb-3 d-block" style="font-size: 11px; letter-spacing: 1px;">Admin Account</small>
+                <div class="list-group list-group-flush border-0">
+                    <a href="#" class="list-group-item list-group-item-action border-0 py-3 rounded-3 active bg-primary-subtle text-primary">
+                        <i class="fas fa-user-circle me-3"></i> Personal Information
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action border-0 py-3 rounded-3 text-muted">
+                        <i class="fas fa-file-invoice-dollar me-3"></i> Billings
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action border-0 py-3 rounded-3 text-muted">
+                        <i class="fas fa-bell me-3"></i> Notifications
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action border-0 py-3 rounded-3 text-muted">
+                        <i class="fas fa-history me-3"></i> Account Activity
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action border-0 py-3 rounded-3 text-muted">
+                        <i class="fas fa-shield-alt me-3"></i> Security Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9 p-5">
+            <div class="max-width-800 mx-auto">
+                <h3 class="fw-bold text-dark mb-1">Personal Information</h3>
+                <p class="text-muted mb-5">Basic info, like name and address, that you use on this Platform.</p>
+
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-light border-bottom p-3">
+                        <small class="text-muted text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 1.5px;">Basics</small>
+                    </div>
+                    
+                    <div class="list-group list-group-flush">
+                        
+                        <div class="list-group-item py-4 px-4 border-bottom action-row" data-bs-toggle="modal" data-bs-target="#updateProfileModal">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4">
+                                    <span class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Full Name</span>
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="fw-medium text-dark">{{ request.user.get_full_name|default:"Not Set" }}</span>
+                                </div>
+                                <div class="col-sm-1 text-end">
+                                    <i class="fas fa-chevron-right text-light small"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item py-4 px-4 border-bottom">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4">
+                                    <span class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Account status</span>
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="fw-medium text-dark d-flex align-items-center">
+                                        {% if admin.is_active %}
+                                            <span class="status-dot bg-success me-2"></span>
+                                            Active
+                                        {% else %}
+                                            <span class="status-dot bg-danger me-2"></span>
+                                            Not Active
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="col-sm-1 text-end">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item py-4 px-4 border-bottom bg-light-subtle">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4">
+                                    <span class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Email</span>
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="fw-medium text-dark">{{ request.user.email }}</span>
+                                    <i class="fas fa-lock ms-2 text-muted small" style="font-size: 10px;"></i>
+                                </div>
+                                <div class="col-sm-1"></div> 
+                            </div>
+                        </div>
+                        <div class="list-group-item py-4 px-4 border-bottom action-row" data-bs-toggle="modal" data-bs-target="#updateProfileModal">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4">
+                                    <span class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Phone Number</span>
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="fw-medium text-dark">{{ admin.phone|default:"Not added yet" }}</span>
+                                </div>
+                                <div class="col-sm-1 text-end">
+                                    <i class="fas fa-chevron-right text-light small"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item py-4 px-4 border-bottom action-row" data-bs-toggle="modal" data-bs-target="#updateProfileModal">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4">
+                                    <span class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Date of Birth</span>
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="fw-medium text-dark">{{ admin.date_of_birth|default:"Not added yet" }}</span>
+                                </div>
+                                <div class="col-sm-1 text-end">
+                                    <i class="fas fa-chevron-right text-light small"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item py-4 px-4 action-row" data-bs-toggle="modal" data-bs-target="#updateProfileModal">
+                            <div class="row align-items-top">
+                                <div class="col-sm-4">
+                                    <span class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Address</span>
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="fw-medium text-dark d-block">
+                                        {{ admin.address_details|default:"Not added yet" }}
+                                    </span>
+                                    <small class="text-muted">{{ admin.thana }}{% if admin.thana %}, {% endif %}{{ admin.district }}</small>
+                                </div>
+                                <div class="col-sm-1 text-end">
+                                    <i class="fas fa-chevron-right text-light small"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item py-4 px-4 border-bottom action-row">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4">
+                                    <span class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Last Login</span>
+                                </div>
+                                <div class="col-sm-7">
+                                    <span class="badge" style="background-color: #eef2ff; color: #6366f1; padding: 6px 12px; font-weight: 500;">
+                                        {{ request.user.last_login|date:"d M Y, h:i A" }}
+                                    </span>
+                                </div>
+                                <div class="col-sm-1 text-end">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            /* Dot Design */
+            .status-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                display: inline-block;
+            }
+            
+            /* Optional: Glowing effect for green dot */
+            .bg-success {
+                background-color: #28a745 !important;
+                box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+            }
+            .action-row {
+                cursor: pointer;
+                transition: background 0.2s ease;
+            }
+            .action-row:hover {
+                background-color: #fbfbfb;
+            }
+            .text-light {
+                color: #d1d5db !important; /* Arrow icon color */
+            }
+            .list-group-item:hover { background-color: #fcfcfc; cursor: pointer; }
+            .bg-primary-subtle { background-color: #eef2ff !important; }
+            .text-light { color: #dee2e6 !important; }
+            .custom-tab {
+                border-bottom: 3px solid transparent !important;
+                border-radius: 0;
+                transition: all 0.3s ease;
+                font-size: 15px;
+            }
+
+            /* Active Tab Style (Purple Line) */
+            .custom-tab.active {
+                color: #854fff !important;
+                border-bottom: 3px solid #854fff !important;
+            }
+        </style>
+    </div>
+</div>
+
+
+<!-- Update Profile Modal -->
+<div class="modal fade" id="updateProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            
+            <div class="p-3 d-flex justify-content-end">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body px-5 pb-5 pt-0">
+                <h4 class="fw-bold text-dark mb-4">Update Profile</h4>
+                
+                <div class="d-flex border-bottom mb-4" style="gap: 30px;">
+                    <div class="nav-item">
+                        <button class="btn fw-bold border-0 p-0 pb-2 custom-tab active" 
+                                id="btn-personal" onclick="switchTab('personal')">
+                            Personal
+                        </button>
+                    </div>
+                    <div class="nav-item">
+                        <button class="btn fw-bold border-0 p-0 pb-2 custom-tab text-muted" 
+                                id="btn-address" onclick="switchTab('address')">
+                            Address
+                        </button>
+                    </div>
+                </div>
+
+                <form action="{% url 'edit_admin_profile' %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div id="section-personal">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-muted">Full Name</label>
+                                <input type="text" name="full_name" class="form-control py-2 shadow-none border-secondary-subtle" value="{{ request.user.get_full_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-muted">Display Name</label>
+                                <input type="text" name="username" class="form-control py-2 shadow-none border-secondary-subtle" value="{{ request.user.username }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-muted">Phone Number</label>
+                                <input type="text" name="phone" class="form-control py-2 shadow-none border-secondary-subtle" value="{{ admin.phone|default:'01321089577' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-muted">Date of Birth</label>
+                                <input type="date" name="dob" class="form-control py-2 shadow-none border-secondary-subtle" value="{{ admin.date_of_birth|date:'Y-m-d' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="section-address" style="display: none;">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-muted">District</label>
+                                <input type="text" name="district" class="form-control py-2 shadow-none border-secondary-subtle" value="{{ admin.district }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold text-muted">Thana</label>
+                                <input type="text" name="thana" class="form-control py-2 shadow-none border-secondary-subtle" value="{{ admin.thana }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold text-muted">Full Address</label>
+                                <textarea name="address_details" class="form-control py-2 shadow-none border-secondary-subtle" rows="2">{{ admin.address_details }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                        <div class="form-check form-switch d-flex align-items-center">
+                            <input class="form-check-input" type="checkbox" id="useFullName" style="width: 2.2em; height: 1.1em;">
+                            <label class="form-check-label small text-muted ms-3" for="useFullName">Use full name to display</label>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 d-flex align-items-center">
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold rounded-3 me-4" style="background-color: #854fff; border: none;">
+                            Update Profile
+                        </button>
+                        <button type="button" class="btn btn-link text-muted text-decoration-none fw-bold p-0" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(tabName) {
+    const personalSec = document.getElementById('section-personal');
+    const addressSec = document.getElementById('section-address');
+    const btnPersonal = document.getElementById('btn-personal');
+    const btnAddress = document.getElementById('btn-address');
+
+    if (tabName === 'personal') {
+        // Show Personal, Hide Address
+        personalSec.style.display = 'block';
+        addressSec.style.display = 'none';
+        
+        // Update Buttons
+        btnPersonal.classList.add('active');
+        btnPersonal.classList.remove('text-muted');
+        
+        btnAddress.classList.remove('active');
+        btnAddress.classList.add('text-muted');
+    } else {
+        // Show Address, Hide Personal
+        personalSec.style.display = 'none';
+        addressSec.style.display = 'block';
+        
+        // Update Buttons
+        btnAddress.classList.add('active');
+        btnAddress.classList.remove('text-muted');
+        
+        btnPersonal.classList.remove('active');
+        btnPersonal.classList.add('text-muted');
+    }
+}
+</script>
+
+
+
+<div class="modal fade" id="updateProfilePhotoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="fw-bold text-dark mb-0">Update Profile Photo</h6>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <form action="{% url 'edit_admin_profile_pic' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="profile_pic" class="form-control" required>
+                    <button type="submit" class="btn btn-primary mt-3">Upload Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

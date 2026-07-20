@@ -1,0 +1,63 @@
+{% if items.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-5">
+    <ul class="pagination justify-content-center gap-1">
+        
+        {% if items.has_previous %}
+        <li class="page-item">
+            <a class="page-link border-0 shadow-sm rounded-3 px-3 py-2 text-dark" href="?page={{ items.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.stock %}&stock={{ request.GET.stock }}{% endif %}">
+                <i class="fas fa-chevron-left me-1 small"></i> <span class="small fw-bold">Prev</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link border-0 bg-light rounded-3 px-3 py-2 text-muted small"><i class="fas fa-chevron-left me-1 opacity-50"></i> Prev</span>
+        </li>
+        {% endif %}
+
+        {% for num in paginator_list %}
+            {% if items.number == num %}
+            <li class="page-item active" aria-current="page">
+                <span class="page-link border-0 shadow-sm rounded-3 px-3 py-2 fw-bold" style="background: linear-gradient(45deg, #0d6efd, #004fb1); color: white;">
+                    {{ num }}
+                </span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link border-0 shadow-sm rounded-3 px-3 py-2 text-dark hover-blue" href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.stock %}&stock={{ request.GET.stock }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if items.has_next %}
+        <li class="page-item">
+            <a class="page-link border-0 shadow-sm rounded-3 px-3 py-2 text-dark" href="?page={{ items.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.stock %}&stock={{ request.GET.stock }}{% endif %}">
+                <span class="small fw-bold">Next</span> <i class="fas fa-chevron-right ms-1 small"></i>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link border-0 bg-light rounded-3 px-3 py-2 text-muted small">Next <i class="fas fa-chevron-right ms-1 opacity-50"></i></span>
+        </li>
+        {% endif %}
+
+    </ul>
+</nav>
+
+<style>
+    .page-link {
+        transition: all 0.3s ease;
+        min-width: 40px;
+        text-align: center;
+    }
+    .page-link:hover:not(.active) {
+        background-color: #f8f9fa !important;
+        color: #0d6efd !important;
+        transform: translateY(-2px);
+    }
+    .page-item.active .page-link {
+        z-index: 3;
+    }
+</style>
+{% endif %}

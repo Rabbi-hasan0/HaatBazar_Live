@@ -1,0 +1,113 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %} Coupon Details - {{ coupon.code }} {% endblock %}
+{% load static %}
+
+{% block navbar %}
+    {% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" class="text-decoration-none text-primary">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'customer_coupons_list' shop_slug=global_shop.shop_slug %}" class="text-decoration-none text-primary">Vouchers</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Coupon Details</li>
+            </ol>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card border-0 shadow rounded-3 overflow-hidden bg-white border">
+                    
+                    <div class="text-white p-4 text-center position-relative" style="background: linear-gradient(135deg, #0d6efd, #0a58ca);">
+                        <span class="position-absolute top-0 end-0 m-3 badge {% if coupon.user.all %}bg-warning text-dark{% else %}bg-light text-primary{% endif %} text-uppercase shadow-sm fw-bold" style="font-size: 10px;">
+                            {% if coupon.user.all %}<i class="fas fa-star me-1"></i>Exclusive Vouchar{% else %}<i class="fas fa-globe me-1"></i>Use one time{% endif %}
+                        </span>
+                        
+                        <div class="display-4 fw-bold mb-1">
+                            {% if coupon.is_percentage %}{{ coupon.discount_amount|stringformat:"d" }}%{% else %}৳{{ coupon.discount_amount }}{% endif %} OFF
+                        </div>
+                        <p class="mb-0 opacity-90 fw-semibold tracking-wide text-uppercase">
+                            {{ coupon.shop.shop_name }} Special Discount
+                        </p>
+                    </div>
+
+                    <div class="card-body p-4">
+                        
+                        <div class="text-center mb-4 p-3 bg-light rounded border border-dashed" style="border-width: 2px;">
+                            <small class="text-muted text-uppercase d-block mb-2 fw-semibold style='font-size: 11px;'">Use this code at checkout</small>
+                            <div class="d-flex align-items-center justify-content-center gap-3">
+                                <span class="fw-mono fw-bold text-primary fs-3 text-uppercase tracking-wider" id="couponCode">
+                                    {{ coupon.code }}
+                                </span>
+                                <button class="btn btn-sm btn-primary rounded-pill px-3 py-1.5 fw-semibold shadow-sm" onclick="copyCode('{{ coupon.code }}', this)">
+                                    <i class="far fa-copy me-1"></i> Copy Code
+                                </button>
+                            </div>
+                        </div>
+
+                        <h5 class="fw-bold text-dark mb-3" style="font-size: 15px;">
+                            <i class="fas fa-info-circle text-primary me-2"></i>Terms & Conditions:
+                        </h5>
+                        
+                        <ul class="list-group list-group-flush mb-4" style="font-size: 13.5px;">
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                <span class="text-muted"><i class="fas fa-store me-2 text-secondary"></i>Applicable Shop</span>
+                                <span class="fw-semibold text-dark">{{ coupon.shop.shop_name }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                <span class="text-muted"><i class="fas fa-tags me-2 text-secondary"></i>Discount Type</span>
+                                <span class="fw-semibold text-dark">{% if coupon.is_percentage %}Percentage (%){% else %}Fixed Amount (৳){% endif %}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                <span class="text-muted"><i class="far fa-calendar-check me-2 text-secondary"></i>Valid From</span>
+                                <span class="text-dark">{{ coupon.valid_from|date:"d M Y, h:i A" }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                                <span class="text-muted"><i class="far fa-calendar-times me-2 text-danger"></i>Expiry Date</span>
+                                <span class="fw-semibold text-danger">{{ coupon.valid_to|date:"d M Y, h:i A" }}</span>
+                            </li>
+                        </ul>
+
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'shop_products' shop_slug=global_shop.shop_slug %}" class="btn btn-primary rounded-pill py-2 fw-semibold shadow-sm">
+                                Shop From {{ coupon.shop.shop_name }} 
+                            </a>
+                            <a href="{% url 'customer_coupons_list' shop_slug=global_shop.shop_slug %}" class="btn btn-outline-secondary rounded-pill py-2 fw-semibold">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Vouchers
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function copyCode(code, button) {
+        navigator.clipboard.writeText(code).then(() => {
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            button.classList.replace('btn-primary', 'btn-success');
+            
+            setTimeout(() => {
+                button.innerHTML = originalContent;
+                button.classList.replace('btn-success', 'btn-primary');
+            }, 2000);
+        });
+    }
+    </script>
+
+    <style>
+        .fw-mono { font-family: 'Courier New', Courier, monospace; }
+        .border-dashed { border-style: dashed !important; }
+        .list-group-item { border-bottom: 1px solid #f1f5f9; }
+    </style>
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}

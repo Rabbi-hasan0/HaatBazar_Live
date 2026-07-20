@@ -1,0 +1,983 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} Rabbi's E-commerce {% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex">
+
+    <!-- Desktop Sidebar -->
+    <aside id="desktop-sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-slate-100 p-6 hidden lg:flex flex-col overflow-y-auto custom-scrollbar">
+        <a href="{% url 'owner_dashboard' %}" class="flex items-center gap-3 font-bold text-lg text-slate-900 tracking-tight mb-8 pl-3">
+            <i class="fa-solid fa-cube text-emerald-500 text-xl"></i> {{ shop|default:"HAAT BAZAR" }} CRM
+        </a>
+        
+        <nav class="flex-1">
+            <ul class="space-y-1.5 list-none p-0 m-0">
+                
+                <li>
+                    <a href="{% url 'owner_dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold {% if request.resolver_match.url_name == 'owner_dashboard' or request.resolver_match.url_name == 'dashboard' %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition">
+                        <i class="fa-solid fa-gauge-high text-base {% if request.resolver_match.url_name == 'owner_dashboard' or request.resolver_match.url_name == 'dashboard' %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% if shop %}{% url 'shop_notifications' shop_slug=shop.shop_slug %}{% elif shop_slug %}{% url 'shop_notifications' shop_slug=shop_slug %}{% else %}#{% endif %}"
+                     id="sidebar-notif-link" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-bell text-base text-slate-400 group-hover:text-slate-600"></i> 
+                            <span>Notifications</span>
+                        </div>
+                        <span id="sidebar-notif-badge" class="h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white transition-all" style="display: none;">
+                            0
+                        </span>
+                    </a>
+                </li>
+
+                <li>
+                    <!-- মেইন ড্রপডাউন বাটন -->
+                    <button onclick="toggleDropdown('orders-sub-menu', 'orders-arrow')" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'order' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-boxes-stacked text-base {% if 'order' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Orders
+                        </span>
+                        <i id="orders-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'order' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <!-- সাব-মেনু লিস্টিং -->
+                    <ul id="orders-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" 
+                        style="{% if 'order' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        
+                        <!-- ১. নিউ অর্ডারস -->
+                        <li class="pt-2">
+                            <a href="{% url 'order_list' %}?type=new" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'new' %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'new' %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> New Orders
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <!-- ২. পেন্ডিং অর্ডারস -->
+                        <li>
+                            <a href="{% url 'order_list' %}?type=pending" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'pending' %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'pending' %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Pending Orders
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <!-- ৩. অল অর্ডারস -->
+                        <li>
+                            <a href="{% url 'order_list' %}?type=all" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'all' or not request.GET.type %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'all' or not request.GET.type %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> All Orders List
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <!-- ৪. একটিভিটি লগ অর্ডারস -->
+                        <li class="pb-2">
+                            <a href="{% url 'order_activity_log' %}?type=activity" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'activity' %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'activity' %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Activity Orders
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li style="display: none;">
+                    <button onclick="toggleDropdown('payments-sub-menu', 'payments-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'payment' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-credit-card text-base {% if 'payment' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Payments
+                        </span>
+                        <i id="payments-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'payment' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    <ul id="payments-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" style="{% if 'payment' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Transactions
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Payouts
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Events complete-->
+                <li>
+                    <button onclick="toggleDropdown('events-sub-menu', 'events-arrow')" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'event' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-calendar-days text-base {% if 'event' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Events
+                        </span>
+                        <i id="events-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'event' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <ul id="events-sub-menu" 
+                        class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" 
+                        style="{% if 'event' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        
+                        <li class="pt-2">
+                            <a href="{% url 'active_events' %}" 
+                            class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'active_events' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-emerald-500 font-bold">&bull;</span> Active Events
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'upcoming_events' %}" 
+                            class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'upcoming_events' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-indigo-400 font-bold">&bull;</span> Upcoming Events
+                            </a>
+                        </li>
+                        
+                        
+                        <li>
+                            <a href="{% url 'events_list' %}" 
+                                class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'events_list' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-500 font-bold">&bull;</span> All Events List
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'event_history' %}" 
+                            class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'event_history' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-400 font-bold">&bull;</span> Event History
+                            </a>
+                        </li>
+                        
+                        <li class="pb-2">
+                            <a href="{% url 'activity_events_log' %}" 
+                            class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'activity_events_log' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-500 font-bold">&bull;</span> Activity Events
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!-- Cupons complete-->
+                <li>
+                    <button onclick="toggleDropdown('coupons-sub-menu', 'coupons-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'coupon' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-ticket text-base {% if 'coupon' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Coupons
+                        </span>
+                        <i id="coupons-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'coupon' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <ul id="coupons-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" style="{% if 'coupon' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li>
+                            <a href="{% url 'active_coupons' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'active_coupons' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'active_coupons' %} text-emerald-500 {% else %} text-emerald-500/60 {% endif %} font-bold">&bull;</span> Active Coupons
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'coupon_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'coupon_list' or request.resolver_match.url_name == 'coupon_update' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'coupon_list' or request.resolver_match.url_name == 'coupon_update' %} text-emerald-500 {% else %} text-slate-400 {% endif %} font-bold">&bull;</span> Coupons List
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'coupon_history' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'coupon_history' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'coupon_history' %} text-emerald-500 {% else %} text-slate-400 {% endif %} font-bold">&bull;</span> Coupon History
+                            </a>
+                        </li>
+
+                        <li class="pb-2">
+                            <a href="{% url 'coupon_activity_logs' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'coupon_activity_logs' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'coupon_activity_logs' %} text-emerald-500 {% else %} text-slate-500/60 {% endif %} font-bold">&bull;</span> Activity Coupons
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!--Products complete-->
+                <li>
+                    <!-- Fixed Main Collapsible validation wrapper -->
+                    <button onclick="toggleDropdown('products-sub-menu', 'products-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'product' in request.path or 'category' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-tags text-base {% if 'product' in request.path or 'category' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Products
+                        </span>
+                        <i id="products-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'product' in request.path or 'category' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <!-- Expanded conditional block template fixed -->
+                    <ul id="products-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" style="{% if 'product' in request.path or 'category' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="{% url 'main_category_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'main-category' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'main-category' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Main Category
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'sub_category_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'sub-category' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'sub-category' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Sub Category
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'product_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'product/' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'product/' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Products List
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="{% url 'activity_log_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'activity-log' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'activity-log' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Activity Logs
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!--Shops complete-->
+                <li>
+                    <!-- মেইন বাটন: এখানে চেক করা হচ্ছে বর্তমান URL name ড্যাশবোর্ড বা বিলিং কি না এবং পাথে সুনির্দিষ্টভাবে /shop/ settings আছে কি না -->
+                    <button onclick="toggleDropdown('shops-sub-menu', 'shops-arrow')" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold 
+                            {% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'shop_profile_update' or request.resolver_match.url_name == 'activity_logs' %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-store text-base {% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_profile_update' %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Shops
+                        </span>
+                        <i id="shops-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_profile_update' or request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'activity_logs' %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <!-- সাব-মেনু লিস্টিং: কন্ডিশন ফিক্স করায় ড্যাশবোর্ডে আসলে এটি আর max-height: 500px হবে না, 0px হয়ে বন্ধ থাকবে -->
+                    <ul id="shops-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" 
+                        style="{% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'shop_profile_update' or request.resolver_match.url_name == 'activity_logs' %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        
+                        <li class="pt-2">
+                            <a href="{% url 'billing' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'billing' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'billing' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Billing & Subscriptions
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'shop_media_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'shop_media_create' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'shop_media_list' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Media
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'social_links_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'social_link_create' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'social_link_create' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Social Media
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'shop_profile_update' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'shop_profile_update' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'shop_profile_update' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Settings
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="{% url 'activity_logs' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'activity_logs' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'activity_logs' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Activity
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <li>
+                    <button onclick="toggleDropdown('admin-sub-menu', 'admin-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'admin' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-shield text-base {% if 'admin' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Admin Management
+                        </span>
+                        <i id="admin-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'admin' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    <ul id="admin-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" style="{% if 'admin' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Staff Members
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Roles & Permissions
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Activity Staff
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!--Accounts Complete-->
+                <li>
+                    <button onclick="toggleDropdown('accounts-sub-menu', 'accounts-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'merchant_account' in request.path or 'account' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-gear text-base {% if 'merchant_account' in request.path or 'account' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Accounts
+                        </span>
+                        <i id="accounts-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'merchant_account' in request.path or 'account' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    <ul id="accounts-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden sub-menu-list" style="{% if 'merchant_account' in request.path or 'account' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="{% url 'merchant_account_setting' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'merchant_account_setting' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-300 font-bold">&bull;</span> Personal Info
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Shop Info
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Security Logs
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    <!-- Mobile Sidebar -->
+    <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm hidden transition-opacity duration-300 lg:hidden"></div>
+
+    <aside id="mobile-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white p-6 flex flex-col transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between mb-8 pl-3">
+            <a href="{% url 'owner_dashboard' %}" class="flex items-center gap-3 font-bold text-lg text-slate-900 tracking-tight">
+                <i class="fa-solid fa-cube text-emerald-500 text-xl"></i> {{ shop|default:"HAAT BAZAR" }} CRM
+            </a>
+            <button id="close-sidebar-btn" class="text-slate-400 hover:text-slate-600 p-1 focus:outline-none">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1">
+            <ul class="space-y-1.5 list-none p-0 m-0">
+                
+                <!-- ড্যাশবোর্ড -->
+                <li>
+                    <a href="{% url 'owner_dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold {% if request.resolver_match.url_name == 'owner_dashboard' or request.resolver_match.url_name == 'dashboard' %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition">
+                        <i class="fa-solid fa-gauge-high text-base {% if request.resolver_match.url_name == 'owner_dashboard' or request.resolver_match.url_name == 'dashboard' %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Dashboard
+                    </a>
+                </li>
+
+                <!-- নোটিফিকেশনস -->
+                <li>
+                    <a href="{% if shop %}{% url 'shop_notifications' shop_slug=shop.shop_slug %}{% elif shop_slug %}{% url 'shop_notifications' shop_slug=shop_slug %}{% else %}#{% endif %}"
+                     id="mobile-sidebar-notif-link" class="flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-bell text-base text-slate-400 group-hover:text-slate-600"></i> 
+                            <span>Notifications</span>
+                        </div>
+                        <span id="mobile-sidebar-notif-badge" class="h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white transition-all" style="display: none;">
+                            0
+                        </span>
+                    </a>
+                </li>
+
+                <!-- অর্ডারস মেনু -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-orders-sub-menu', 'mobile-orders-arrow')" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'order' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-boxes-stacked text-base {% if 'order' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Orders
+                        </span>
+                        <i id="mobile-orders-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'order' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <ul id="mobile-orders-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" 
+                        style="{% if 'order' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        
+                        <li class="pt-2">
+                            <a href="{% url 'order_list' %}?type=new" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'new' %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'new' %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> New Orders
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'order_list' %}?type=pending" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'pending' %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'pending' %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Pending Orders
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="{% url 'order_list' %}?type=all" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'all' or not request.GET.type %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'all' or not request.GET.type %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> All Orders List
+                                </span>
+                            </a>
+                        </li>
+                        
+                        <li class="pb-2">
+                            <a href="{% url 'order_activity_log' %}?type=activity" 
+                            class="flex items-center justify-between px-4 py-2 text-xs font-semibold rounded-lg {% if request.GET.type == 'activity' %} bg-indigo-50 text-indigo-600 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="flex items-center gap-2">
+                                    <span class="{% if request.GET.type == 'activity' %} text-indigo-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Activity Orders
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- পেমেন্টস মেনু -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-payments-sub-menu', 'mobile-payments-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'payment' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-credit-card text-base {% if 'payment' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Payments
+                        </span>
+                        <i id="mobile-payments-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'payment' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    <ul id="mobile-payments-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" style="{% if 'payment' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Transactions
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Payouts
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- ইভেন্টস মেনু -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-events-sub-menu', 'mobile-events-arrow')" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'event' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-calendar-days text-base {% if 'event' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Events
+                        </span>
+                        <i id="mobile-events-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'event' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <ul id="mobile-events-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" 
+                        style="{% if 'event' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        
+                        <li class="pt-2">
+                            <a href="{% url 'active_events' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'active_events' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-emerald-500 font-bold">&bull;</span> Active Events
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'upcoming_events' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'upcoming_events' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-indigo-400 font-bold">&bull;</span> Upcoming Events
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'events_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'events_list' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-500 font-bold">&bull;</span> All Events List
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'event_history' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'event_history' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-400 font-bold">&bull;</span> Event History
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="{% url 'activity_events_log' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'activity_events_log' %} bg-slate-200 text-slate-900 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-500 font-bold">&bull;</span> Activity Events
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- কুপনস মেনু -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-coupons-sub-menu', 'mobile-coupons-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'coupon' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-ticket text-base {% if 'coupon' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Coupons
+                        </span>
+                        <i id="mobile-coupons-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'coupon' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <ul id="mobile-coupons-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" style="{% if 'coupon' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li>
+                            <a href="{% url 'active_coupons' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'active_coupons' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'active_coupons' %} text-emerald-500 {% else %} text-emerald-500/60 {% endif %} font-bold">&bull;</span> Active Coupons
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'coupon_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'coupon_list' or request.resolver_match.url_name == 'coupon_update' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'coupon_list' or request.resolver_match.url_name == 'coupon_update' %} text-emerald-500 {% else %} text-slate-400 {% endif %} font-bold">&bull;</span> Coupons List
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'coupon_history' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'coupon_history' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'coupon_history' %} text-emerald-500 {% else %} text-slate-400 {% endif %} font-bold">&bull;</span> Coupon History
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="{% url 'coupon_activity_logs' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'coupon_activity_logs' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'coupon_activity_logs' %} text-emerald-500 {% else %} text-slate-500/60 {% endif %} font-bold">&bull;</span> Activity Coupons
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- প্রোডাক্টস মেনু -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-products-sub-menu', 'mobile-products-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'product' in request.path or 'category' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-tags text-base {% if 'product' in request.path or 'category' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Products
+                        </span>
+                        <i id="mobile-products-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'product' in request.path or 'category' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <ul id="mobile-products-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" style="{% if 'product' in request.path or 'category' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="{% url 'main_category_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'main-category' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'main-category' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Main Category
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'sub_category_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'sub-category' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'sub-category' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Sub Category
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'product_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'product/' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'product/' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Products List
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="{% url 'activity_log_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if 'activity-log' in request.path %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if 'activity-log' in request.path %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Activity Logs
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- শপস মেনু -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-shops-sub-menu', 'mobile-shops-arrow')" 
+                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold 
+                            {% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'shop_profile_update' or request.resolver_match.url_name == 'activity_logs' %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-store text-base {% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_profile_update' %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Shops
+                        </span>
+                        <i id="mobile-shops-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_profile_update' or request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'activity_logs' %} rotate-180 {% endif %}"></i>
+                    </button>
+                    
+                    <ul id="mobile-shops-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" 
+                        style="{% if request.resolver_match.url_name == 'billing' or request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'shop_profile_update' or request.resolver_match.url_name == 'activity_logs' %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        
+                        <li class="pt-2">
+                            <a href="{% url 'billing' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'billing' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'billing' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Billing & Subscriptions
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'shop_media_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'shop_media_list' or request.resolver_match.url_name == 'shop_media_create' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'shop_media_list' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Media
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'social_links_list' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'social_link_create' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'social_links_list' or request.resolver_match.url_name == 'social_link_create' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Social Media
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'shop_profile_update' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'shop_profile_update' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'shop_profile_update' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Settings
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="{% url 'activity_logs' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'activity_logs' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="{% if request.resolver_match.url_name == 'activity_logs' %} text-emerald-500 {% else %} text-slate-300 {% endif %} font-bold">&bull;</span> Shop Activity
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- এডমিন ম্যানেজমেন্ট -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-admin-sub-menu', 'mobile-admin-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'admin' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-shield text-base {% if 'admin' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Admin Management
+                        </span>
+                        <i id="mobile-admin-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'admin' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    <ul id="mobile-admin-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" style="{% if 'admin' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Staff Members
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Roles & Permissions
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Activity Staff
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- অ্যাকাউন্টস মেনু -->
+                <li>
+                    <button onclick="toggleMobileDropdown('mobile-accounts-sub-menu', 'mobile-accounts-arrow')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold {% if 'merchant_account' in request.path or 'account' in request.path %} bg-slate-100 text-slate-900 {% else %} text-slate-600 hover:bg-slate-50 hover:text-slate-900 {% endif %} transition focus:outline-none mobile-sidebar-dropdown-btn">
+                        <span class="flex items-center gap-3">
+                            <i class="fa-solid fa-user-gear text-base {% if 'merchant_account' in request.path or 'account' in request.path %} text-slate-700 {% else %} text-slate-400 {% endif %}"></i> Accounts
+                        </span>
+                        <i id="mobile-accounts-arrow" class="fa-solid fa-chevron-down text-[10px] transition-transform duration-300 {% if 'merchant_account' in request.path or 'account' in request.path %} rotate-180 {% endif %}"></i>
+                    </button>
+                    <ul id="mobile-accounts-sub-menu" class="ml-3 pl-3 bg-slate-50 border-l-2 border-slate-150 rounded-r-xl space-y-1 list-none transition-all duration-300 ease-in-out overflow-hidden mobile-sub-menu-list" style="{% if 'merchant_account' in request.path or 'account' in request.path %} max-height: 500px; {% else %} max-height: 0px; {% endif %}">
+                        <li class="pt-2">
+                            <a href="{% url 'merchant_account_setting' %}" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg {% if request.resolver_match.url_name == 'merchant_account_setting' %} text-emerald-700 bg-emerald-50 {% else %} text-slate-500 hover:bg-slate-100 hover:text-slate-900 {% endif %}">
+                                <span class="text-slate-300 font-bold">&bull;</span> Personal Info
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Shop Info
+                            </a>
+                        </li>
+                        <li class="pb-2">
+                            <a href="#" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+                                <span class="text-slate-300 font-bold">&bull;</span> Security Logs
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Right Side Application Wrapper Base -->
+    <div class="flex-1 flex flex-col min-w-0 lg:pl-72">
+            
+        <header class="h-24 bg-white border-b border-slate-100 flex items-center justify-between px-4 sm:px-6 lg:px-10 sticky top-0 z-30 shadow-sm">
+            <div class="flex items-center gap-2 sm:gap-4 flex-1 max-w-xs md:max-w-sm">
+                <!-- নেভবারের মোবাইল বাটন -->
+                <button id="menu-btn" class="text-slate-600 p-2 lg:hidden shrink-0">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                
+                <form action="#" method="GET" class="hidden md:block w-full">
+                    <input type="hidden" name="type" value="products">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="search" name="q" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none transition duration-200" placeholder="Search products..." value="{{ request.GET.q|default:'' }}">
+                    </div>
+                </form>
+            </div>
+
+            <!-- নোটিশ বার (ডেস্কটপ ও ট্যাবলেট) -->
+            <div class="flex-1 max-w-md lg:max-w-xl mx-4 hidden lg:block bg-amber-50 border border-amber-100 rounded-xl px-4 py-2">
+                <div class="flex items-center gap-2 overflow-hidden text-xs font-semibold text-amber-800">
+                    <span class="flex items-center gap-1 bg-amber-500 text-white px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider shrink-0 animate-pulse">
+                        <i class="fa-solid fa-bullhorn"></i> Notice
+                    </span>
+                    <marquee behavior="scroll" direction="left" scrollamount="4" class="cursor-pointer">
+                        🚀 Welcome to {{ shop|default:"HAAT BAZAR CRM" }}! Core updates are live. Enjoy up to 20% discount on premium logistics today! 🌟
+                    </marquee>
+                </div>
+            </div>
+
+            <!-- লাইভ প্রিভিউ (ডেস্কটপ ও ট্যাবলেট) -->
+            <div class="flex-1 mx-4 hidden sm:block">
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50/50 border border-amber-200/60 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-[0_2px_8px_-3px_rgba(217,119,6,0.08)]">
+                    <div class="flex items-center gap-2 text-xs font-semibold text-amber-900">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span>Live Preview:</span>
+                        <span class="text-slate-500 font-medium text-[11px] truncate max-w-[150px] md:max-w-[200px]">Your store is active</span>
+                    </div>
+                    {% comment %} <a href="{% url 'user_dashboard' shop_slug=global_shop.shop_slug %}" target="_blank" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shrink-0 transition-all duration-200 shadow-sm shadow-emerald-600/20">
+                        <i class="fa-solid fa-eye text-[9px]"></i> View Store
+                    </a> {% endcomment %}
+                </div>
+            </div>
+
+            <!-- ডানপাশ: ইউজার প্রোফাইল ও নাম (এখন মোবাইলেও দেখাবে) -->
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                {% if user.is_authenticated %}
+                    <div class="relative inline-block text-left" id="profile-wrapper">
+                        <button id="profile-dropdown-btn" type="button" class="flex items-center gap-2 sm:gap-3 p-1 sm:p-1.5 rounded-xl hover:bg-slate-50 transition focus:outline-none group">
+                            
+                            <!-- নাম এবং টেক্সট কন্টেইনার (মোবাইল ও ডেস্কটপ ফ্রেন্ডলি করা হয়েছে) -->
+                            <span class="flex flex-col text-right">
+                                <!-- 'Logged in as' লেখাটি মোবাইলে লুকানো থাকবে, স্ক্রিন ছোট তাই জায়গা বাঁচাবে -->
+                                <span class="hidden sm:block text-xs font-normal text-slate-400">Logged in as</span>
+                                <span class="block text-xs sm:text-sm font-semibold text-slate-700 group-hover:text-slate-900 transition truncate max-w-[75px] sm:max-w-[150px]">
+                                    {% if shop.shop_name %}
+                                        {{ shop.shop_name }}
+                                    {% else %}
+                                        {{ user.first_name|default:user.username }}
+                                    {% endif %}
+                                </span>
+                            </span>
+
+                            <!-- প্রোফাইল ছবি -->
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm transition group-hover:border-slate-300 shrink-0">
+                                {% if shop.shop_logo %}
+                                    <img src="{{ shop.shop_logo.url }}" alt="Profile" class="w-full h-full object-cover">
+                                {% elif user.profile.profile_pic %}
+                                    <img src="{{ user.profile.profile_pic.url }}" alt="Profile" class="w-full h-full object-cover">
+                                {% else %}
+                                    <span class="text-slate-500 text-sm font-semibold"><i class="fa-solid fa-user"></i></span>
+                                {% endif %}
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 group-hover:text-slate-600 transition hidden sm:inline-block"></i>
+                        </button>
+
+                        <!-- ড্রপডাউন মেনু -->
+                        <div id="profile-dropdown" class="absolute right-0 mt-2 w-56 bg-white border border-slate-100 rounded-2xl shadow-xl p-2 hidden transition duration-200 z-50">
+                            <div class="px-3 py-2 border-b border-slate-50 mb-1">
+                                <span class="block font-bold text-slate-800 text-sm truncate"> username: {{ user.username }}</span>
+                                <span class="block text-slate-400 text-xs truncate mt-0.5">phone: {{ shop.phone }}</span>
+                                <span class="block text-slate-400 text-xs truncate mt-0.5">{{ user.email }}</span>
+                            </div>
+                            
+                            <a href="{% url 'shop_profile_update' %}" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-600 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition">
+                                profile settings
+                            </a>
+                            <a href="#" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-600 rounded-xl hover:bg-slate-50 hover:text-slate-900 transition">
+                                Reset Password
+                            </a>
+                            
+                            <div class="border-t border-slate-50 my-1"></div>
+                            
+                            <form action="{% url 'merchant_logout' %}" method="post" class="m-0"> 
+                                {% csrf_token %}
+                                <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition text-start">
+                                    <i class="fa-solid fa-right-from-bracket text-sm w-4"></i> Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="flex items-center gap-2 px-3 py-2 sm:px-4 text-xs sm:text-sm font-semibold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition">
+                        <i class="far fa-user text-sm sm:text-base text-slate-400"></i> <span class="hidden xs:inline">Login/Sign Up</span>
+                    </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- Main Workspace Area -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-10 max-w-full lg:max-w-[90%] w-full mx-auto">
+            {% if messages %}
+                <div class="space-y-3 mb-6">
+                    {% for message in messages %}
+                        <div class="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-xl text-sm font-medium shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <span>✓</span> {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- UI Core Interactive Logic JavaScript Functions -->
+    <script>
+        function toggleDropdown(menuId, arrowId) {
+            const targetMenu = document.getElementById(menuId);
+            const targetArrow = document.getElementById(arrowId);
+            const currentMaxHeight = targetMenu.style.maxHeight || window.getComputedStyle(targetMenu).maxHeight;
+            const isOpen = currentMaxHeight !== '0px' && currentMaxHeight !== 'none';
+            document.querySelectorAll('.sub-menu-list').forEach(menu => {
+                menu.style.maxHeight = '0px';
+            });
+            document.querySelectorAll('.sidebar-dropdown-btn i:last-child').forEach(arrow => {
+                arrow.classList.remove('rotate-180');
+            });
+            if (!isOpen) {
+                targetMenu.style.maxHeight = targetMenu.scrollHeight + "px";
+                targetArrow.classList.add('rotate-180');
+            }
+        }
+        function toggleMobileDropdown(menuId, arrowId) {
+            const menu = document.getElementById(menuId);
+            const arrow = document.getElementById(arrowId);
+            
+            if (menu.style.maxHeight === "0px" || !menu.style.maxHeight) {
+                menu.style.maxHeight = "500px";
+                arrow.classList.add("rotate-180");
+            } else {
+                menu.style.maxHeight = "0px";
+                arrow.classList.remove("rotate-180");
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.sub-menu-list, .mobile-sub-menu-list').forEach(menu => {
+                // জ্যাঙ্গো কন্ডিশন দ্বারা যদি কোনো মেনুর max-height: 500px সেট হয়ে থাকে
+                if (menu.style.maxHeight === '500px') {
+                    // ব্রাউজারকে ডাইনামিক কন্টেন্ট হাইট (`scrollHeight`) দেওয়া হচ্ছে যাতে এনিমেশন মসৃণ হয়
+                    menu.style.maxHeight = menu.scrollHeight + "px";
+                }
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function() {
+            // মোবাইল সাইডবার এলিমেন্টসমূহ
+            const menuBtn = document.getElementById('menu-btn') || document.querySelector('.mobile-menu-btn') || document.querySelector('[onclick*="toggleMobileSidebar"]'); 
+            const mobileSidebar = document.getElementById('mobile-sidebar');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+
+            // সাইডবার ওপেন করার ফাংশন
+            function openMobileSidebar() {
+                if(mobileSidebar && sidebarOverlay) {
+                    mobileSidebar.classList.remove('-translate-x-full');
+                    mobileSidebar.classList.add('translate-x-0');
+                    sidebarOverlay.classList.remove('hidden');
+                    // ব্যাকড্রপ ব্লার স্মুথ করার জন্য একটু ডিলে দিয়ে অপাসিটি বাড়ানো
+                    setTimeout(() => sidebarOverlay.classList.add('opacity-100'), 20);
+                }
+            }
+
+            // সাইডবার ক্লোজ করার ফাংশন
+            function closeMobileSidebar() {
+                if(mobileSidebar && sidebarOverlay) {
+                    mobileSidebar.classList.remove('translate-x-0');
+                    mobileSidebar.classList.add('-translate-x-full');
+                    sidebarOverlay.classList.remove('opacity-100');
+                    // অ্যানিমেশন শেষ হলে হাইড করা
+                    setTimeout(() => sidebarOverlay.classList.add('hidden'), 300);
+                }
+            }
+
+            // ১. আপনার টপ নেভবারের মোবাইল মেনু বাটনে ক্লিক ইভেন্ট (যদি আইডি 'menu-btn' থাকে)
+            if (menuBtn) {
+                menuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openMobileSidebar();
+                });
+            } else {
+                // সেফটি চেক: যদি আইডি না থাকে, তবে গ্লোবাল উইন্ডো ফাংশন হিসেবে সেট করা যেন HTML-এ onclick="toggleMobileSidebar()" দিলেও কাজ করে
+                window.toggleMobileSidebar = openMobileSidebar;
+            }
+
+            // ২. ক্লোজ (X) বাটনে ক্লিক করলে বন্ধ হবে
+            if (closeSidebarBtn) {
+                closeSidebarBtn.addEventListener('click', closeMobileSidebar);
+            }
+
+            // ৩. সাইডবারের বাইরে আবছা কালো পর্দায় (Overlay) ক্লিক করলেও সাইডবার বন্ধ হবে
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeMobileSidebar);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const profileWrapper = document.getElementById('profile-wrapper');
+            const profileBtn = document.getElementById('profile-dropdown-btn'); // আপনার আসল বাটনের আইডি
+            const profileDropdown = document.getElementById('profile-dropdown');
+
+            if (profileBtn && profileDropdown) {
+                // বাটনে ক্লিক করলে মেনু আসবে/যাবে
+                profileBtn.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    profileDropdown.classList.toggle('hidden');
+                });
+
+                // ড্রপডাউনের ভেতরে ক্লিকে যাতে বন্ধ না হয়
+                profileDropdown.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                });
+
+                // বাইরে যেকোনো জায়গায় ক্লিক করলে ড্রপডাউন বন্ধ হবে
+                document.addEventListener('click', function (event) {
+                    if (profileWrapper && !profileWrapper.contains(event.target)) {
+                        profileDropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+
+    <script>
+        function checkLiveNotifications() {
+            fetch('/haatbazar/shops/api/unread-count/')
+            .then(response => {
+                if (!response.ok) throw new Error('Network Error');
+                return response.json();
+            })
+            .then(data => {
+                // ডেক্সটপ এবং মোবাইল উভয়ের লিঙ্ক সিলেক্ট করুন
+                let sidebarLink = document.getElementById('sidebar-notif-link');
+                let mobileSidebarLink = document.getElementById('mobile-sidebar-notif-link');
+                
+                // ডেক্সটপ এবং মোবাইল উভয়ের ব্যাজ সিলেক্ট করুন
+                let badge = document.getElementById('sidebar-notif-badge');
+                let mobileBadge = document.getElementById('mobile-sidebar-notif-badge');
+                
+                // মোবাইল পালস ডট (যদি আপনার মডার্ন ইউআই-তে ডট নোটিফিকেশন এলিমেন্ট থাকে)
+                let mobileDot = document.getElementById('sidebar-notif-dot');
+
+                // ১. ডাইনামিক ইউআরএল বা লিঙ্ক আপডেট (উভয় ডিভাইসের জন্য)
+                if (data.shop_slug) {
+                    const targetUrl = `/haatbazar/shops/${data.shop_slug}/notification/`;
+                    if (sidebarLink) sidebarLink.href = targetUrl;
+                    if (mobileSidebarLink) mobileSidebarLink.href = targetUrl;
+                }
+
+                // ২. কাউন্ট এবং ব্যাজ ভিজিবিলিটি আপডেট
+                let unreadCount = parseInt(data.unread_count) || 0;
+
+                if (unreadCount > 0) {
+                    // ডেক্সটপ ব্যাজ আপডেট
+                    if (badge) {
+                        badge.innerText = unreadCount;
+                        badge.style.display = 'flex';
+                    }
+                    // মোবাইল ব্যাজ আপডেট
+                    if (mobileBadge) {
+                        mobileBadge.innerText = unreadCount;
+                        mobileBadge.style.display = 'flex';
+                    }
+                    // মোবাইল ডট অন করা
+                    if (mobileDot) {
+                        mobileDot.style.display = 'block';
+                    }
+                } else {
+                    // কাউন্ট ০ হলে সবকিছু হাইড ও রিসেট করা
+                    if (badge) {
+                        badge.style.display = 'none';
+                        badge.innerText = '0';
+                    }
+                    if (mobileBadge) {
+                        mobileBadge.style.display = 'none';
+                        mobileBadge.innerText = '0';
+                    }
+                    if (mobileDot) {
+                        mobileDot.style.display = 'none';
+                    }
+                }
+            })
+            .catch(err => console.error("Notification Sync Error:", err));
+        }
+
+        // পেজ লোড হওয়ার সাথে সাথে প্রথমবার রান হবে
+        checkLiveNotifications();
+        // প্রতি ১০ সেকেন্ড পর পর ব্যাকগ্রাউন্ডে চেক করবে
+        setInterval(checkLiveNotifications, 10000);
+    </script>
+            
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

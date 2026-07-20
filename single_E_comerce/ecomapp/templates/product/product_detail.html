@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %} Products Information {% endblock %}
+
+{% block content %}
+
+
+<div class="title-box">
+    <div class="title-box">
+        
+        <div class="breadcrumbs">
+            <ul class="breadcrumbs-list">
+                <li><a href="/"><span><img src="/static/images/icons/Home.svg" alt="more"></span>Home</a></li>
+                <li><a href="{% url 'product_list' %}">Product List</a></li>
+                <li><a href="">Add New Product</a></li>
+            </ul>
+        </div>
+        
+    </div>
+</div>
+
+<div class="main_content">
+    <div class="view_box mt-3" style="margin-bottom:15px;">
+        <div class="col-sm-12">
+            <div class="view_title">
+                <div class="purchase-request">
+                    <div class="prInformation">
+                        <h3>{{product.product_name}} Product Basic Information</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="purchase-request">
+                
+                <div class="prInformation">
+                <p>Category Name:{{product.main_category.main_cat_name}}</p>
+                <p>Products Description:{{product.description}}</p>
+                
+                <p>Product Creation Date: {{product.created_at|date:"F d, Y"|default:"Not set"}}</p>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+
+   
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+{% endblock %}

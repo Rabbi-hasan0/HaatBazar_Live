@@ -1,0 +1,184 @@
+<div class="product-management-info" style="background: #f8f9fa; padding: 20px; border-radius: 15px; border-left: 5px solid #007bff;">
+    
+    <h3 style="color: #333; margin-bottom: 15px;">🛍️ Product Management Sector</h3>
+    <p style="color: #666; font-size: 15px; line-height: 1.6;">
+        এই সেকশনটি আপনার ইনভেন্টরি এবং প্রোডাক্ট ক্যাটাগরি নিয়ন্ত্রণের মূল কেন্দ্র। এখান থেকে আপনি পণ্যের শ্রেণিবিন্যাস, স্টক আপডেট এবং পারফরম্যান্স অ্যানালিটিক্স ট্র্যাক করতে পারবেন।
+    </p>
+
+    <div class="management-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+        
+        <div class="info-card" style="background: #fff; padding: 15px; border-radius: 10px; shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h5 style="color: #007bff;"><i class="fa-solid fa-layer-group"></i> Main Categories</h5>
+            <p style="font-size: 13px; color: #777;">পণ্যের মূল বিভাগগুলো তৈরি ও নিয়ন্ত্রণ করুন। এখান থেকে ক্যাটাগরির নাম ও বিবরণ এডিট করা যায়।</p>
+        </div>
+
+        <div class="info-card" style="background: #fff; padding: 15px; border-radius: 10px; shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h5 style="color: #28a745;"><i class="fa-solid fa-list-ul"></i> Sub Categories</h5>
+            <p style="font-size: 13px; color: #777;">মূল বিভাগের অধীনে ছোট ছোট উপ-বিভাগ তৈরি করুন যা কাস্টমারকে পণ্য খুঁজে পেতে সাহায্য করে।</p>
+        </div>
+
+        <div class="info-card" style="background: #fff; padding: 15px; border-radius: 10px; shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h5 style="color: #ffc107;"><i class="fa-solid fa-boxes-stacked"></i> Products Control</h5>
+            <p style="font-size: 13px; color: #777;">সরাসরি প্রোডাক্ট লিস্ট ম্যানেজমেন্ট। পণ্যের স্টক, প্রাইস এবং একটিভ/ইনএকটিভ স্ট্যাটাস এখান থেকে আপডেট হয়।</p>
+        </div>
+
+        <div class="info-card" style="background: #fff; padding: 15px; border-radius: 10px; shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h5 style="color: #17a2b8;"><i class="fa-solid fa-chart-pie"></i> Visual Insights</h5>
+            <p style="font-size: 13px; color: #777;">গ্রাফ এবং চার্টের মাধ্যমে কোন ক্যাটাগরিতে কতগুলো প্রোডাক্ট আছে তার রিয়েল-টাইম পরিসংখ্যান দেখুন।</p>
+        </div>
+
+    </div>
+</div>
+
+<div class="m-4 text-center">
+    <h4 class="fw-bold mb-1">Categories wise product distribution</h4>
+    <p class="text-muted small">sotre performance overview</p>
+</div>
+
+<div class="row mb-4 g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100 rounded-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="icon-box bg-primary-subtle text-primary rounded-3 p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0 text-dark">Products by Category</h6>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="categoryPieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100 rounded-4">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="icon-box bg-info-subtle text-info rounded-3 p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-chart-donut"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0 text-dark">Products by Sub-Category</h6>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="subCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // --- Shared Config: Premium Color Palette ---
+        const premiumColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6610f2', '#fd7e14', '#20c997'];
+
+        // --- 1. Main Category Chart (Pie) ---
+        const mainLabels = [{% for item in chart_data %}"{{ item.main_cat_name }}",{% endfor %}];
+        const mainValues = [{% for item in chart_data %}{{ item.product_count }},{% endfor %}];
+
+        if (mainLabels.length > 0) {
+            new Chart(document.getElementById('categoryPieChart'), {
+                type: 'pie',
+                data: {
+                    labels: mainLabels,
+                    datasets: [{
+                        data: mainValues,
+                        backgroundColor: premiumColors,
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: { size: 12, weight: '500' },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label}: ${data.datasets[0].data[i]}`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: '#ffffff',
+                                        lineWidth: 0,
+                                        index: i
+                                    }));
+                                }
+                            }
+                        },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: '#1e293b',
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 },
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 2. Sub Category Chart (Doughnut) ---
+        const subLabels = [{% for item in sub_chart_data %}"{{ item.sub_cat_name }}",{% endfor %}];
+        const subValues = [{% for item in sub_chart_data %}{{ item.product_count }},{% endfor %}];
+
+        if (subLabels.length > 0) {
+            new Chart(document.getElementById('subCategoryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: subLabels,
+                    datasets: [{
+                        data: subValues,
+                        backgroundColor: premiumColors.slice().reverse(), // Reversed palette for variety
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverOffset: 15,
+                        borderRadius: 5, // Adds rounded edges to segments
+                        cutout: '70%'   // Makes the doughnut thinner/cleaner
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: { size: 12, weight: '500' },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label}: ${data.datasets[0].data[i]}`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: '#ffffff',
+                                        lineWidth: 0,
+                                        index: i
+                                    }));
+                                }
+                            }
+                        },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: '#1e293b',
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>

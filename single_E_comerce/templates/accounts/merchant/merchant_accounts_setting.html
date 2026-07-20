@@ -1,0 +1,330 @@
+{% extends 'accounts/merchant/accounts_setting.html' %}
+
+{% block merchant_setting_content %}
+<div id="personal-info-pane" class="w-full space-y-6 animate-fadeIn">
+    
+    <div>
+        <h3 class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-user-gear text-indigo-600"></i> Personal Information
+        </h3>
+        <p class="text-sm text-slate-500 mt-1">Basic info, like name and shop address, that you use on this Merchant Platform.</p>
+    </div>
+
+    <!-- Top Card -->
+    <div class="bg-white border border-slate-100 rounded-2xl shadow-[0_4px_25px_-5px_rgba(0,0,0,0.05)] p-6 w-full">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-6 w-full">
+            
+            <div class="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left w-full sm:w-auto">
+                <div class="relative w-28 h-28 rounded-full ring-4 ring-slate-50 bg-slate-100 text-white flex items-center justify-center font-bold overflow-hidden shadow-md shrink-0">
+                    {% if merchant.profile_pic %}
+                        <img src="{{ merchant.profile_pic.url }}" alt="Merchant Profile" class="w-full h-full object-cover" id="page_preview_img">
+                    {% else %}
+                        <img id="page_preview_img" src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=4f46e5&color=fff" alt="Merchant Profile" class="w-full h-full object-cover">
+                    {% endif %}
+                    
+                    {% if merchant.is_active %}
+                        <span class="absolute bottom-1.5 right-1.5 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full shadow-sm animate-pulse"></span>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <div class="flex flex-col sm:flex-row items-center gap-2.5 mb-1.5">
+                        <h2 class="text-xl font-extrabold text-slate-800 tracking-tight">
+                            {{ request.user.get_full_name|default:request.user.username }}
+                        </h2>
+                        {% if merchant.is_active %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                Active Account
+                            </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 flex items-center justify-center sm:justify-start gap-2">
+                        <i class="fa-regular fa-envelope text-slate-400 text-base"></i>
+                        <span>{{ request.user.email }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 w-full sm:w-auto shrink-0">
+                <button type="button" onclick="openModal('photoModal')" class="flex-1 sm:flex-none px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 flex items-center justify-center gap-2 transition-all cursor-pointer">
+                    <i class="fas fa-camera text-sm text-slate-400"></i> Change Photo
+                </button>
+                <button type="button" onclick="openModal('profileModal')" class="flex-1 sm:flex-none px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer">
+                    <i class="fas fa-pen text-sm"></i> Update Profile
+                </button>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Details List -->
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="bg-gray-50 border-b border-gray-200 px-6 py-3.5">
+            <span class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Basics Details</span>
+        </div>
+
+        <div class="divide-y divide-gray-100">
+            <div onclick="openModal('profileModal')" class="group flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-gray-50/70 transition-colors">
+                <div class="w-1/3 text-xs uppercase font-bold text-gray-400 tracking-wide">Full Name</div>
+                <div class="w-7/12 text-sm font-semibold text-gray-800">{{ request.user.get_full_name|default:"Not Set" }}</div>
+                <div class="w-1/12 text-right text-gray-300 group-hover:text-gray-400 transition-colors"><i class="fas fa-chevron-right text-xs"></i></div>
+            </div>
+
+            <div class="flex items-center justify-between px-6 py-5">
+                <div class="w-1/3 text-xs uppercase font-bold text-gray-400 tracking-wide">Account Status</div>
+                <div class="w-7/12 text-sm font-semibold text-gray-800 flex items-center">
+                    {% if merchant.is_active %}
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 shadow-sm animate-pulse"></span> Active
+                    {% else %}
+                        <span class="w-2 h-2 rounded-full bg-rose-500 mr-2"></span> Inactive
+                    {% endif %}
+                </div>
+                <div class="w-1/12"></div>
+            </div>
+
+            <div class="flex items-center justify-between px-6 py-5 bg-gray-50/40">
+                <div class="w-1/3 text-xs uppercase font-bold text-gray-400 tracking-wide">Email Address</div>
+                <div class="w-7/12 text-sm font-semibold text-gray-600 flex items-center">
+                    {{ request.user.email }}
+                    <i class="fas fa-lock ml-2 text-gray-400 text-[10px]"></i>
+                </div>
+                <div class="w-1/12"></div>
+            </div>
+
+            <div onclick="openModal('profileModal')" class="group flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-gray-50/70 transition-colors">
+                <div class="w-1/3 text-xs uppercase font-bold text-gray-400 tracking-wide">Phone Number</div>
+                <div class="w-7/12 text-sm font-semibold text-gray-800">{{ merchant.phone|default:"Not added yet" }}</div>
+                <div class="w-1/12 text-right text-gray-300 group-hover:text-gray-400 transition-colors"><i class="fas fa-chevron-right text-xs"></i></div>
+            </div>
+
+            <div onclick="openModal('profileModal')" class="group flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-gray-50/70 transition-colors">
+                <div class="w-1/3 text-xs uppercase font-bold text-gray-400 tracking-wide">Date of Birth</div>
+                <div class="w-7/12 text-sm font-semibold text-gray-800">{{ merchant.date_of_birth|default:"Not added yet" }}</div>
+                <div class="w-1/12 text-right text-gray-300 group-hover:text-gray-400 transition-colors"><i class="fas fa-chevron-right text-xs"></i></div>
+            </div>
+
+            <div onclick="openModal('profileModal')" class="group flex items-center justify-between px-6 py-5 cursor-pointer hover:bg-gray-50/70 transition-colors">
+                <div class="w-1/3 text-xs uppercase font-bold text-gray-400 tracking-wide">Address</div>
+                <div class="w-7/12">
+                    <span class="text-sm font-semibold text-gray-800 block">{{ merchant.address_details|default:"Not added yet" }}</span>
+                    <span class="text-xs text-gray-400">{{ merchant.thana }}{% if merchant.thana %}, {% endif %}{{ merchant.district }}</span>
+                </div>
+                <div class="w-1/12 text-right text-gray-300 group-hover:text-gray-400 transition-colors"><i class="fas fa-chevron-right text-xs"></i></div>
+            </div>
+
+            <div class="flex items-center justify-between px-6 py-5">
+                <div class="w-1/3 text-xs uppercase font-bold text-gray-400 tracking-wide">Last Login</div>
+                <div class="w-7/12">
+                    <span class="inline-block bg-indigo-50 text-indigo-600 text-xs font-semibold px-3 py-1 rounded-lg">
+                        {{ request.user.last_login|date:"d M Y, h:i A" }}
+                    </span>
+                </div>
+                <div class="w-1/12"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= 1. PHOTO MODAL ================= -->
+<div id="photoModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform transition-all duration-300 scale-95 opacity-0">
+        <div class="p-5 flex justify-between items-center border-b border-slate-100">
+            <h6 class="text-sm font-bold text-slate-900 flex items-center gap-2"><i class="fas fa-camera text-slate-400"></i> Update Profile Photo</h6>
+            <button type="button" onclick="closeModal('photoModal')" class="text-slate-400 hover:text-slate-600 focus:outline-none transition-colors p-1 hover:bg-slate-50 rounded-lg">
+                <i class="fas fa-times text-base"></i>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <form action="{% url 'edit_merchant_profile_pic' %}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+                
+                <div class="flex justify-center mb-2">
+                    <div class="w-28 h-28 rounded-full bg-slate-50 border-4 border-slate-100 overflow-hidden shadow-inner flex items-center justify-center">
+                        <img id="modal_preview_img" src="{% if merchant.profile_pic %}{{ merchant.profile_pic.url }}{% else %}https://ui-avatars.com/api/?name={{ request.user.username }}&background=4f46e5&color=fff{% endif %}" alt="Preview" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <div class="border-2 border-dashed border-slate-200 hover:border-indigo-500 rounded-xl p-6 text-center transition-colors relative group bg-slate-50/50">
+                    <input type="file" name="profile_pic" accept="image/*" required onchange="previewImage(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-slate-300 group-hover:text-indigo-500 mb-2 block transition-colors"></i>
+                    <span class="text-xs font-bold text-slate-600 block">Click or Drag Image to Upload</span>
+                    <span class="text-[10px] text-slate-400 block mt-1">Supports PNG, JPG (Max: 2MB)</span>
+                </div>
+                
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-3.5 rounded-xl shadow-lg shadow-indigo-600/20 transition-all cursor-pointer">
+                    Upload Picture
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ================= 2. PROFILE MODAL (UPDATED WITH WORKING TABS) ================= -->
+<div id="profileModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all duration-300 scale-95 opacity-0">
+        
+        <!-- Header -->
+        <div class="p-5 flex justify-between items-center border-b border-slate-100">
+            <h6 class="text-base font-bold text-slate-900">Update Profile Settings</h6>
+            <button type="button" onclick="closeModal('profileModal')" class="text-slate-400 hover:text-slate-600 focus:outline-none p-1 hover:bg-slate-50 rounded-lg">
+                <i class="fas fa-times text-base"></i>
+            </button>
+        </div>
+
+        <!-- Custom Tabs Navigation -->
+        <div class="flex border-b border-slate-200 px-6 pt-3 gap-6">
+            <button type="button" onclick="switchTab('personal')" id="tab-btn-personal" class="pb-3 text-sm font-bold text-indigo-600 border-b-2 border-indigo-600 cursor-pointer transition-all">
+                Personal Info
+            </button>
+            <button type="button" onclick="switchTab('address')" id="tab-btn-address" class="pb-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-600 cursor-pointer transition-all">
+                Address Info
+            </button>
+        </div>
+
+        <!-- Form Body -->
+        <form action="{% url 'edit_merchant_profile' %}" method="POST" class="p-6 space-y-4">
+            {% csrf_token %}
+
+            <!-- TAB 1: Personal Info -->
+            <div id="tab-content-personal" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Full Name</label>
+                        <input type="text" name="full_name" value="{{ request.user.get_full_name }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Display Name (Username)</label>
+                        <input type="text" value="{{ request.user.username }}" disabled class="w-full px-3 py-2 border border-slate-100 bg-slate-50 rounded-xl text-sm text-slate-500 cursor-not-allowed">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Phone Number</label>
+                        <input type="text" name="phone" value="{{ merchant.phone|default:'' }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Date of Birth</label>
+                        <input type="date" name="date_of_birth" value="{{ merchant.date_of_birth|date:'Y-m-d' }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Address Info -->
+            <div id="tab-content-address" class="hidden space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Address Details</label>
+                    <textarea name="address_details" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">{{ merchant.address_details|default:'' }}</textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Thana</label>
+                        <input type="text" name="thana" value="{{ merchant.thana|default:'' }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">District</label>
+                        <input type="text" name="district" value="{{ merchant.district|default:'' }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer transition-all">
+                    Save Changes
+                </button>
+                <button type="button" onclick="closeModal('profileModal')" class="px-5 py-2.5 text-slate-500 hover:text-slate-700 text-xs font-bold rounded-xl cursor-pointer transition-all">
+                    Cancel
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<style>
+    #photoModal > div, #profileModal > div {
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+</style>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const modalImg = document.getElementById('modal_preview_img');
+                const pageImg = document.getElementById('page_preview_img');
+                
+                if (modalImg) modalImg.src = e.target.result;
+                if (pageImg) pageImg.src = e.target.result;
+            }
+            
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function openModal(id) {
+        let modal = document.getElementById(id);
+        if(!modal) return;
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            let container = modal.firstElementChild;
+            container.classList.remove('scale-95', 'opacity-0');
+        }, 20);
+    }
+
+    function closeModal(id) {
+        let modal = document.getElementById(id);
+        if(!modal) return;
+        let container = modal.firstElementChild;
+        container.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 150);
+    }
+
+    // Tab Switcher Function
+    function switchTab(tab) {
+        const personalContent = document.getElementById('tab-content-personal');
+        const addressContent = document.getElementById('tab-content-address');
+        const personalBtn = document.getElementById('tab-btn-personal');
+        const addressBtn = document.getElementById('tab-btn-address');
+
+        if (tab === 'personal') {
+            personalContent.classList.remove('hidden');
+            addressContent.classList.add('hidden');
+            
+            personalBtn.className = "pb-3 text-sm font-bold text-indigo-600 border-b-2 border-indigo-600 cursor-pointer transition-all";
+            addressBtn.className = "pb-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-600 cursor-pointer transition-all";
+        } else if (tab === 'address') {
+            addressContent.classList.remove('hidden');
+            personalContent.classList.add('hidden');
+            
+            addressBtn.className = "pb-3 text-sm font-bold text-indigo-600 border-b-2 border-indigo-600 cursor-pointer transition-all";
+            personalBtn.className = "pb-3 text-sm font-semibold text-slate-400 border-b-2 border-transparent hover:text-slate-600 cursor-pointer transition-all";
+        }
+    }
+
+    // Outside Click Modal Close
+    window.addEventListener('click', function(e) {
+        const photoModal = document.getElementById('photoModal');
+        const profileModal = document.getElementById('profileModal');
+        if (e.target === photoModal) {
+            closeModal('photoModal');
+        }
+        if (e.target === profileModal) {
+            closeModal('profileModal');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | Ecommerce{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/dashbord_menu.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="menu_box">
+    <div class="breadcrumbs_box">
+        <div class="breadcrumbs">
+            <ul>
+                <li><a href=""><i class="fa-solid fa-home" style="margin-right: 4px;font-size: 16px;"></i>Home</a></li>
+                
+            </ul>
+        </div>
+    </div>
+
+    <div class="main_content ">  
+        <div class="menu_item"> 
+            <div class="main_module_box">
+                <a class="bullet-title" href="#"> <span class="bullet">&#8226;</span> Basic Settings </a> 
+                <ul>
+                    {% for data in get_setting_menu %}
+                        <li><a href="{{ data.menu_url }}"> <span class="bullet">&bull;</span> {{ data.menu_name }} </a></li>  
+                    {% endfor %} 
+                </ul>
+            </div> 
+        </div>   
+        
+    </div>
+
+</div>  
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+    {% comment %} if (window.innerWidth >= 768) { 
+        // Get all list items
+        const listItems = document.querySelectorAll(".menu_list ul li a.dropdown_item");
+        var menuList = document.getElementById("menu_list");
+        var rawMaterial = document.getElementById("sub-menu-height");
+        listItems.forEach(item => {
+            item.addEventListener("click", function(event) {
+                if(this.classList.contains('material') && offsetHeight > 580){
+                    menuList.style.minHeight = menu_height;
+                }else{
+                    menuList.style.minHeight = "540px";
+                }
+                
+                listItems.forEach(li => {
+                li.classList.remove("active");
+                li.parentElement.classList.remove("active");
+                });
+                this.classList.add("active");
+                this.parentElement.classList.add("active");            
+            });
+        });
+        
+        const listItemBox = document.querySelectorAll(".dropdown_item_list ul li a.list_item");
+        listItemBox.forEach(itemBox => {
+        itemBox.addEventListener("click", function(event) {
+            listItemBox.forEach(li => {
+                li.classList.remove("active");
+                li.parentElement.classList.remove("active");
+            });
+            this.classList.add("active");
+            this.parentElement.classList.add("active");
+        });
+        });
+        
+        $('.menu_list ul li a.dropdown_item').click(function() {
+            if ($('.menu_list ul li a.dropdown_item').hasClass('active')){
+                $('.divider').addClass('active');  
+            } else {
+                $('.divider').addClass('active');
+            }
+        });
+
+        $('.divider').remveClass('active');  
+    }
+   
+  </script> {% endcomment %}
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends 'owner_base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- গুগুল ফন্ট ইন্টার (Inter) ইমপোর্ট করা হলো পারফেক্ট SaaS লুকের জন্য -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<span class="w-full py-8 sm:py-12 space-y-6" style="font-family: 'Inter', sans-serif;">
+    
+    <!-- হেডার সেকশন -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-950 tracking-tight">Order Management</h1>
+            <p class="text-xs text-slate-500 mt-1">Real-time overview of your store's logistics and fulfillment.</p>
+        </div>
+        
+        <div class="flex gap-4">
+            <div class="bg-white pl-5 pr-8 py-3.5 rounded-2xl border border-slate-200/60 flex items-center gap-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
+                <div class="w-10 h-10 bg-indigo-50/70 text-indigo-600 rounded-xl flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Total Revenue</p>
+                    <p class="text-base font-bold text-slate-900 mt-0.5">৳{{ total_sales|floatformat:0 }}</p>
+                </div>
+            </div>
+            <div class="bg-white pl-5 pr-8 py-3.5 rounded-2xl border border-slate-200/60 flex items-center gap-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)]">
+                <div class="w-10 h-10 bg-amber-50/70 text-amber-600 rounded-xl flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Pending Tasks</p>
+                    <p class="text-base font-bold text-slate-900 mt-0.5">{{ pending_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- আল্ট্রা-ক্লিন টেবিল কন্টেইনার -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/70 border-b border-slate-200/80">
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order Details</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Order Date</th>
+                        
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pricing</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fulfillment</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment</th>
+                        <!-- কলাম দুটিকে আলাদা করা হলো -->
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">Invoice</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Order Control</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                    {% for order in orders %}
+                    <tr class="hover:bg-slate-50/40 transition-colors duration-150">
+                        <!-- অর্ডার আইডি এবং ডেট -->
+                        <td class="px-6 py-4.5">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold text-slate-900">#{{ order.order_number }}</span>
+                                <span class="text-[11px] text-slate-400 mt-0.5 font-medium">{{ order.created_at|date:"d M, Y &bull; h:i A" }}</span>
+                            </div>
+                        </td>
+                        
+                        <!-- কাস্টমার প্রোফাইল -->
+                        <td class="px-6 py-4.5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center text-[10px] font-bold">
+                                    {{ order.customer.user.username|slice:":1"|upper }}
+                                </div>
+                                <span class="text-sm font-medium text-slate-800">{{ order.customer.user.get_full_name|default:order.customer.user.username }}</span>
+                            </div>
+                        </td>
+                       <td class="px-6 py-4.5">
+                            <span class="text-[11px] text-slate-400 mt-0.5 font-medium">
+                                {{ order.created_at|date:"d M, Y" }} <span class="mx-1">&bull;</span> {{ order.created_at|date:"h:i A" }}
+                            </span>
+                        </td>
+                        <!-- প্রাইসিং -->
+                        <td class="px-6 py-4.5">
+                            <div class="text-sm font-semibold text-slate-900">৳{{ order.grand_total }}</div>
+                            <div class="text-[10px] text-emerald-600 font-medium mt-0.5">Paid: ৳{{ order.paid_amount }}</div>
+                        </td>
+                        
+                        <!-- ফুলফিলমেন্ট ব্যাজ -->
+                        <td class="px-6 py-4.5">
+                            {% if order.status == 'pending' %}
+                                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-amber-50 text-amber-700 rounded-md border border-amber-200/60 uppercase tracking-wide">Pending</span>
+                            {% elif order.status == 'delivered' %}
+                                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 rounded-md border border-emerald-200/60 uppercase tracking-wide">Delivered</span>
+                            {% elif order.status == 'cancelled' %}
+                                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-rose-50 text-rose-700 rounded-md border border-rose-200/60 uppercase tracking-wide">Cancelled</span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-blue-50 text-blue-700 rounded-md border border-blue-200/60 uppercase tracking-wide">{{ order.status }}</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- পেমেন্ট মেথড -->
+                        <td class="px-6 py-4.5">
+                            <span class="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full {% if order.due_amount > 0 %}bg-rose-400{% else %}bg-emerald-400{% endif %}"></span>
+                                {{ order.payments.first.get_payment_type_display|default:"Cash on Delivery" }}
+                            </span>
+                        </td>
+                        
+                        <!-- কলাম ১: ভিউ ডিটেইলস বাটন (আইকনসহ স্পষ্ট লেখা, ক্লামজি লুক নেই) -->
+                        <td class="px-6 py-4.5 text-center whitespace-nowrap">
+                            <a href="{% url 'order_detail' order.id %}" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 hover:text-indigo-600 hover:border-indigo-200 transition shadow-sm text-xs font-semibold">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-70"></i> 
+                                View Details
+                            </a>
+                        </td>
+
+                        <!-- কলাম ২: অর্ডার কন্ট্রোল ও স্ট্যাটাস আপডেট (লক এর পরিবর্তে কমপ্লিট স্টেট) -->
+                        <td class="px-6 py-4.5 text-right whitespace-nowrap">
+                            {% if order.status != 'delivered' and order.status != 'cancelled' %}
+                            <div class="relative inline-block text-left">
+                                <form action="{% url 'update_order_status' order.id %}" method="POST" class="m-0 p-0">
+                                    {% csrf_token %}
+                                    <select name="status" onchange="this.form.submit()" 
+                                            class="block w-32 text-xs font-semibold bg-slate-100/80 border border-slate-200 text-slate-700 py-1.5 pl-3 pr-8 rounded-xl cursor-pointer hover:bg-slate-200/60 transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none">
+                                        <option value="" disabled selected>Update Status</option>
+                                        {% if order.status == 'pending' %}
+                                            <option value="processing">Process</option>
+                                            <option value="cancelled">Cancel</option>
+                                        {% elif order.status == 'processing' %}
+                                            <option value="shipped">Ship Order</option>
+                                            <option value="cancelled">Cancel</option>
+                                        {% elif order.status == 'shipped' %}
+                                            <option value="delivered">Delivered</option>
+                                            <option value="cancelled">Cancel</option>
+                                        {% endif %}
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400">
+                                        <i class="fa-solid fa-chevron-down text-[9px]"></i>
+                                    </div>
+                                </form>
+                            </div>
+                            {% else %}
+                                <!-- লক সাইন রিমুভ করে সরাসরি ক্লিন কমপ্লিট/ক্লোজড টেক্সট স্টেট -->
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold bg-slate-100 text-slate-500 border border-slate-200/60 rounded-xl uppercase tracking-wide">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                    {{ order.status }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-20 text-center">
+                            <div class="text-slate-400">
+                                <i class="fa-solid fa-box-open text-4xl mb-3 opacity-20"></i>
+                                <p class="text-sm font-semibold">No orders found.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</span>
+{% endblock %}

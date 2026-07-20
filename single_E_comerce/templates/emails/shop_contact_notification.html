@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 600px; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid #007bff; margin: 0 auto; }
+        h2 { color: #111; font-weight: 700; margin-top: 0; font-size: 22px; }
+        .meta-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .meta-table td { padding: 10px; border-bottom: 1px solid #f1f1f1; font-size: 14px; }
+        .meta-table td.label { font-weight: bold; color: #666; width: 30%; }
+        .message-box { background-color: #f8f9fa; border-left: 4px solid #007bff; padding: 15px; border-radius: 4px; font-style: italic; white-space: pre-line; line-height: 1.6; font-size: 14px; margin-top: 15px; }
+        .footer { font-size: 11px; color: #999; text-align: center; margin-top: 30px; border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>New Inquiry Received!</h2>
+        <p>Hello, you have a new message from the contact form of <strong>{{ shop_name }}</strong>.</p>
+        
+        <table class="meta-table">
+            <tr>
+                <td class="label">Sender Name:</td>
+                <td>{{ sender_name }}</td>
+            </tr>
+            <tr>
+                <td class="label">Sender Email:</td>
+                <td><a href="mailto:{{ sender_email }}">{{ sender_email }}</a></td>
+            </tr>
+            <tr>
+                <td class="label">Subject:</td>
+                <td>{{ message_subject }}</td>
+            </tr>
+        </table>
+
+        <div class="label" style="font-size: 14px; font-weight: bold; color: #666; margin-top: 20px;">Customer Message:</div>
+        <div class="message-box">
+            {{ message_body }}
+        </div>
+
+        <div class="footer">
+            This is an automated notification from {{ shop_name }} Ecommerce Platform.
+        </div>
+    </div>
+</body>
+</html>

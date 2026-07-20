@@ -1,0 +1,278 @@
+{% extends 'owner_base.html' %} 
+{% block title %} Shop | Main Categories {% endblock %}
+
+{% block content %}
+<span class="w-full py-8 sm:py-12 space-y-6">
+    <!-- Top Header & Stats Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border border-emerald-100" style="background: linear-gradient(135deg, #e6f4ea 0%, #f0fdf4 100%); color: #14552c;">
+                <i class="fas fa-layer-group text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">Main Categories</h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                    <p class="text-slate-500 text-sm font-medium">Total <span class="text-emerald-700 font-bold">{{ product_main_categories|length }}</span> Categories</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="relative hidden lg:block">
+                <form action="{% url 'menu_list' %}" method="GET">
+                    <input type="hidden" name="type" value="{{ request.GET.type|default:'main_cat' }}">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="search" name="q" class="pl-11 pr-4 py-2.5 w-64 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all" 
+                        placeholder="Quick search..." value="{{ request.GET.q|default:'' }}">
+                </form>
+            </div>
+            
+            <button type="button" class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-lg shadow-emerald-900/10 hover:scale-[1.02] active:scale-95 transition-all" data-bs-toggle="modal" data-bs-target="#addCategoryModal" style="background-color: #14552c;">
+                <i class="fas fa-plus text-xs"></i> Add New
+            </button>
+        </div>
+    </div>
+
+    <!-- Table Container -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">Category</th>
+                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">Dates</th>
+                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-widest text-slate-400 text-center">Display Order</th>
+                        <th class="px-4 py-4 text-[11px] font-bold uppercase tracking-widest text-slate-400 text-center">Status</th>
+                        <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for data in product_main_categories %}
+                    <tr class="group hover:bg-slate-50/80 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
+                                <div class="relative w-12 h-12 shrink-0">
+                                    {% if data.cat_image %}
+                                        <img src="{{ data.cat_image.url }}" class="w-full h-full object-cover rounded-xl shadow-sm">
+                                    {% else %}
+                                        <div class="w-full h-full bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200">
+                                            <i class="fas fa-image text-slate-300"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="font-bold text-slate-800 text-sm leading-none mb-1.5">{{ data.main_cat_name }}</h6>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-100 text-slate-500 uppercase tracking-tighter">/{{ data.cat_slug }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-4 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-semibold text-slate-700">{{ data.created_at|date:"d M, Y" }}</span>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-tighter">Updated: {{ data.updated_at|date:"d M"|default:data.created_at|date:"d M" }}</span>
+                            </div>
+                        </td>
+
+                        <td class="px-4 py-4 text-center text-sm">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-slate-200 bg-white font-mono text-xs font-bold text-slate-600 shadow-sm">
+                                {{ data.cat_ordering }}
+                            </span>
+                        </td>
+
+                        <td class="px-4 py-4 text-center">
+                            {% if data.is_active %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span> Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span> Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-right">
+                            <div class="inline-flex items-center gap-1">
+                                <button class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all edit-category-btn" 
+                                    data-bs-toggle="modal" data-bs-target="#editCategoryModal"
+                                    data-id="{{ data.id }}" data-name="{{ data.main_cat_name }}" 
+                                    data-description="{{ data.description|default:'' }}">
+                                    <i class="far fa-edit text-sm"></i>
+                                </button>
+                                <button class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all view-category-btn"
+                                    data-bs-toggle="modal" data-bs-target="#viewCategoryModal"
+                                    data-name="{{ data.main_cat_name }}" data-description="{{ data.description|default:'' }}" 
+                                    data-image="{% if data.cat_image %}{{ data.cat_image.url }}{% endif %}">
+                                    <i class="far fa-eye text-sm"></i>
+                                </button>
+                                <button class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all delete-category-btn"
+                                    data-bs-toggle="modal" data-bs-target="#deleteCategoryModal"
+                                    data-id="{{ data.id }}" data-name="{{ data.main_cat_name }}">
+                                    <i class="far fa-trash-alt text-sm"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-20 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-folder-open text-slate-200 text-3xl"></i>
+                                </div>
+                                <h3 class="text-slate-800 font-bold">No Categories Found</h3>
+                                <p class="text-slate-500 text-sm">Get started by adding your first product category.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</span>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content overflow-hidden rounded-2xl border-0 shadow-2xl">
+            <div class="px-6 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #14552c 0%, #1a6d38 100%);">
+                <h5 class="font-bold tracking-tight">Add New Category</h5>
+                <button type="button" class="text-white/80 hover:text-white text-lg focus:outline-none" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <form action="{% url 'add_product_main_category' %}" method="post" enctype="multipart/form-data" class="p-6 bg-white">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Category Name*</label>
+                        <input type="text" name="main_cat_name" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-sm" placeholder="e.g. Electronics" required>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Upload Image</label>
+                        <input type="file" name="cat_image" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-dashed border-slate-300 rounded-xl p-2">
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Description</label>
+                        <textarea name="description" rows="3" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-sm" placeholder="Optional category details..."></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" class="px-5 py-2 text-sm font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl text-sm font-bold text-white shadow-lg shadow-emerald-900/10" style="background-color: #14552c;">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content overflow-hidden rounded-2xl border-0 shadow-2xl">
+            <div class="px-6 py-4 flex items-center justify-between text-white" style="background: linear-gradient(135deg, #14552c 0%, #1a6d38 100%);">
+                <h5 class="font-bold tracking-tight">Edit Category</h5>
+                <button type="button" class="text-white/80 hover:text-white text-lg focus:outline-none" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <form id="editCategoryForm" method="post" enctype="multipart/form-data" class="p-6 bg-white">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Category Name*</label>
+                        <input type="text" name="main_cat_name" id="edit_name" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-sm" required>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Change Image</label>
+                        <input type="file" name="cat_image" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 border border-dashed border-slate-300 rounded-xl p-2">
+                        <small class="text-slate-400 italic text-[10px] mt-1 block">Leave blank to keep current configuration.</small>
+                    </div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 block">Description</label>
+                        <textarea name="description" id="edit_description" rows="3" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all text-sm"></textarea>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" class="px-5 py-2 text-sm font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="px-6 py-2 rounded-xl text-sm font-bold text-white shadow-lg shadow-emerald-900/10" style="background-color: #14552c;">Update Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+        <div class="modal-content p-6 rounded-2xl border-0 shadow-2xl bg-white">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-100">
+                    <i class="fas fa-trash-alt text-xl"></i>
+                </div>
+                <h4 class="text-xl font-bold text-slate-800 tracking-tight">Delete Category?</h4>
+                <p class="text-slate-500 text-xs mt-2 leading-relaxed">Are you sure you want to remove <span id="del_category_name" class="font-bold text-slate-700 underline"></span>? This process will completely purge data and cannot be undone.</p>
+            </div>
+            <form id="deleteCategoryForm" method="POST" class="mt-6 grid grid-cols-2 gap-3">
+                {% csrf_token %}
+                <button type="button" class="py-2.5 bg-slate-100 text-slate-600 font-bold text-xs rounded-xl" data-bs-dismiss="modal">No, Keep it</button>
+                <button type="submit" class="py-2.5 bg-red-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-red-200">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- View Detail Modal -->
+<div class="modal fade" id="viewCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content overflow-hidden rounded-2xl border-0 shadow-2xl bg-white">
+            <div class="flex items-center justify-between px-6 pt-5 pb-0">
+                <h5 class="font-bold text-slate-800 text-base">Category Insights</h5>
+                <button type="button" class="text-slate-400 hover:text-slate-600 text-xl focus:outline-none" data-bs-dismiss="modal">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="w-full text-center bg-slate-50 border border-slate-100 rounded-xl p-3">
+                    <img id="view_cat_image" src="" class="max-h-40 object-contain mx-auto rounded-lg">
+                </div>
+                <div>
+                    <h2 id="view_cat_name" class="font-bold text-slate-800 text-xl tracking-tight"></h2>
+                    <hr class="my-2.5 border-slate-100">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Description Sheet</span>
+                    <p id="view_cat_description" class="text-slate-500 text-xs leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Edit Action Dynamic URL Mapping Fix
+        document.querySelectorAll('.edit-category-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.getElementById('edit_name').value = btn.dataset.name;
+                document.getElementById('edit_description').value = btn.dataset.description !== "None" ? btn.dataset.description : "";
+                // Match exact schema: main-category/edit/<int:pk>/
+                document.getElementById('editCategoryForm').action = `/main-category/edit/${btn.dataset.id}/`;
+            };
+        });
+
+        // View Sheet Action Fix
+        document.querySelectorAll('.view-category-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.getElementById('view_cat_name').innerText = btn.dataset.name;
+                document.getElementById('view_cat_description').innerText = btn.dataset.description !== "None" ? btn.dataset.description : "No description dataset provided.";
+                document.getElementById('view_cat_image').src = btn.dataset.image ? btn.dataset.image : 'https://placehold.co/400x300?text=No+Category+Image';
+            };
+        });
+
+        // Delete Action Dynamic URL Mapping Fix
+        document.querySelectorAll('.delete-category-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.getElementById('del_category_name').innerText = btn.dataset.name;
+                // Match exact schema: main-category/delete/<int:pk>/
+                document.getElementById('deleteCategoryForm').action = `/main-category/delete/${btn.dataset.id}/`;
+            };
+        });
+    });
+</script>
+{% endblock %}

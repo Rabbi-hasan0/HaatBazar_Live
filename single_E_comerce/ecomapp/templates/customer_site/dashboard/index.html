@@ -1,0 +1,408 @@
+{% extends 'customer_site/customer_base.html' %}
+{% block title %}  {{ shop_first_half }} | {{ shop_second_half }} {% endblock %}
+{% load static %}
+
+{% block linkcss %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<link rel="stylesheet" href="/static/css/user/customer_home.css">
+
+<style>
+    .hover-text-success {
+        transition: color 0.2s ease-in-out;
+    }
+    .hover-text-success:hover {
+        color: #78a92a !important;
+    }
+
+    .view-details-link {
+        font-size: 0.75rem;
+    }
+    .view-details-link:hover {
+        color: #78a92a !important;
+    }
+    .view-details-link:hover .bi-arrow-right {
+        transform: translateX(3px);
+    }
+    .transition-transform {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .btn-favorite {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        color: #cbd5e1;
+    }
+    .btn-favorite:hover {
+        background: #ffffff;
+        color: #ef4444;
+        transform: scale(1.05);
+    }
+    .btn-favorite.active {
+        background: #ffffff;
+        color: #ef4444 !important;
+    }
+    .text-xs {
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+{% include 'customer_site/dashboard/navbar.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero-section">
+        <div class="container-fluid p-0">
+            <div class="swiper main-swiper">
+                <div class="swiper-wrapper">
+                    {% for event in slider_events %}
+                    <div class="swiper-slide main-slide-item">
+                        <div class="row g-0 w-100 align-items-center">
+                            <div class="col-lg-3 slide-content-area d-flex flex-column justify-content-center">
+                                <span class="text-warning fw-bold text-uppercase mb-2 d-block" 
+                                    style="font-size: 16px; letter-spacing: 2px; font-family: 'Inter', sans-serif;">
+                                    <i class="fas fa-check-circle me-1"></i> 100% Original Products
+                                </span>
+
+                                <h2 class="fw-bold text-dark mb-3" 
+                                    style="font-size: 3rem; line-height: 1.1; font-family: 'Playfair Display', serif;">
+                                    {{ event.title }}
+                                </h2>
+
+                                <div class="discount-badge-text mb-4">
+                                    <span class="d-block text-muted" style="font-size: 14px; font-style: italic;">
+                                        Special Offer:
+                                    </span>
+                                    <span class="text-success fw-bold" style="font-size: 22px; font-family: 'Inter', sans-serif;">
+                                        {{ event.discount_percentage }}% OFF 
+                                        <small class="text-dark fw-normal" style="font-size: 15px;">on {{ event.product.product_name }}</small>
+                                    </span>
+                                </div>
+
+                                <a href="#" class="btn-shop-now shadow-sm">
+                                    SHOP NOW <i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            </div>
+                            <div class="col-lg-9 slide-image-area" 
+                                    style="background-image: url('{{ event.banner_desktop.url }}');">
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="swiper-slide main-slide-item">
+                        <div class="w-100 text-center"><h2> Advertise or Offers section of {{ shop_first_half }} {{ shop_second_half }} </h2></div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+    </section>
+    <!-- Category Section -->
+    <section class="py-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fw-bold m-0" style="font-size: 24px; color: #333;">Category</h2>
+            
+            <div class="d-flex align-items-center">
+                <a href="#" class="view-all-link me-3 text-decoration-none text-muted fw-bold">View All →</a>
+                
+                <div class="cat-nav-wrapper d-flex gap-2">
+                    <div class="swiper-button-prev-cat custom-nav-btn"><i class="fas fa-chevron-left"></i></div>
+                    <div class="swiper-button-next-cat custom-nav-btn"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="swiper category-swiper">
+            <div class="swiper-wrapper">
+                {% for category in categories %}
+                <div class="swiper-slide">
+                    <a href="{% url 'sub_category_products' shop_slug=global_shop.shop_slug slug=category.sub_cat_slug %}" class="cat-item" 
+                    style="background-image: url('{% if category.sub_cat_image %}{{ category.sub_cat_image.url }}{% else %}{% static 'images/no_image.png' %}{% endif %}');">
+                        <h5 class="m-0" style="font-size:15px;">{{ category.sub_cat_name }} -></h5>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="w-100 text-center py-4">
+                    <p class="text-muted">No categories available.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    <!-- Newly Arrived Products Section -->
+    <section class="py-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fw-bold m-0" style="font-size: 24px; color: #333;">Newly Arrived Products</h2>
+            
+            <div class="d-flex align-items-center">
+                <a href="#" class="view-all-link me-3 text-decoration-none text-muted fw-bold">View All →</a>
+                
+                <div class="cat-nav-wrapper d-flex gap-2">
+                    <div class="swiper-button-prev-product custom-nav-btn"><i class="fas fa-chevron-left"></i></div>
+                    <div class="swiper-button-next-product custom-nav-btn"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="swiper new-product-swiper">
+            <div class="swiper-wrapper">
+                {% for product in featured_products %}
+                <div class="swiper-slide h-auto">
+                    <div class="product-card shadow-sm h-100 position-relative">
+                        
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'toggle_wishlist' shop_slug=global_shop.shop_slug slug=product.product_slug %}" method="POST" target="dummyframe" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center transition {% if product.id in user_wishlist_ids %}active{% endif %}" 
+                                    style="z-index: 5; border: none; background: #ffffff;"
+                                    onclick="this.classList.toggle('active')"
+                                    aria-label="Toggle wishlist">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                </svg>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'customer_login' %}" 
+                        class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center transition" 
+                        style="z-index: 5; text-decoration: none; background: #ffffff;"
+                        aria-label="Login to add wishlist">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+
+                    <iframe name="dummyframe" id="dummyframe" style="display: none;"></iframe>
+
+                        <div class="product-img-wrapper" style="height: 200px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 15px;">
+                            <img src="{% if product.product_image %}{{ product.product_image.url }}{% else %}/static/images/no_image.png{% endif %}" 
+                                alt="{{ product.product_name }}" 
+                                style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+
+                        <div class="product-info p-3 d-flex flex-column justify-content-between" style="min-height: 135px;">
+                            <div>
+                                <h4 class="h6 fw-bold text-dark mb-1 text-truncate">
+                                    {% if product.product_slug %}
+                                        <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-decoration-none text-dark hover-text-success transition">
+                                            {{ product.product_name }}
+                                        </a>
+                                    {% else %}
+                                        {{ product.product_name }}
+                                    {% endif %}
+                                </h4>
+                                
+                                <div class="mb-2">
+                                    {% if product.product_slug %}
+                                        <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-xs font-semibold d-inline-flex align-items-center gap-1 text-decoration-none view-details-link transition" style="color: #6c757d;">
+                                            View Details 
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-arrow-right transition-transform" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                                            </svg>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted text-xs opacity-50">No Details</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="price text-success fw-bold">
+                                    {{ product.current_price.currency.currency_icon }}{{ product.current_price.sale_price }}
+                                </span>
+                                <button class="btn btn-sm btn-outline-success rounded-circle add-to-cart-btn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="w-100 text-center py-4">
+                    <p class="text-muted">No products available.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Products Section (Updated to match Newly Arrived structure) -->
+    <section class="py-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fw-bold m-0" style="font-size: 24px; color: #333;">Trending Products</h2>
+            
+            <div class="d-flex align-items-center">
+                <a href="{% url 'shop_products' shop_slug=global_shop.shop_slug %}" class="view-all-link me-3 text-decoration-none text-muted fw-bold">View All →</a>
+                
+                <div class="cat-nav-wrapper d-flex gap-2">
+                    <div class="swiper-button-prev-selling-product custom-nav-btn"><i class="fas fa-chevron-left"></i></div>
+                    <div class="swiper-button-next-selling-product custom-nav-btn"><i class="fas fa-chevron-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="swiper selling-product-swiper">
+            <div class="swiper-wrapper">
+                {% for product in most_selling_products %}
+                <div class="swiper-slide h-auto">
+                    <div class="product-card shadow-sm h-100 position-relative">
+                        
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'toggle_wishlist' shop_slug=global_shop.shop_slug slug=product.product_slug %}" method="POST" target="dummyframe" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center transition {% if product.id in user_wishlist_ids %}active{% endif %}" 
+                                    style="z-index: 5; border: none; background: #ffffff;"
+                                    onclick="this.classList.toggle('active')"
+                                    aria-label="Toggle wishlist">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                                </svg>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'customer_login' %}" 
+                        class="btn-favorite position-absolute top-0 end-0 m-2 rounded-circle d-flex align-items-center justify-content-center transition" 
+                        style="z-index: 5; text-decoration: none; background: #ffffff;"
+                        aria-label="Login to add wishlist">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-heart-fill heart-icon" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                            </svg>
+                        </a>
+                    {% endif %}
+
+                        <div class="product-img-wrapper" style="height: 200px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 15px;">
+                            <img src="{% if product.product_image %}{{ product.product_image.url }}{% else %}/static/images/no_image.png{% endif %}" 
+                                alt="{{ product.product_name }}" 
+                                style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+
+                        <div class="product-info p-3 d-flex flex-column justify-content-between" style="min-height: 135px;">
+                            <div>
+                                <h4 class="h6 fw-bold text-dark mb-1 text-truncate">
+                                    {% if product.product_slug %}
+                                        <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-decoration-none text-dark hover-text-success transition">
+                                            {{ product.product_name }}
+                                        </a>
+                                    {% else %}
+                                        {{ product.product_name }}
+                                    {% endif %}
+                                </h4>
+                                
+                                <div class="mb-2">
+                                    {% if product.product_slug %}
+                                        <a href="{% url 'product_detail' shop_slug=global_shop.shop_slug slug=product.product_slug %}" class="text-xs font-semibold d-inline-flex align-items-center gap-1 text-decoration-none view-details-link transition" style="color: #6c757d;">
+                                            View Details 
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-arrow-right transition-transform" viewBox="0 0 16 16">
+                                                <path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/>
+                                            </svg>
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted text-xs opacity-50">No Details</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="price text-success fw-bold">
+                                    {{ product.current_price.currency.currency_icon }}{{ product.current_price.sale_price }}
+                                </span>
+                                <button class="btn btn-sm btn-outline-success rounded-circle add-to-cart-btn" aria-label="Add to cart">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="w-100 text-center py-4">
+                    <p class="text-muted">No products available.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    {% comment %} <section class="py-5">
+        <div class="section-title mb-4">
+            <span class="sub-heading">Others</span>
+        </div>
+        <div class="row g-4">
+            
+        </div>
+    </section> {% endcomment %}
+</div>
+{% endblock %}
+
+{% block delivery_note %}
+	{% include 'customer_site/dashboard/delivery_note.html' %}
+{% endblock %}
+
+{% block footer %}
+	{% include 'customer_site/dashboard/footer_shop.html' %}
+{% endblock %}
+
+{% block linkScript %}
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    new Swiper(".main-swiper", {
+        pagination: { el: ".swiper-pagination", clickable: true },
+        autoplay: { delay: 5000 },
+        loop: true,
+        speed: 800,
+    });
+
+    new Swiper(".category-swiper", {
+        slidesPerView: 2,
+        spaceBetween: 20,
+        navigation: {
+            nextEl: ".swiper-button-next-cat",
+            prevEl: ".swiper-button-prev-cat",
+        },
+        breakpoints: {
+            640: { slidesPerView: 3 },
+            1024: { slidesPerView: 6 },
+        }
+    });
+
+    new Swiper(".new-product-swiper", {
+        slidesPerView: 2,
+        spaceBetween: 20,
+        navigation: {
+            nextEl: ".swiper-button-next-product",
+            prevEl: ".swiper-button-prev-product",
+        },
+        breakpoints: {
+            640: { slidesPerView: 3 },
+            1024: { slidesPerView: 6 },
+        }
+    });
+
+    new Swiper(".selling-product-swiper", {
+        slidesPerView: 2,
+        spaceBetween: 20,
+        navigation: {
+            nextEl: ".swiper-button-next-selling-product",
+            prevEl: ".swiper-button-prev-selling-product",
+        },
+        breakpoints: {
+            640: { slidesPerView: 3 },
+            1024: { slidesPerView: 6 },
+        }
+    });
+    if (typeof toggleFavorite !== 'function') {
+        function toggleFavorite(button, productId) {
+            button.classList.toggle('active');
+            console.log("Product " + productId + " wishlist state toggled.");
+        }
+    }
+</script>
+{% endblock %}

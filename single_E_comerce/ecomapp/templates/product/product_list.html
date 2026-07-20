@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %} Home | Ecommerce {% endblock %}
+
+{% block content %}
+    <section class="customer-list-section">
+        <div class="container">
+            <div class="content">
+
+                <div class="title-box">
+                    <div class="page-title">
+                        <h3>Products List</h3>
+                    </div>
+                    <div class="breadcrumbs">
+                        <ul class="breadcrumbs-list">
+                            <li><a href="{% url 'setting_dashboard' %}"><span><img src="/static/images/icons/Home.svg" alt="more"></span>Home</a></li>
+                            <li><a href="{% url 'product_list' %}" style="color: #4f46e5; font-weight: 500;">Products List</a></li>
+                        </ul>
+                    </div>
+                    <div class="top-button">
+                        <div class="button-box">
+                            <a class="button primary-button" href="{% url 'add_new_product' %}"><span><img src="/static/images/icons/add.svg" alt="more"></span> Add New Product</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="listing-box">
+                     <!-- Displaying messages (if any) -->
+                                {% if messages %}
+                                    <div class="alert alert-info" role="alert" style="color:red">
+                                        {% for message in messages %}
+                                            <p>{{ message }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                    <div class="table table-border-bottom">
+                        <table>
+                            <tr>
+                                <th class="text-center" >#</th>
+                                <th class="text-center">Image</th>
+                                <th class="text-left">Name</th>
+                                <th class="text-left">Main Category</th>
+                                <th class="text-left">Sub Category</th>
+                                
+                                <th class="text-left">Price</th>
+                                <th class="text-left">Total View</th>
+                                <th class="text-left">Created Date</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                          
+                        {% for data in products %}
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td class="text-center">
+                                    <span><a href="">
+                                        {% if data.product_image and data.product_image.url %}
+                                            <img src="{{ data.product_image.url }}" alt="user image" style="width: 50px; height: 50px;">
+                                        {% else %}
+                                            <img src="/static/images/icons/user-default.png" alt="user image">
+                                        {% endif %}</a>
+                                    </span>
+                                </td>
+                                <td class="text-left">
+                                    <a class="text-underline" href="">{{ data.product_name }}</a>
+                                </td>
+                                
+                                <td class="text-left">{{ data.main_category.main_cat_name }}</td>
+                                <td class="text-left">{{ data.sub_category.sub_cat_name }}</td>
+                                <td class="text-left">{{ data.price }}</td>
+                                <td class="text-left">{{ data.total_views }}</td>
+                                <td class="text-left">{{ data.created_at|date:"d-M-Y" }}</td>
+                                <td class="text-center">
+                                    {% if data.is_active %}
+                                        <span class="active"><img src="/static/images/icons/ellipse-active.svg" alt="active"></span>Active
+                                    {% else %}
+                                        <span class="inactive"><img src="/static/images/icons/ellipse-inactive.svg" alt="inactive"></span>Inactive
+                                    {% endif %}
+                                </td>
+                                   <td class="text-center">
+                                    <span class="more">
+                                        <a href="{% url 'product_detail' data.id %}">
+                                            <i class="fas fa-eye font-weight500"></i>
+                                        </a>
+                                    </span>
+                                    <span class="more">
+                                        <a href="{% url 'edit_product' data.id %}">
+                                            <i class="fas fa-edit font-weight500"></i>
+                                        </a>
+                                    </span>
+                                </td> 
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="8" class="text-center">No Data found.</td>
+                            </tr>
+                        {% endfor %}
+                        </table>
+                    </div>
+
+                    <!-- pagination -->
+                    <div class="pagination">
+                        {% if last_page_number != 1 %}
+                    <div class="col-md-12 text-end"> 
+                        <nav aria-label="navigation">
+                            <ul class="pagination justify-content-center">
+                                {% if products.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if params %}&{{ params }}{% endif %}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                            <span class="sr-only">Previous</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% if first_page_number not in paginator_list %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ first_page_number }}{% if params %}&{{ params }}{% endif %}">{{ first_page_number }}</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for i in paginator_list %}
+                                    <li class="page-item {% if products.number == i %}active{% endif %}">
+                                        <a class="page-link" href="?page={{ i }}{% if params %}&{{ params }}{% endif %}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+        
+                                {% if last_page_number not in paginator_list %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ last_page_number }}{% if params %}&{{ params }}{% endif %}">{{ last_page_number }}</a>
+                                    </li>
+                                {% endif %}
+            
+                                {% if products.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ products.next_page_number }}{% if params %}&{{ params }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                        <span class="sr-only">Next</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav> 
+                    </div>
+                {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+{% endblock %}
