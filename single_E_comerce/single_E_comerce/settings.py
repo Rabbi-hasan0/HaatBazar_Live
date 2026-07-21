@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈 Static Files Serving
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈 Static files serving in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,7 +58,6 @@ MIDDLEWARE = [
     'axes.middleware.AxesMiddleware', 
 ]
 
-# Debug toolbar condition for production
 if DEBUG:
     MIDDLEWARE.insert(5, 'debug_toolbar.middleware.DebugToolbarMiddleware')
 
@@ -83,7 +82,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'single_E_comerce.wsgi.application'
 
-# Database Setup
+# Database Configuration
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
@@ -108,13 +107,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# 🛠️ Static files (CSS, JavaScript, Images) Setup for WhiteNoise
+# Static files (CSS, JavaScript, Images) Setup
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static", 
 ]
-STATIC_ROOT = BASE_DIR / "staticfiles"  # 👈 Production-এর জন্য অতি জরুরি
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise Fix (404/Design Break রোধ করার চূড়ান্ত সেটিংস)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+WHITENOISE_MANIFEST_STRICT = False
 
 # Media dynamic files
 MEDIA_URL = "/media/"
@@ -162,7 +164,7 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
 }
 
-# Axes Limits
+# Axes Configuration
 AXES_FAILURE_LIMIT = 10 
 AXES_COOLOFF_TIME = 1 
 
@@ -193,12 +195,13 @@ SESSION_SAVE_EVERY_REQUEST = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000', 
     'http://127.0.0.1:8000',
-    'https://*.railway.app',  # 👈 Railway live URL allow
+    'https://*.up.railway.app',
+    'https://*.railway.app',
     'https://permissible-sloshy-maribel.ngrok-free.dev',
 ]
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_COOKIE_DOMAIN = None 
-CSRF_COOKIE_SAMESITE = 'Lax'  # Production-এ 'Lax' রাখা ভালো
-CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = True
