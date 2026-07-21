@@ -8,7 +8,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from products.models import Product
 
 class Shop(models.Model):
-    owner = models.ForeignKey('accounts.ShopOwnerProfile', on_delete=models.CASCADE, related_name='shops', db_index=True, null=True, blank=True)
+    owner = models.ForeignKey('accounts.ShopOwnerProfile', on_delete=models.CASCADE, related_name='shops', db_index=True)
     # Shop Related Information
     shop_name   = models.CharField(max_length=100, db_index=True, null=True, blank=True)
     shop_type   = models.CharField(max_length=100, db_index=True, null=True, blank=True)
@@ -65,7 +65,6 @@ class Coupon(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='shop_coupons', db_index=True, null=True, blank=True)
     user = models.ManyToManyField(
         settings.AUTH_USER_MODEL, 
-        null=True, 
         blank=True, 
         related_name='user_coupons'
     )
@@ -295,5 +294,4 @@ class ShopReview(models.Model):
     def __str__(self):
         return f"{self.customer.user.username} -> {self.shop.name} ({self.rating}★)"
     
-
 
