@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from datetime import timedelta
 import dj_database_url
+from django.contrib.auth import get_user_model
 
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -213,3 +214,20 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_COOKIE_DOMAIN = None 
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = True
+
+
+def create_superuser_if_not_exists():
+    User = get_user_model()
+    username = os.environ.get('DJANGO_SUPERUSER_USERNAME')
+    email = os.environ.get('DJANGO_SUPERUSER_EMAIL')
+    password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+
+    if username and password:
+        if not User.objects.filter(username=username).exists():
+            User.objects.create_superuser(username=username, email=email, password=password)
+            print(f"Superuser '{username}' created successfully!")
+
+try:
+    create_superuser_if_not_exists()
+except Exception as e:
+    pass
