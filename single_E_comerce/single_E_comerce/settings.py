@@ -6,13 +6,15 @@ import dj_database_url
 
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Dhaka'
 USE_I18N = True
 USE_TZ = True
 
-SECRET_KEY = 'django-insecure-r@b-w_@w@p!f0345q5wn4bv8st+%5(rxyz4jba62w#u=r(@s00'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-r@b-w_@w@p!f0345q5wn4bv8st+%5(rxyz4jba62w#u=r(@s00')
 DEBUG = False
+
 AUTH_USER_MODEL = 'accounts.User'
 ALLOWED_HOSTS = ['*']
 
@@ -43,23 +45,25 @@ INSTALLED_APPS = [
     'mathfilters',
     'import_export',
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈 Static Files Serving
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware', 
-    # 'admin_management.middleware.ShopMiddleware',
 ]
+
+# Debug toolbar condition for production
+if DEBUG:
+    MIDDLEWARE.insert(5, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+
 ROOT_URLCONF = 'single_E_comerce.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -70,28 +74,16 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # 'admin_management.context_processors.get_cart_item',
-                # 'admin_management.context_processors.setting_menu_processor',
                 'ecomapp.context_processors.global_site_settings',
                 'shops.context_processors.shop_global_notifications',
             ],
         },
     },
 ]
+
 WSGI_APPLICATION = 'single_E_comerce.wsgi.application'
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'haatbazar_db',
-#         'USER': 'root',
-#         'PASSWORD': '1234',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'init_command':"SET sql_mode = STRICT_TRANS_TABLES",
-#         }
-#     }
-# }
+
+# Database Setup
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
@@ -103,7 +95,6 @@ if DATABASE_URL:
         )
     }
 else:
-    # 💻 Local PC (Development)-এর জন্য SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -115,26 +106,20 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    # },
 ]
 
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+# 🛠️ Static files (CSS, JavaScript, Images) Setup for WhiteNoise
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static", 
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"  # 👈 Production-এর জন্য অতি জরুরি
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # Media dynamic files
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # CKEditor settings
 CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_CONFIGS = {
@@ -154,6 +139,7 @@ AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.AllowAllUsersModelBackend',
 ]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication', 
@@ -164,6 +150,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     )
 }
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=600),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
@@ -174,15 +161,13 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
 }
-#try before locking
-AXES_FAILURE_LIMIT = 10 
-#lockout time in hours
-AXES_COOLOFF_TIME = 1 
-# ট্রায়াল ভুল হলে কি শুধু ইউজার লক হবে নাকি আইপিও?
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = False
 
+# Axes Limits
+AXES_FAILURE_LIMIT = 10 
+AXES_COOLOFF_TIME = 1 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # SSLCommerz settings
 SSLCOMMERZ_STORE_ID = os.getenv('SSLCOMMERZ_STORE_ID')
 SSLCOMMERZ_STORE_PASSWORD = os.getenv('SSLCOMMERZ_STORE_PASSWORD')
@@ -193,29 +178,27 @@ SSLCOMMERZ_VALIDATION_API = os.getenv('SSLCOMMERZ_VALIDATION_API')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'imrabbihasan@gmail.com'
-EMAIL_HOST_PASSWORD = 'uvvrotdsqwbyhzko'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'imrabbihasan@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'uvvrotdsqwbyhzko')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-DEFAULT_FROM_EMAIL = "imrabbihasan@gmail.com"
-
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Session settings
-SESSION_COOKIE_AGE = 86400  # 1 day (seconds)
+SESSION_COOKIE_AGE = 86400  # 1 day
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
 
-# CSRF & Security (Development environment-er jonno)
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
-CSRF_COOKIE_HTTPONLY = False  # AJAX jate cookie read korte pare
-CSRF_COOKIE_SECURE = False  # HTTPS jate cookie read korte pare
+# CSRF & Security Setup
 CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://127.0.0.1:8000',
+    'https://*.railway.app',  # 👈 Railway live URL allow
     'https://permissible-sloshy-maribel.ngrok-free.dev',
 ]
-# Ngrok proxy-r jonno eti oboshshoi dorkar
+
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# Phone-e login problem korle eti add korun
 CSRF_COOKIE_DOMAIN = None 
-CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'  # Production-এ 'Lax' রাখা ভালো
+CSRF_COOKIE_SECURE = not DEBUG
