@@ -1,10 +1,9 @@
-
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-import debug_toolbar
 from django.conf.urls.static import static
-from django.shortcuts import render
+from django.views.static import serve
+from django.urls import re_path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,14 +19,13 @@ urlpatterns = [
 ]
 
 
+urlpatterns += [
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
+
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-if settings.DEBUG:
+    import debug_toolbar
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
     ]
-
-# def custom_404_view(request, exception=None):
-#     return render(request, 'errorrs/404.html', status=404)
-
-# handler404 = custom_404_view
