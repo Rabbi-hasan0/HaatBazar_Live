@@ -11,11 +11,25 @@
 
 ## 🌐 Live API Endpoints
 
-- 🛍️ **Customer / Public Base URL:**
+- 🛍️ **Customer / Public Base URL:**  
   https://haatbazar.up.railway.app/haatbazar/all-shops/
 
-- 🏪 **Merchant Portal Base URL:**
+- 🏪 **Merchant Portal Base URL:**  
   https://haatbazar.up.railway.app/haatbazar/accounts/merchant/login/
+
+---
+
+## 📷 Screenshots
+
+### 🛍️ Customer Site
+| Home / Shops Page | Product Details |
+| :---: | :---: |
+| ![Customer Site 1](Image_URL_Here) | ![Customer Site 2](Image_URL_Here) |
+
+### ⚙️ Admin & Merchant Site
+| Admin Dashboard | Merchant Login |
+| :---: | :---: |
+| ![Admin Site 1](Image_URL_Here) | ![Merchant Site 2](Image_URL_Here) |
 
 ---
 
