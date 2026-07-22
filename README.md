@@ -30,6 +30,9 @@
 | Admin Dashboard | Merchant Order |
 | :---: | :---: |
 | ![Dashboard](https://github.com/Rabbi-hasan0/HaatBazar_Live/raw/main/photos/dashboard.png) | ![Order](https://github.com/Rabbi-hasan0/HaatBazar_Live/raw/main/photos/order.png) |
+| ![Belling](https://github.com/Rabbi-hasan0/HaatBazar_Live/blob/main/photos/biling.png) | ![Product](https://github.com/Rabbi-hasan0/HaatBazar_Live/blob/main/photos/product.png) |
+| ![Account setting](https://github.com/Rabbi-hasan0/HaatBazar_Live/blob/main/photos/setting.png)
+
 ---
 
 ## ✨ Features
