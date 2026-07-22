@@ -5,18 +5,29 @@
 ![Railway](https://img.shields.io/badge/Railway-Deployed-purple?style=for-the-badge&logo=railway)
 ![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
 
-**HaatBazar** is a robust and scalable E-Commerce REST API backend built with **Django** and **Django REST Framework (DRF)**. It provides end-to-end features for managing users, products, categories, shopping carts, and orders with secure JWT authentication.
+**HaatBazar** is a robust and scalable E-Commerce REST API backend built with **Django** and **Django REST Framework (DRF)**. It provides end-to-end features for managing multi-vendor shops, products, categories, shopping carts, and merchant management with secure JWT authentication.
+
+---
+
+## 🌐 Live API Endpoints
+
+- 🛍️ **Customer / Public Base URL:**
+  https://haatbazar.up.railway.app/haatbazar/all-shops/
+
+- 🏪 **Merchant Portal Base URL:**
+  https://haatbazar.up.railway.app/haatbazar/accounts/merchant/login/
 
 ---
 
 ## ✨ Features
 
 - 🔐 **Authentication:** Secure Token-based Authentication using `djangorestframework_simplejwt`.
+- 🏪 **Multi-Vendor & Shops:** Dedicated endpoints for merchants and customer shop listings.
 - 📦 **Product Catalog:** Full CRUD API operations for products, categories, and inventory.
 - 🛒 **Cart & Order System:** Seamless API endpoints for cart items and order processing.
 - 🖼️ **Media & Assets:** Image processing with `Pillow` and static file serving with `WhiteNoise`.
 - 📊 **Data Export/Import:** Support for Excel handling using `openpyxl` and `tablib`.
-- 🚀 **Railway Ready:** Pre-configured with `Gunicorn` and `Procfile` for production deployment.
+- 🚀 **Railway Ready:** Pre-configured with `Gunicorn` and `Procfile` for cloud deployment.
 
 ---
 
@@ -33,7 +44,7 @@
 ## 🚀 Local Development Setup
 
 ### 1. Clone the Repository
-git clone [https://github.com/rabbihasan162/HaatBazar.git](https://github.com/rabbihasan162/HaatBazar.git)
+git clone https://github.com/rabbihasan162/HaatBazar.git
 cd HaatBazar/single_E_comerce
 
 ### 2. Create and Activate Virtual Environment
@@ -57,7 +68,7 @@ DEBUG=True
 python manage.py migrate
 python manage.py runserver
 
-Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
+Visit http://127.0.0.1:8000/ in your browser.
 
 ---
 
