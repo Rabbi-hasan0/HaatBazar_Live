@@ -2,37 +2,72 @@
 
 ![Django](https://img.shields.io/badge/Django-4.x-092E20?style=for-the-badge&logo=django)
 ![DRF](https://img.shields.io/badge/Django_REST_Framework-3.x-red?style=for-the-badge&logo=django)
-![Vercel](https://img.shields.io/badge/Vercel-Deployed-black?style=for-the-badge&logo=vercel)
-![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)
+![Railway](https://img.shields.io/badge/Railway-Deployed-purple?style=for-the-badge&logo=railway)
+![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python)
 
-**HaatBazar** is a robust and scalable E-Commerce REST API platform built using **Django** and **Django REST Framework (DRF)**. It provides complete backend services including user authentication, product management, cart systems, order processing, and token-based security.
+**HaatBazar** is a robust and scalable E-Commerce REST API backend built with **Django** and **Django REST Framework (DRF)**. It provides end-to-end features for managing users, products, categories, shopping carts, and orders with secure JWT authentication.
 
 ---
 
 ## ✨ Features
 
-- 🔐 **Authentication & Authorization:** JWT (JSON Web Token) authentication using `djangorestframework_simplejwt`.
-- 📦 **Product Management:** Complete CRUD operations for products, categories, and inventory.
-- 🛒 **Cart & Order System:** Seamless shopping cart management and checkout workflows.
-- 🖼️ **Media Handling:** Image processing supported by `Pillow`.
-- 📊 **Data Export/Import:** Excel data management using `openpyxl` and `tablib`.
-- ⚡ **Vercel Serverless Ready:** Pre-configured WSGI and static handling via `whitenoise`.
+- 🔐 **Authentication:** Secure Token-based Authentication using `djangorestframework_simplejwt`.
+- 📦 **Product Catalog:** Full CRUD API operations for products, categories, and inventory.
+- 🛒 **Cart & Order System:** Seamless API endpoints for cart items and order processing.
+- 🖼️ **Media & Assets:** Image processing with `Pillow` and static file serving with `WhiteNoise`.
+- 📊 **Data Export/Import:** Support for Excel handling using `openpyxl` and `tablib`.
+- 🚀 **Railway Ready:** Pre-configured with `Gunicorn` and `Procfile` for production deployment.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Python, Django, Django REST Framework
+- **Backend Framework:** Django, Django REST Framework (DRF)
 - **Database:** PostgreSQL / SQLite
-- **Security & Tokens:** PyJWT, SimpleJWT
-- **Deployment:** Vercel (Serverless Functions)
-- **Utilities:** WhiteNoise, Python-Dotenv, OpenPyXL
+- **Security:** PyJWT, SimpleJWT
+- **WSGI Server:** Gunicorn
+- **Deployment Platform:** Railway
 
 ---
 
-## 🚀 Getting Started Locally
+## 🚀 Local Development Setup
 
 ### 1. Clone the Repository
-```bash
 git clone [https://github.com/rabbihasan162/HaatBazar.git](https://github.com/rabbihasan162/HaatBazar.git)
 cd HaatBazar/single_E_comerce
+
+### 2. Create and Activate Virtual Environment
+# On Windows:
+python -m venv venv
+venv\Scripts\activate
+
+# On macOS/Linux:
+python3 -m venv venv
+source venv/bin/activate
+
+### 3. Install Dependencies
+pip install -r requirements.txt
+
+### 4. Setup Environment Variables
+Create a .env file inside the project directory:
+SECRET_KEY=your_secret_key_here
+DEBUG=True
+
+### 5. Run Migrations & Start Server
+python manage.py migrate
+python manage.py runserver
+
+Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser.
+
+---
+
+## ☁️ Deployment
+
+This project is deployed and hosted live on **Railway**.
+
+---
+
+## 👨‍💻 Author
+
+**Rabbi Hasan**
+- GitHub: [@rabbihasan162](https://github.com/rabbihasan162)
