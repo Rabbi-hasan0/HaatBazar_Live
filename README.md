@@ -27,10 +27,9 @@
 | ![Customer Site 1](Image_URL_Here) | ![Customer Site 2](Image_URL_Here) |
 
 ### ⚙️ Admin & Merchant Site
-| Admin Dashboard | Merchant Login |
+| Admin Dashboard | Merchant Order |
 | :---: | :---: |
-| ![Admin Site 1](Image_URL_Here) | ![Merchant Site 2](Image_URL_Here) |
-
+| ![Dashboard](https://github.com/Rabbi-hasan0/HaatBazar_Live/raw/main/photos/dashboard.png) | ![Order](https://github.com/Rabbi-hasan0/HaatBazar_Live/raw/main/photos/order.png) |
 ---
 
 ## ✨ Features
